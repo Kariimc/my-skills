@@ -1,6 +1,6 @@
 ---
 name: testing-anti-patterns
-description: Never test mock behavior. Never add test-only methods to production classes. Understand dependencies before mocking. Use when writing or changing tests, adding mocks, or tempted to add test-only methods to production code.
+description: Catalog of testing anti-patterns to avoid — don't test mock behavior, don't add test-only methods to production code, understand dependencies before mocking. Use when reviewing tests for anti-patterns or deciding how to mock. For building a test suite or strategy, prefer test-engineer.
 version: 1.1.0
 source: obra/superpowers-skills
 ---

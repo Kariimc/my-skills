@@ -1,6 +1,6 @@
 ---
 name: doc-coauthoring
-description: Guide users through a structured workflow for co-authoring documentation. Use when user wants to write documentation, proposals, technical specs, decision docs, or similar structured content. This workflow helps users efficiently transfer context, refine content through iteration, and verify the doc works for readers. Trigger when user mentions writing docs, creating proposals, drafting specs, or similar documentation tasks.
+description: Structured workflow for interactively co-authoring prose documents with a human — proposals, technical specs, decision docs, design docs. Use when iteratively drafting and refining a written document with the user. For auto-generating code READMEs or changelogs, prefer coding-notes.
 source: anthropics/skills
 ---
 

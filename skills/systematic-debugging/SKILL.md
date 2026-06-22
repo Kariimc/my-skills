@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: Four-phase debugging framework that ensures root cause investigation before attempting fixes. Never jump to solutions. Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes.
+description: Four-phase root-cause framework that forces investigation before fixes (never jump to solutions). Use when the user wants a disciplined debugging method or process to follow. For hands-on diagnosis and fixing of broken code, prefer debugger.
 version: 2.1.0
 languages: all
 source: obra/superpowers-skills

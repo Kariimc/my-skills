@@ -1,6 +1,6 @@
 ---
 name: condition-based-waiting
-description: Replace arbitrary timeouts with condition polling for reliable async tests. Use when tests have race conditions, timing dependencies, or inconsistent pass/fail behavior.
+description: Replace arbitrary sleeps and timeouts with condition polling to fix flaky async tests. Use specifically when async tests are flaky due to timing or races. For broader flake diagnosis and test strategy, prefer test-engineer.
 version: 1.1.0
 languages: all
 source: obra/superpowers-skills

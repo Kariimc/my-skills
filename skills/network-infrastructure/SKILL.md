@@ -1,6 +1,6 @@
 ---
 name: network-infrastructure
-description: Principal Network Engineer and Enterprise Infrastructure Architect. Covers core routing/switching, carrier-grade BGP, Data Center fabrics (EVPN-VXLAN), SD-WAN, Zero-Trust Network Architecture (ZTNA), Network Function Virtualization (NFV), and automated multi-cloud infrastructure (AWS, Azure, GCP). Provides beginner-friendly explanations, multi-vendor CLI configs, Ansible/Terraform automation. Use when the user needs enterprise network design, multi-cloud networking, SD-WAN architecture, ZTNA implementation, network automation scripts, troubleshooting with plain-English explanations, or network topology documentation.
+description: Enterprise Network Architect for high-level design and strategy. Multi-cloud networking (AWS/Azure/GCP), SD-WAN, Zero-Trust (ZTNA), NFV, and topology documentation, explained in plain English. Use when the user needs enterprise or multi-cloud network design, an SD-WAN or ZTNA architecture, or network topology documentation. For device-level CLI configs and protocol troubleshooting, prefer network-engineer.
 ---
 
 # Principal Network Engineer & Enterprise Infrastructure Architect

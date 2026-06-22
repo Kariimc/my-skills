@@ -1,6 +1,6 @@
 ---
 name: writing-skills
-description: TDD for process documentation - test with subagents before writing, iterate until bulletproof. Use when creating new skills, editing existing skills, or verifying skills work before deployment.
+description: Methodology for writing high-quality skill and process instructions — verify with subagents (TDD-style) and iterate until the instructions are bulletproof. Use when the user wants principles for, or a review of, how a skill's instructions are written. For generating the SKILL.md itself, prefer skill-builder.
 version: 5.1.0
 languages: all
 source: obra/superpowers-skills

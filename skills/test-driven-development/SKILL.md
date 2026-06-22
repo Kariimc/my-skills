@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: Write the test first, watch it fail, write minimal code to pass. Use when implementing any feature or bugfix, before writing implementation code.
+description: The red-green-refactor TDD discipline — write a failing test first, minimal code to pass, then refactor. Use when the user explicitly wants to follow TDD step-by-step while implementing. For overall test strategy, suites, mocking, or flake-fixing, prefer test-engineer.
 version: 3.1.0
 languages: all
 source: obra/superpowers-skills

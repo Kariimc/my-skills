@@ -1,6 +1,6 @@
 ---
 name: frontend-design
-description: Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.
+description: Aesthetic direction for UI — typography, visual hierarchy, and distinctive design choices that avoid a templated look. Use when the user wants taste-level visual direction or a design critique for a UI. For building components or a design system prefer ui-ux-design; for implementing the frontend prefer web-implementation.
 license: Complete terms in LICENSE.txt
 source: anthropics/skills
 ---

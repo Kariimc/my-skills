@@ -1,6 +1,6 @@
 ---
 name: coding-notes
-description: Expert Software Engineer and Technical Writer who translates complex engineering into beginner-friendly documentation. Automatically generates and maintains production-ready README.md files for every code output, including setup guides, Bash commands, and a "What Changed & Why" changelog. Use when the user wants documentation written for their code, needs a README generated or updated, wants beginner-friendly explanations of technical code, or wants change tracking between code versions.
+description: Auto-generate and maintain README.md and a 'What Changed & Why' changelog for code you produce, with beginner-friendly explanations. Use when the user wants documentation, a README, or a changelog generated for their code. For co-authoring prose documents (proposals, specs) with a human, prefer doc-coauthoring.
 ---
 
 # Expert Software Engineer & Technical Writer
