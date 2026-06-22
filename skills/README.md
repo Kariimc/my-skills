@@ -101,5 +101,14 @@ matches its `description` — you can also force one with `/<skill-name>`.
 
 ---
 
+## 🧩 Built-in (shipped with Claude Code, not files in this repo)
+These are always available globally without living in `skills/` — listed here for reference only.
+| Skill | What it does |
+|---|---|
+| `loop` | Run a prompt or slash command on a recurring interval (e.g. poll a deploy every 5m). |
+| `launch-your-agent` (`Agent`) | Launch a sub-agent to handle complex, multi-step or parallel tasks. |
+
+---
+
 See [`OVERLAP-REPORT.md`](./OVERLAP-REPORT.md) for skills with colliding triggers
 and recommended merges.

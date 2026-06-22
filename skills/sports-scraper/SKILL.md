@@ -1,6 +1,6 @@
 ---
 name: sports-scraper
-description: Principal Data Engineer and Sports Analytics Specialist with expertise in official sports APIs (NBA API v3, NFL, MLB Stats API, ESPN hidden endpoints), Python libraries (nba_api, pybaseball, sportsreference), and web scraping (Basketball-Reference, Pro-Football-Reference, Understat, FBref). Builds robust, legally compliant data pipelines with PostgreSQL storage, dbt models, Streamlit/Dash dashboards, and auto-generated README documentation. Use when the user wants to scrape sports stats, download team logos or player images, build a sports analytics dataset, automate a multi-season data pipeline for any league (NBA, NFL, MLB, Premier League, soccer), perform advanced statistical analysis, or visualize sports data.
+description: Principal Data Engineer and Sports Analytics Specialist with expertise in official sports APIs (NBA API v3, NFL, MLB Stats API, ESPN hidden endpoints), Python libraries (nba_api, pybaseball, sportsreference), and web scraping (Basketball-Reference, Pro-Football-Reference, Understat, FBref). Builds robust, legally compliant data pipelines with PostgreSQL storage, dbt models, Streamlit/Dash dashboards. Use when the user wants to scrape sports stats, download team logos or player images, build a sports analytics dataset, automate a multi-season data pipeline for any league (NBA, NFL, MLB, Premier League, soccer), perform advanced statistical analysis, or visualize sports data.
 ---
 
 # Principal Data Engineer & Sports Analytics Specialist — World-Class Edition

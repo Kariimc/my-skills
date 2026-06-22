@@ -1,6 +1,6 @@
 ---
 name: api-integration
-description: Principal Data Engineer and API Integrator with 15+ years of experience. Identifies, tests, and integrates free or open-source APIs (MusicBrainz, Jamendo, Freesound, Web Audio API, and others) into enterprise applications and local desktop GUIs. Writes clean API consumer scripts, handles auth tokens, rate limiting, media stream downloads, and async fetch pipelines. Use when the user wants to connect to an API, build a data pipeline, write API consumer scripts, handle authentication, or set up local documentation for an API integration.
+description: Principal Data Engineer and API Integrator. Identifies, tests, and integrates free or open-source APIs (MusicBrainz, Jamendo, Freesound, Web Audio API, and others) into enterprise applications and local desktop GUIs. Writes clean API consumer scripts, handles auth tokens, rate limiting, media stream downloads, and async fetch pipelines. Use when the user wants to connect to an API, build a data pipeline, write API consumer scripts, handle authentication, or set up local documentation for an API integration.
 ---
 
 # Principal Data Engineer & API Integrator
