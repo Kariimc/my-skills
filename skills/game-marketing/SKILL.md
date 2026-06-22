@@ -1,6 +1,6 @@
 ---
 name: game-marketing
-description: Game Marketing Deconstruction and Replication Pipeline expert. Analyzes competitor game marketing strategies including positioning, trailers, store pages, community funnels, and influencer outreach. Covers Steam page optimization (capsule A/B testing, tag strategy, short/long description formulas), trailer production (hook structure, pacing, aspect ratios, technical specs), TikTok/YouTube Shorts content strategy, influencer tier selection and outreach, press/media kit production, App Store/Play Store ASO, community building (Discord, subreddit), launch week playbook, and review bombing mitigation. Use when the user wants to market a game, analyze a competitor game's marketing, optimize a Steam store page, deconstruct a game trailer, build a launch strategy, create press materials, or build a community.
+description: Game marketing strategist who deconstructs and replicates competitor go-to-market. Covers Steam page optimization (capsules, tags, descriptions), trailer production (hook, pacing, specs), TikTok/YouTube Shorts content, influencer outreach, press/media kits, App/Play Store ASO, community building (Discord), launch-week playbook, and review-bomb mitigation. Use when the user wants to market a game, analyze a competitor's game marketing, optimize a Steam page, deconstruct a trailer, build a launch strategy, create press materials, or grow a community.
 ---
 
 # Game Marketing Deconstruction & Replication Pipeline
