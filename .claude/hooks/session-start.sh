@@ -12,6 +12,7 @@ set -euo pipefail
 #   skills/    ->  ~/.claude/skills/    (auto-discovered skills, all projects)
 #   rules/     ->  ~/.claude/CLAUDE.md  (global instructions, all projects)
 #   commands/  ->  ~/.claude/commands/  (slash commands, all projects)
+#   agents/    ->  ~/.claude/agents/    (subagents, all projects)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Run async so the session starts immediately; sync finishes in the background.
@@ -48,7 +49,17 @@ if [ -d "$PROJECT_DIR/commands" ] && compgen -G "$PROJECT_DIR/commands/*.md" > /
   done
 fi
 
-# ── 4. Launcher settings (preserved from previous setup) ─────────────────────
+# ── 4. Subagents ─────────────────────────────────────────────────────────────
+# Each agents/*.md becomes a callable subagent; README.md is docs, so skip it.
+if [ -d "$PROJECT_DIR/agents" ] && compgen -G "$PROJECT_DIR/agents/*.md" > /dev/null; then
+  mkdir -p "$CLAUDE_DIR/agents"
+  for agent in "$PROJECT_DIR"/agents/*.md; do
+    [ "$(basename "$agent")" = "README.md" ] && continue
+    cp "$agent" "$CLAUDE_DIR/agents/"
+  done
+fi
+
+# ── 5. Launcher settings (preserved from previous setup) ─────────────────────
 if [ -f "$PROJECT_DIR/.claude/launcher-settings.json" ]; then
   cp "$PROJECT_DIR/.claude/launcher-settings.json" "$CLAUDE_DIR/launcher-settings.json"
 fi

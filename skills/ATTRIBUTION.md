@@ -17,6 +17,35 @@ Skills adapted from upstream open-source repos. Frontmatter was normalized (name
 - License: MIT (c) 2025 Jesse Vincent
 - Imported (4): `finding-duplicate-functions`, `mcp-cli`, `using-tmux-for-interactive-commands`, `windows-vm`
 
+## affaan-m/ECC
+- Source: https://github.com/affaan-m/ECC
+- License: MIT
+- Imported (270): the large ECC engineering toolkit — backend/frontend stack patterns
+  (`react-patterns`, `nextjs-turbopack`, `django-patterns`, `springboot-patterns`,
+  `golang-patterns`, `rust-patterns`, …), testing (`*-testing`, `tdd-workflow`,
+  `e2e-testing`), agent/LLM tooling (`agent-eval`, `eval-harness`, `autonomous-agent-harness`,
+  `cost-aware-llm-pipeline`, …), data/infra (`clickhouse-io`, `postgres-patterns`,
+  `kubernetes-patterns`, `docker-patterns`), security, ops, and domain packs
+  (healthcare, ITO/markets, logistics, scientific DBs). ECC skills carry a
+  `metadata.origin: ECC` tag in their frontmatter.
+  - Also imported the 67 ECC specialist subagents into the repo-root [`agents/`](../agents/)
+    folder (e.g. `code-reviewer`, language `*-reviewer` / `*-build-resolver`, `planner`,
+    `security-reviewer`).
+  - `accessibility` from ECC was **not** imported — the repo already ships a curated
+    `accessibility` skill, which was kept.
+- Heavier alternative: install ECC as a managed plugin instead of loose files —
+  `claude plugin marketplace add affaan-m/ECC` then `claude plugin install ecc@ecc`.
+
+## DietrichGebert/ponytail
+- Source: https://github.com/DietrichGebert/ponytail
+- License: see upstream
+- Imported (6): `ponytail`, `ponytail-audit`, `ponytail-debt`, `ponytail-gain`,
+  `ponytail-help`, `ponytail-review` — "keep the code simple" tools (YAGNI / laziest
+  solution that works, with lite/full/ultra intensity).
+
+> A plain-English walkthrough of the full ECC + ponytail batch lives in the
+> repo-root `global-skills-guide.pdf`.
+
 ## Intentionally not imported
 These are superpowers-plugin maintenance skills that only function inside that plugin's repo, so they were skipped:
 - `sharing-skills` (obra/superpowers-skills)
