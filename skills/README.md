@@ -1,9 +1,12 @@
 # Skills Catalog
 
-52 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
+107 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
 auto-loaded into every project via the SessionStart sync hook (see the repo
 root `README.md`). Claude invokes a skill automatically when your request
 matches its `description` — you can also force one with `/<skill-name>`.
+
+Counts: 52 original · 6 authored (engineering/game gaps) · 49 imported &
+adapted from upstream repos (see [Imported skills](#imported-skills)).
 
 ---
 
@@ -20,6 +23,10 @@ matches its `description` — you can also force one with `/<skill-name>`.
 |---|---|
 | `software-implementation` | SOLID, DDD, layered architecture, test suites, concurrency audits. |
 | `debugger` | Root-cause analysis and clean fixes with beginner-friendly write-ups. |
+| `test-engineer` | ⭐ Test strategy & TDD — pyramid, mocking, flake elimination, coverage. |
+| `code-review` | ⭐ Rigorous diff/PR review — correctness, security, design, prioritized findings. |
+| `performance-optimization` | ⭐ Profile & optimize CPU/GPU/memory/frame budget; kill jank. |
+| `devops-cicd` | ⭐ CI/CD pipelines, Docker, deploy strategies, rollback, secrets. |
 | `coding-notes` | Auto-generate/maintain README docs + "What Changed & Why" changelogs. |
 | `token-saver` | Hyper-dense, zero-prose code output mode. |
 | `sql-developer` | Write/optimize/debug SQL and schema design across major engines. |
@@ -49,6 +56,8 @@ matches its `description` — you can also force one with `/<skill-name>`.
 ## 🎮 Game Development
 | Skill | What it does |
 |---|---|
+| `game-design` | ⭐ Original systems design — core loops, economy/progression balancing, GDDs. |
+| `multiplayer-netcode` | ⭐ Real-time netcode — authority, prediction/reconciliation, rollback, lag comp. |
 | `game-art` | Concept/technical art bibles, asset specs, shader debugging, AI art prompts. |
 | `game-assets` | 2D→3D pipeline: retopology, UV unwrap, PBR texturing (Unity/UE5). |
 | `game-environment` | Backgrounds/environments — parallax, skyboxes, lighting, shaders. |
@@ -100,6 +109,70 @@ matches its `description` — you can also force one with `/<skill-name>`.
 | `3d-printing` | DFAM, slicer tuning, defect troubleshooting, printer calibration. |
 
 ---
+
+## Imported skills
+Adapted from upstream open-source repos (frontmatter normalized; bodies intact). Full provenance + licenses in [`ATTRIBUTION.md`](./ATTRIBUTION.md).
+
+### 📄 Anthropic official skills (17)
+| Skill | What it does |
+|---|---|
+| `algorithmic-art` | Creating algorithmic art using p5.js with seeded randomness and interactive parameter e… |
+| `brand-guidelines` | Applies Anthropic's official brand colors and typography to any sort of artifact that m… |
+| `canvas-design` | Create beautiful visual art in .png and .pdf documents using design philosophy. You sho… |
+| `claude-api` | Reference for the Claude API / Anthropic SDK — model ids, pricing, params, streaming, t… |
+| `doc-coauthoring` | Guide users through a structured workflow for co-authoring documentation |
+| `docx` | Use this skill whenever the user wants to create, read, edit, or manipulate Word docume… |
+| `frontend-design` | Guidance for distinctive, intentional visual design when building new UI or reshaping a… |
+| `internal-comms` | A set of resources to help me write all kinds of internal communications, using the for… |
+| `mcp-builder` | Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs t… |
+| `pdf` | Use this skill whenever the user wants to do anything with PDF files. This includes rea… |
+| `pptx` | Use this skill any time a .pptx file is involved in any way — as input, output, or both… |
+| `skill-creator` | Create new skills, modify and improve existing skills, and measure skill performance |
+| `slack-gif-creator` | Knowledge and utilities for creating animated GIFs optimized for Slack. Provides constr… |
+| `theme-factory` | Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, report… |
+| `web-artifacts-builder` | Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using m… |
+| `webapp-testing` | Toolkit for interacting with and testing local web applications using Playwright. Suppo… |
+| `xlsx` | Use this skill any time a spreadsheet file is the primary input or output. This means a… |
+
+### 🧪 Superpowers — engineering workflow & thinking (28)
+| Skill | What it does |
+|---|---|
+| `brainstorming` | Interactive idea refinement using Socratic method to develop fully-formed designs |
+| `collision-zone-thinking` | Force unrelated concepts together to discover emergent properties - "What if we treated… |
+| `condition-based-waiting` | Replace arbitrary timeouts with condition polling for reliable async tests |
+| `defense-in-depth` | Validate at every layer data passes through to make bugs impossible |
+| `dispatching-parallel-agents` | Use multiple Claude agents to investigate and fix independent problems concurrently |
+| `executing-plans` | Execute detailed plans in batches with review checkpoints |
+| `finishing-a-development-branch` | Complete feature development with structured options for merge, PR, or cleanup |
+| `inversion-exercise` | Flip core assumptions to reveal hidden constraints and alternative approaches - "what i… |
+| `meta-pattern-recognition` | Spot patterns appearing in 3+ domains to find universal principles |
+| `preserving-productive-tensions` | Recognize when disagreements reveal valuable context, preserve multiple valid approache… |
+| `receiving-code-review` | Receive and act on code review feedback with technical rigor, not performative agreemen… |
+| `remembering-conversations` | Search previous Claude Code conversations for facts, patterns, decisions, and context u… |
+| `requesting-code-review` | Dispatch code-reviewer subagent to review implementation against plan or requirements b… |
+| `root-cause-tracing` | Systematically trace bugs backward through call stack to find original trigger |
+| `scale-game` | Test at extremes (1000x bigger/smaller, instant/year-long) to expose fundamental truths… |
+| `simplification-cascades` | Find one insight that eliminates multiple components - "if this is true, we don't need… |
+| `subagent-driven-development` | Execute implementation plan by dispatching fresh subagent for each task, with code revi… |
+| `systematic-debugging` | Four-phase debugging framework that ensures root cause investigation before attempting… |
+| `test-driven-development` | Write the test first, watch it fail, write minimal code to pass |
+| `testing-anti-patterns` | Never test mock behavior. Never add test-only methods to production classes. Understand… |
+| `testing-skills-with-subagents` | RED-GREEN-REFACTOR for process documentation - baseline without skill, write addressing… |
+| `tracing-knowledge-lineages` | Understand how ideas evolved over time to find old solutions for new problems and avoid… |
+| `using-git-worktrees` | Create isolated git worktrees with smart directory selection and safety verification |
+| `using-skills` | Skills wiki intro - mandatory workflows, search tool, brainstorming triggers |
+| `verification-before-completion` | Run verification commands and confirm output before claiming success |
+| `when-stuck` | Dispatch to the right problem-solving technique based on how you're stuck |
+| `writing-plans` | Create detailed implementation plans with bite-sized tasks for engineers with zero code… |
+| `writing-skills` | TDD for process documentation - test with subagents before writing, iterate until bulle… |
+
+### 🔬 Superpowers Lab — experimental (4)
+| Skill | What it does |
+|---|---|
+| `finding-duplicate-functions` | Use when auditing a codebase for semantic duplication - functions that do the same thin… |
+| `mcp-cli` | Use MCP servers on-demand via the mcp CLI tool - discover tools, resources, and prompts… |
+| `using-tmux-for-interactive-commands` | Use when you need to run interactive CLI tools (vim, git rebase -i, Python REPL, etc.)… |
+| `windows-vm` | Create, manage, or connect to a headless Windows 11 VM running in Docker with SSH access |
 
 ## 🧩 Built-in (shipped with Claude Code, not files in this repo)
 These are always available globally without living in `skills/` — listed here for reference only.

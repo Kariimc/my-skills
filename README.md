@@ -33,7 +33,7 @@ up in `.claude/settings.json`.
 
 | Folder | Synced to | What it holds |
 |---|---|---|
-| [`skills/`](./skills/) | `~/.claude/skills/` | 52 skills, one folder each (`skills/<name>/SKILL.md`). See [the catalog](./skills/README.md). |
+| [`skills/`](./skills/) | `~/.claude/skills/` | 107 skills, one folder each (`skills/<name>/SKILL.md`). See [the catalog](./skills/README.md). |
 | [`rules/`](./rules/) | `~/.claude/CLAUDE.md` | Always-on global instructions (concatenated). |
 | [`commands/`](./commands/) | `~/.claude/commands/` | Slash commands (`/new-skill`, `/sync-skills`, `/skill-audit`). |
 | `.claude/` | — | This repo's own config: the sync hook + settings. Not synced out. |
@@ -82,7 +82,7 @@ description: Senior AppSec expert… Use when the user wants a security review,
 
 ## Maintenance
 
-- **Catalog:** [`skills/README.md`](./skills/README.md) — all 52 skills by category.
+- **Catalog:** [`skills/README.md`](./skills/README.md) — all 107 skills by category.
 - **Overlap report:** [`skills/OVERLAP-REPORT.md`](./skills/OVERLAP-REPORT.md) — colliding triggers + recommended merges.
 - **Audit anytime:** `/skill-audit`.
 
