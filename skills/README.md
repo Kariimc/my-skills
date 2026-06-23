@@ -1,6 +1,6 @@
 # Skills Catalog
 
-384 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
+385 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
 auto-loaded into every project via the SessionStart sync hook (see the repo
 root `README.md`). Claude invokes a skill automatically when your request
 matches its `description` — you can also force one with `/<skill-name>`.
@@ -30,6 +30,7 @@ imported in the ECC + ponytail batch (see [Imported batch](#-imported-batch--ecc
 | `devops-cicd` | ⭐ CI/CD pipelines, Docker, deploy strategies, rollback, secrets. |
 | `coding-notes` | Auto-generate/maintain README docs + "What Changed & Why" changelogs. |
 | `token-saver` | Hyper-dense, zero-prose code output mode. |
+| `plain-language` | Opposite of token-saver — explain anything in plain, jargon-free words with everyday comparisons, defining terms on the spot. |
 | `sql-developer` | Write/optimize/debug SQL and schema design across major engines. |
 | `backend-design` | Game/realtime backends — matchmaking, leaderboards, WebSockets, anti-cheat. |
 | `api-integration` | Integrate free/open APIs — auth, rate limiting, async fetch pipelines. |
