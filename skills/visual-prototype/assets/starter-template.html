@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!--
+  STARTER SHELL for visual-prototype skill.
+  Copy this, replace the <main> with the real app, then paste the contents of
+  assets/review-overlay.html in place of the <!-- OVERLAY --> marker before </body>.
+  Tailwind classes that read CSS vars (e.g. bg-[var(--surface)]) keep the overlay's
+  live theme/brand controls working.
+-->
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prototype</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={darkMode:'class'}</script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    :root{ --brand:#6366f1; --bg:#fafaf9; --surface:#fff; --text:#1c1c22;
+           --text-muted:#6b7280; --border:#e7e5e4; --radius:14px; --motion-scale:1; }
+    html.dark{ --bg:#0b0d12; --surface:#13161d; --text:#e7e9ee; --text-muted:#9aa0ad; --border:#262a34; }
+    body{ background:var(--bg); color:var(--text); }
+    .card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
+    .btn-brand{ background:var(--brand); color:#fff;
+      transition: transform calc(160ms*var(--motion-scale)) ease, filter calc(160ms*var(--motion-scale)) ease; }
+    .btn-brand:hover{ filter:brightness(1.08); } .btn-brand:active{ transform:scale(.97); }
+  </style>
+</head>
+<body x-data="app()">
+
+  <!-- ============ APP GOES HERE ============ -->
+  <main class="max-w-4xl mx-auto p-6">
+    <!-- Always include real state branches so the overlay's state simulator has something to drive -->
+    <template x-if="ui==='loading'"><div class="card p-8 animate-pulse">Loading…</div></template>
+    <template x-if="ui==='empty'"><div class="card p-8 text-center" style="color:var(--text-muted)">Nothing here yet.</div></template>
+    <template x-if="ui==='error'"><div class="card p-8" style="color:#dc2626">Something went wrong. Retry?</div></template>
+    <template x-if="ui==='ready'">
+      <div class="card p-6">
+        <h1 class="text-2xl font-bold">Replace me with the real prototype</h1>
+        <button class="btn-brand mt-4 px-4 py-2 rounded-lg">Primary action</button>
+      </div>
+    </template>
+  </main>
+  <!-- ======================================= -->
+
+  <script>
+    function app(){ return {
+      ui:'ready',
+      init(){
+        // Bridge the overlay's state simulator to this component's render state.
+        if(window.__proto) window.__proto.onState(s=>{ this.ui=s; });
+      }
+    }; }
+  </script>
+
+  <!-- OVERLAY: paste the full contents of assets/review-overlay.html here -->
+
+</body>
+</html>

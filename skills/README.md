@@ -1,6 +1,6 @@
 # Skills Catalog
 
-383 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
+384 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
 auto-loaded into every project via the SessionStart sync hook (see the repo
 root `README.md`). Claude invokes a skill automatically when your request
 matches its `description` — you can also force one with `/<skill-name>`.
@@ -42,6 +42,7 @@ imported in the ECC + ponytail batch (see [Imported batch](#-imported-batch--ecc
 | `web-deployment` | Ship web apps — build, deploy, release validation. |
 | `web-scraper` | Robust web scraping pipelines. |
 | `accessibility` | WCAG 2.2 AA/AAA, ARIA, keyboard nav, automated a11y CI testing. |
+| `visual-prototype` | High-fidelity single-file interactive UI mockups with a built-in "Tweak & Comment" review overlay (click-to-pin feedback, markdown export). |
 
 ## 🎨 Design & Creative
 | Skill | What it does |

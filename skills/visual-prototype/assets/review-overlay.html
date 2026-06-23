@@ -1,0 +1,411 @@
+<!--
+  ════════════════════════════════════════════════════════════════════════
+  PROTOTYPE REVIEW OVERLAY  ·  v2  ·  drop-in, framework-agnostic
+  ────────────────────────────────────────────────────────────────────────
+  Paste this ENTIRE block once, immediately before </body>.
+  It is self-contained (own scoped CSS, no external deps, memory-only state)
+  and works on top of any DOM — Alpine, React, Vue, or plain HTML.
+
+  It exposes a small global the host app can drive:
+    window.__proto.setState('ready'|'loading'|'empty'|'error')
+    window.__proto.onState(cb)      // host registers a render reaction
+    window.__proto.reset()          // clears pins + restores all tweaks
+  Read the data-* contract at the bottom of this file.
+  ════════════════════════════════════════════════════════════════════════
+-->
+<style id="proto-overlay-style">
+  :root{ --proto-z: 2147483000; }
+  /* Tweak vars the panel writes to. Host CSS should consume these. */
+  :root{
+    --brand: var(--brand, #6366f1);
+    --motion-scale: 1;
+    --proto-density: 1;
+  }
+  #proto-overlay, #proto-overlay *{ box-sizing:border-box; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  #proto-overlay{ position:fixed; inset:auto 16px 16px auto; z-index:var(--proto-z); }
+  .proto-fab{ width:52px;height:52px;border-radius:9999px;border:none;cursor:pointer;
+    background:var(--brand);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.28);
+    display:grid;place-items:center;font-size:22px;transition:transform .15s ease; }
+  .proto-fab:hover{ transform:scale(1.06); }
+  .proto-fab.armed{ box-shadow:0 0 0 4px color-mix(in srgb,var(--brand) 40%,transparent),0 8px 24px rgba(0,0,0,.28); }
+  .proto-panel{ position:absolute; bottom:64px; right:0; width:340px; max-height:78vh;
+    background:#0f1117; color:#e7e9ee; border:1px solid #262a36; border-radius:16px;
+    box-shadow:0 24px 64px rgba(0,0,0,.5); display:none; flex-direction:column; overflow:hidden; }
+  #proto-overlay.open .proto-panel{ display:flex; }
+  .proto-head{ display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #262a36; }
+  .proto-head b{ font-size:13px;letter-spacing:.02em; } .proto-head small{ color:#8a90a2;font-size:11px; }
+  .proto-tabs{ display:flex;gap:4px;padding:8px 10px;border-bottom:1px solid #262a36; }
+  .proto-tab{ flex:1;padding:7px 8px;border-radius:9px;border:none;cursor:pointer;font-size:12px;font-weight:600;
+    background:transparent;color:#8a90a2; } .proto-tab.active{ background:#1b1f2a;color:#fff; }
+  .proto-body{ overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:12px; }
+  .proto-view{ display:none;flex-direction:column;gap:12px; } .proto-view.active{ display:flex; }
+  .proto-row{ display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:#c3c8d6; }
+  .proto-btn{ border:1px solid #2c3140;background:#161a23;color:#e7e9ee;border-radius:9px;
+    padding:7px 10px;font-size:12px;font-weight:600;cursor:pointer; } .proto-btn:hover{ background:#1e2330; }
+  .proto-btn.primary{ background:var(--brand);border-color:transparent;color:#fff; }
+  .proto-btn.ghost{ background:transparent; } .proto-btn.danger{ color:#ff8c8c;border-color:#3a2330; }
+  .proto-seg{ display:flex;gap:4px; } .proto-seg .proto-btn{ flex:1;padding:6px 4px; }
+  .proto-seg .proto-btn.on{ background:var(--brand);border-color:transparent;color:#fff; }
+  .proto-input,.proto-text{ width:100%;background:#0a0c11;border:1px solid #262a36;border-radius:9px;
+    color:#e7e9ee;font-size:12px;padding:8px; } .proto-text{ min-height:96px;resize:vertical;font-family:ui-monospace,monospace; }
+  .proto-pin-item{ background:#141823;border:1px solid #232838;border-radius:10px;padding:9px 10px;display:flex;gap:9px; }
+  .proto-pin-item .num{ flex:none;width:22px;height:22px;border-radius:9999px;background:var(--brand);
+    color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center; }
+  .proto-pin-item .meta{ flex:1;min-width:0; }
+  .proto-pin-item code{ font-size:10.5px;color:#9aa3ff;word-break:break-all; }
+  .proto-pin-item p{ margin:3px 0 0;font-size:12px;color:#d7dbe6; }
+  .proto-pin-item .x{ cursor:pointer;color:#6b7186;font-size:14px;background:none;border:none; }
+  .proto-empty{ color:#6b7186;font-size:12px;text-align:center;padding:14px 0; }
+  .proto-hint{ font-size:11px;color:#7f8699;line-height:1.45; }
+  .proto-label{ font-size:11px;font-weight:700;color:#8a90a2;text-transform:uppercase;letter-spacing:.05em; }
+  /* live pins drawn on the page */
+  .proto-pin{ position:absolute;z-index:calc(var(--proto-z) - 1);width:24px;height:24px;border-radius:9999px;
+    background:var(--brand);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;
+    transform:translate(-50%,-50%);box-shadow:0 3px 10px rgba(0,0,0,.4);cursor:pointer;pointer-events:auto; }
+  /* arm mode: highlight hovered element */
+  body.proto-arming *{ cursor:crosshair !important; }
+  .proto-hi{ outline:2px dashed var(--brand) !important;outline-offset:1px !important; }
+  /* outline debug mode */
+  body.proto-outlines *{ outline:1px solid color-mix(in srgb,var(--brand) 45%,transparent) !important; }
+  /* region capture */
+  #proto-capture{ position:fixed;inset:0;z-index:calc(var(--proto-z) + 1);cursor:crosshair;
+    background:rgba(5,7,11,.35);display:none; }
+  #proto-capture.on{ display:block; }
+  #proto-capture .sel{ position:absolute;border:2px solid var(--brand);
+    background:color-mix(in srgb,var(--brand) 14%,transparent);box-shadow:0 0 0 100vmax rgba(5,7,11,.35); }
+  #proto-capture .tip{ position:fixed;top:16px;left:50%;transform:translateX(-50%);
+    background:#0f1117;color:#e7e9ee;border:1px solid #262a36;border-radius:9px;
+    padding:7px 12px;font-size:12px;font-family:ui-sans-serif,system-ui,sans-serif; }
+  .proto-shot{ background:#141823;border:1px solid #232838;border-radius:10px;padding:8px;display:flex;gap:8px;align-items:center; }
+  .proto-shot img{ width:54px;height:40px;object-fit:cover;border-radius:6px;border:1px solid #2c3140; }
+  .proto-shot .acts{ display:flex;flex-direction:column;gap:4px;margin-left:auto; }
+  .proto-shot .mini{ font-size:10.5px;padding:3px 7px;border-radius:7px;border:1px solid #2c3140;
+    background:#161a23;color:#e7e9ee;cursor:pointer; } .proto-shot .mini:hover{ background:#1e2330; }
+  /* density + motion hooks the host can honor */
+  body.proto-compact{ --proto-density:.85; }
+  body.proto-motion-off *,body.proto-motion-off *::before,body.proto-motion-off *::after{
+    animation-duration:.001s !important;transition-duration:.001s !important; }
+  /* viewport sim frame */
+  body.proto-vp{ margin:0 auto !important; box-shadow:0 0 0 100vmax #05070b !important; transition:max-width .2s ease; }
+</style>
+
+<div id="proto-overlay" aria-live="polite">
+  <div class="proto-panel" role="dialog" aria-label="Prototype review tool">
+    <div class="proto-head">
+      <b>Design Review</b><small id="proto-count">0 pins</small>
+      <button class="proto-btn ghost" id="proto-close" style="margin-left:auto;padding:4px 8px">✕</button>
+    </div>
+    <div class="proto-tabs">
+      <button class="proto-tab active" data-view="pins">📍 Pins</button>
+      <button class="proto-tab" data-view="tweaks">🎚 Tweaks</button>
+      <button class="proto-tab" data-view="export">📤 Export</button>
+    </div>
+    <div class="proto-body">
+      <!-- PINS -->
+      <div class="proto-view active" data-view="pins">
+        <button class="proto-btn primary" id="proto-arm">Start pinning · click any element</button>
+        <button class="proto-btn" id="proto-shot-btn">📷 Capture region</button>
+        <p class="proto-hint">Arm pinning, then click anything to drop a numbered note. Or capture a region — the shot downloads so you can paste it into chat alongside your feedback.</p>
+        <div id="proto-shots"></div>
+        <div id="proto-pins"></div>
+      </div>
+      <!-- TWEAKS -->
+      <div class="proto-view" data-view="tweaks">
+        <div><span class="proto-label">Theme</span>
+          <div class="proto-seg" data-group="theme">
+            <button class="proto-btn on" data-theme="light">Light</button>
+            <button class="proto-btn" data-theme="dark">Dark</button>
+          </div></div>
+        <div class="proto-row"><span>Brand color</span>
+          <input type="color" id="proto-brand" value="#6366f1" class="proto-input" style="width:46px;height:30px;padding:2px"></div>
+        <div><span class="proto-label">Motion</span>
+          <div class="proto-seg" data-group="motion">
+            <button class="proto-btn on" data-motion="1">Normal</button>
+            <button class="proto-btn" data-motion="0.5">Fast</button>
+            <button class="proto-btn" data-motion="off">Off</button>
+          </div></div>
+        <div><span class="proto-label">Density</span>
+          <div class="proto-seg" data-group="density">
+            <button class="proto-btn on" data-density="comfortable">Comfortable</button>
+            <button class="proto-btn" data-density="compact">Compact</button>
+          </div></div>
+        <div><span class="proto-label">Viewport</span>
+          <div class="proto-seg" data-group="vp">
+            <button class="proto-btn" data-vp="390">Mobile</button>
+            <button class="proto-btn" data-vp="834">Tablet</button>
+            <button class="proto-btn on" data-vp="0">Full</button>
+          </div></div>
+        <div class="proto-row"><span>Element outlines</span>
+          <button class="proto-btn" id="proto-outlines">Off</button></div>
+        <div><span class="proto-label">Simulate state</span>
+          <div class="proto-seg" data-group="state">
+            <button class="proto-btn on" data-state="ready">Ready</button>
+            <button class="proto-btn" data-state="loading">Loading</button>
+            <button class="proto-btn" data-state="empty">Empty</button>
+            <button class="proto-btn" data-state="error">Error</button>
+          </div></div>
+        <button class="proto-btn danger" id="proto-reset">↺ Reset prototype</button>
+      </div>
+      <!-- EXPORT -->
+      <div class="proto-view" data-view="export">
+        <p class="proto-hint">Pins + the notes below compile into one markdown block. Copy it and paste it back into chat — the skill recognizes the header and applies each change.</p>
+        <span class="proto-label">Global notes</span>
+        <textarea class="proto-text" id="proto-notes" placeholder="Anything not tied to a single element…" style="min-height:64px"></textarea>
+        <span class="proto-label">Generated feedback</span>
+        <textarea class="proto-text" id="proto-md" readonly></textarea>
+        <button class="proto-btn primary" id="proto-copy">Copy feedback markdown</button>
+      </div>
+    </div>
+  </div>
+  <button class="proto-fab" id="proto-fab" title="Design review">✎</button>
+</div>
+
+<script id="proto-overlay-script">
+(function(){
+  if (window.__proto) return;                       // idempotent
+  const $  = (s,r=document)=>r.querySelector(s);
+  const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+  const root = $('#proto-overlay'), fab = $('#proto-fab');
+  const state = { pins:[], captures:[], arming:false, title:document.title||'Prototype', theme:'light',
+                  brand:'#6366f1', motion:'1', density:'comfortable', appState:'ready' };
+  const stateHooks = [];
+
+  /* ---- stable, readable selector for any element ---- */
+  function selectorFor(el){
+    if(!el || el===document.body) return 'body';
+    if(el.id) return '#'+el.id;
+    const path=[]; let n=el, depth=0;
+    while(n && n.nodeType===1 && n!==document.body && depth<4){
+      let part=n.tagName.toLowerCase();
+      const cls=[...n.classList].filter(c=>!c.startsWith('proto-')).slice(0,2);
+      if(cls.length) part+='.'+cls.join('.');
+      const sibs=[...(n.parentNode?.children||[])].filter(s=>s.tagName===n.tagName);
+      if(sibs.length>1) part+=`:nth-of-type(${sibs.indexOf(n)+1})`;
+      path.unshift(part); n=n.parentElement; depth++;
+    }
+    return path.join(' > ');
+  }
+  const snippet = el => (el.innerText||el.value||el.getAttribute('aria-label')||'').trim().slice(0,48);
+
+  /* ---- pin lifecycle ---- */
+  function addPin(el){
+    const pin={ id:Date.now()+Math.random(), n:state.pins.length+1,
+                selector:selectorFor(el), label:snippet(el), comment:'', el };
+    state.pins.push(pin); drawPins(); renderPinList(); buildMarkdown();
+    openEditor(pin, true);
+  }
+  function drawPins(){
+    $$('.proto-pin').forEach(p=>p.remove());
+    state.pins.forEach(p=>{
+      const r=p.el?.getBoundingClientRect?.(); if(!r) return;
+      const b=document.createElement('button'); b.className='proto-pin'; b.textContent=p.n;
+      b.style.left=(r.left+r.width/2+scrollX)+'px'; b.style.top=(r.top+scrollY)+'px';
+      b.onclick=e=>{ e.stopPropagation(); openEditor(p,false); };
+      document.body.appendChild(b);
+    });
+  }
+  function openEditor(pin, fresh){
+    const v=prompt(`Pin #${pin.n} — ${pin.selector}\nWhat should change here?`, pin.comment||'');
+    if(v===null){ if(fresh) deletePin(pin.id); return; }
+    pin.comment=v.trim(); renderPinList(); buildMarkdown();
+  }
+  function deletePin(id){
+    state.pins=state.pins.filter(p=>p.id!==id).map((p,i)=>(p.n=i+1,p));
+    drawPins(); renderPinList(); buildMarkdown();
+  }
+  function renderPinList(){
+    const box=$('#proto-pins'); $('#proto-count').textContent=`${state.pins.length} pins`;
+    if(!state.pins.length){ box.innerHTML='<div class="proto-empty">No pins yet.</div>'; return; }
+    box.innerHTML='';
+    state.pins.forEach(p=>{
+      const d=document.createElement('div'); d.className='proto-pin-item';
+      d.innerHTML=`<span class="num">${p.n}</span><div class="meta">
+        <code>${p.selector}</code><p>${p.comment||'<i style="color:#6b7186">(click pin to add note)</i>'}</p></div>
+        <button class="x" title="delete">🗑</button>`;
+      d.querySelector('.x').onclick=()=>deletePin(p.id);
+      d.querySelector('.meta').onclick=()=>openEditor(p,false);
+      box.appendChild(d);
+    });
+  }
+
+  /* ---- region screenshot capture (lazy-loads html2canvas on first use) ---- */
+  let h2cPromise=null;
+  function ensureH2C(){
+    if(window.html2canvas) return Promise.resolve(window.html2canvas);
+    if(h2cPromise) return h2cPromise;
+    h2cPromise=new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload=()=>res(window.html2canvas); s.onerror=()=>rej(new Error('cdn blocked'));
+      document.head.appendChild(s);
+    });
+    return h2cPromise;
+  }
+  function startCapture(){
+    root.classList.remove('open');
+    const layer=document.createElement('div'); layer.id='proto-capture';
+    layer.innerHTML='<div class="tip">Drag to select a region · Esc to cancel</div>';
+    document.body.appendChild(layer); layer.classList.add('on');
+    let sx,sy,box=null;
+    const cancel=()=>{ layer.remove(); document.removeEventListener('keydown',esc); };
+    const esc=e=>{ if(e.key==='Escape') cancel(); }; document.addEventListener('keydown',esc);
+    layer.addEventListener('pointerdown',e=>{
+      sx=e.clientX; sy=e.clientY; box=document.createElement('div'); box.className='sel';
+      box.style.left=sx+'px'; box.style.top=sy+'px'; layer.appendChild(box);
+    });
+    layer.addEventListener('pointermove',e=>{ if(!box) return;
+      const x=Math.min(e.clientX,sx),y=Math.min(e.clientY,sy);
+      box.style.left=x+'px'; box.style.top=y+'px';
+      box.style.width=Math.abs(e.clientX-sx)+'px'; box.style.height=Math.abs(e.clientY-sy)+'px';
+    });
+    layer.addEventListener('pointerup',async e=>{
+      if(!box){ cancel(); return; }
+      const r=box.getBoundingClientRect(); layer.remove(); document.removeEventListener('keydown',esc);
+      if(r.width<8||r.height<8) return;
+      const tip=document.createElement('div'); tip.className='tip'; tip.style.zIndex=2147483647;
+      tip.style.position='fixed'; tip.style.top='16px'; tip.style.left='50%'; tip.style.transform='translateX(-50%)';
+      tip.textContent='Rendering screenshot…'; document.body.appendChild(tip);
+      const hidden=[root,...$$('.proto-pin')]; hidden.forEach(n=>n.style.visibility='hidden');
+      try{
+        const h2c=await ensureH2C();
+        const canvas=await h2c(document.body,{ x:r.left+scrollX, y:r.top+scrollY,
+          width:r.width, height:r.height, scale:Math.min(window.devicePixelRatio||1,2),
+          backgroundColor:getComputedStyle(document.body).backgroundColor, useCORS:true, logging:false });
+        const url=canvas.toDataURL('image/png');
+        state.captures.push({ id:Date.now(), url, w:Math.round(r.width), h:Math.round(r.height) });
+        renderShots(); buildMarkdown();
+        downloadShot(url, state.captures.length); // auto-download so it's ready to paste into chat
+      }catch(err){
+        alert('Screenshot needs html2canvas from the CDN, which appears blocked here.\nIt will work when you open the downloaded file in a normal browser.');
+      }finally{ hidden.forEach(n=>n.style.visibility=''); tip.remove(); }
+    });
+  }
+  function downloadShot(url,n){ const a=document.createElement('a');
+    a.href=url; a.download=`prototype-region-${n}.png`; a.click(); }
+  async function copyShot(url){
+    try{ const blob=await (await fetch(url)).blob();
+      await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+    }catch(e){ downloadShot(url,'copy'); }
+  }
+  function renderShots(){
+    const box=$('#proto-shots'); box.innerHTML='';
+    state.captures.forEach((c,i)=>{
+      const d=document.createElement('div'); d.className='proto-shot';
+      d.innerHTML=`<img src="${c.url}" alt=""><div><b style="font-size:12px">Region ${i+1}</b>
+        <div style="font-size:10.5px;color:#7f8699">${c.w}×${c.h}px · downloaded</div></div>
+        <div class="acts"><button class="mini" data-a="copy">Copy</button>
+        <button class="mini" data-a="dl">Save</button><button class="mini" data-a="rm">✕</button></div>`;
+      d.querySelector('[data-a="copy"]').onclick=()=>copyShot(c.url);
+      d.querySelector('[data-a="dl"]').onclick=()=>downloadShot(c.url,i+1);
+      d.querySelector('[data-a="rm"]').onclick=()=>{ state.captures.splice(i,1); renderShots(); buildMarkdown(); };
+      box.appendChild(d);
+    });
+  }
+
+  /* ---- markdown export (header is the recognition contract) ---- */
+  function buildMarkdown(){
+    const t=document.querySelector('body.proto-vp')?` · viewport sim on`:'';
+    let md=`## 🎯 Prototype Review Feedback\n`+
+           `> Paste this back into chat to request the next iteration.\n\n`+
+           `**Prototype:** ${state.title}\n`+
+           `**Settings:** theme=${state.theme} · brand=${state.brand} · density=${state.density} · motion=${state.motion}${t}\n\n`;
+    if(state.pins.length){
+      md+=`### Pinned changes\n`;
+      state.pins.forEach(p=>{ md+=`${p.n}. \`${p.selector}\`${p.label?` ("${p.label}")`:''} — ${p.comment||'(no note)'}\n`; });
+      md+='\n';
+    }
+    const notes=$('#proto-notes').value.trim();
+    if(notes){ md+=`### Global notes\n${notes}\n`; }
+    if(state.captures.length){
+      md+=`\n### Screenshots\n${state.captures.length} region screenshot(s) captured and downloaded `+
+          `(prototype-region-*.png). Attach them to this message so the changes can be matched to what's shown.\n`;
+    }
+    if(!state.pins.length && !notes && !state.captures.length) md+=`_No pins, notes, or screenshots yet._\n`;
+    $('#proto-md').value=md;
+    return md;
+  }
+
+  /* ---- tweak panel wiring ---- */
+  function setTheme(t){ state.theme=t;
+    document.documentElement.classList.toggle('dark', t==='dark');
+    document.documentElement.dataset.theme=t; document.body.dataset.theme=t; buildMarkdown(); }
+  function setBrand(c){ state.brand=c; document.documentElement.style.setProperty('--brand',c); buildMarkdown(); }
+  function setMotion(m){ state.motion=m;
+    document.body.classList.toggle('proto-motion-off', m==='off');
+    document.documentElement.style.setProperty('--motion-scale', m==='off'?'0':m); buildMarkdown(); }
+  function setDensity(d){ state.density=d; document.body.classList.toggle('proto-compact', d==='compact'); buildMarkdown(); }
+  function setViewport(px){ document.body.classList.toggle('proto-vp', px>0);
+    document.body.style.maxWidth = px>0 ? px+'px' : ''; setTimeout(drawPins,220); }
+  function setState(s){ state.appState=s;
+    document.body.dataset.appState=s; stateHooks.forEach(cb=>{try{cb(s)}catch(e){}}); buildMarkdown(); }
+  function reset(){
+    state.pins=[]; state.captures=[]; $$('.proto-pin').forEach(p=>p.remove()); renderPinList(); renderShots();
+    $('#proto-notes').value=''; setTheme('light'); setBrand('#6366f1'); setMotion('1');
+    setDensity('comfortable'); setViewport(0); setState('ready');
+    $('#proto-brand').value='#6366f1';
+    $$('.proto-seg').forEach(g=>{ const def=g.querySelector('[data-theme="light"],[data-motion="1"],[data-density="comfortable"],[data-vp="0"],[data-state="ready"]');
+      g.querySelectorAll('.proto-btn').forEach(b=>b.classList.remove('on')); def&&def.classList.add('on'); });
+    document.body.classList.remove('proto-outlines'); $('#proto-outlines').textContent='Off';
+    buildMarkdown();
+  }
+  function segPick(group,el){ el.parentNode.querySelectorAll('.proto-btn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); }
+
+  /* ---- events ---- */
+  fab.onclick=()=>root.classList.toggle('open');
+  $('#proto-close').onclick=()=>root.classList.remove('open');
+  $$('.proto-tab').forEach(t=>t.onclick=()=>{
+    $$('.proto-tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+    $$('.proto-view').forEach(v=>v.classList.toggle('active', v.dataset.view===t.dataset.view));
+    if(t.dataset.view==='export') buildMarkdown();
+  });
+  $('#proto-arm').onclick=function(){
+    state.arming=!state.arming;
+    document.body.classList.toggle('proto-arming', state.arming); fab.classList.toggle('armed', state.arming);
+    this.textContent=state.arming?'Pinning ON · click an element (Esc to stop)':'Start pinning · click any element';
+    this.classList.toggle('primary', !state.arming);
+  };
+  $('#proto-shot-btn').onclick=startCapture;
+  document.addEventListener('mouseover',e=>{ if(!state.arming) return;
+    if(e.target.closest('#proto-overlay')) return; e.target.classList.add('proto-hi'); });
+  document.addEventListener('mouseout',e=>e.target.classList.remove('proto-hi'));
+  document.addEventListener('click',e=>{
+    if(!state.arming) return; if(e.target.closest('#proto-overlay')||e.target.closest('.proto-pin')) return;
+    e.preventDefault(); e.stopPropagation(); addPin(e.target);
+  }, true);
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&state.arming) $('#proto-arm').click(); });
+  $('#proto-brand').oninput=e=>setBrand(e.target.value);
+  $('#proto-notes').oninput=buildMarkdown;
+  $('#proto-outlines').onclick=function(){ const on=document.body.classList.toggle('proto-outlines'); this.textContent=on?'On':'Off'; };
+  $('#proto-reset').onclick=()=>{ if(confirm('Reset pins and all tweaks?')) reset(); };
+  $('#proto-copy').onclick=function(){ const ta=$('#proto-md'); ta.select();
+    navigator.clipboard?.writeText(ta.value).catch(()=>document.execCommand('copy'));
+    this.textContent='Copied ✓'; setTimeout(()=>this.textContent='Copy feedback markdown',1200); };
+  document.querySelector('.proto-tabs').addEventListener('click',e=>{}); // noop guard
+  $$('.proto-seg').forEach(g=>g.addEventListener('click',e=>{
+    const b=e.target.closest('.proto-btn'); if(!b) return; segPick(g.dataset.group,b);
+    if(b.dataset.theme) setTheme(b.dataset.theme);
+    if(b.dataset.motion) setMotion(b.dataset.motion);
+    if(b.dataset.density) setDensity(b.dataset.density);
+    if(b.dataset.vp!=null) setViewport(+b.dataset.vp);
+    if(b.dataset.state) setState(b.dataset.state);
+  }));
+  window.addEventListener('scroll',drawPins,true);
+  window.addEventListener('resize',()=>setTimeout(drawPins,60));
+
+  /* ---- public API for the host app ---- */
+  window.__proto = { setState, reset, addPin, captureRegion:startCapture, exportMarkdown:buildMarkdown,
+    onState:cb=>stateHooks.push(cb), getPins:()=>state.pins, getCaptures:()=>state.captures };
+
+  renderPinList(); renderShots(); buildMarkdown(); setTheme('light');
+})();
+</script>
+<!--
+  HOST CONTRACT
+  • Honor these CSS vars so the Tweaks panel works:
+      var(--brand)         primary/accent color
+      var(--motion-scale)  multiply your animation/transition durations by this
+  • State simulation: keep markup for loading/empty/error in the DOM and toggle on
+      window.__proto.onState(s => { ... show/hide your skeletons/empty/error ... })
+    or read document.body.dataset.appState.
+  • Dark mode: react to the `dark` class on <html> (Tailwind `dark:` works out of the box).
+-->
