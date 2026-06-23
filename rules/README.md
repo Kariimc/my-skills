@@ -7,6 +7,7 @@ instructions in **every** project you open — so these are your always-on rules
 | File | Purpose |
 |---|---|
 | `00-communication-style.md` | Always-on style: explain all jargon in plain 5-year-old terms, and give numbered step-by-step instructions for anything the user must do. |
+| `01-teach-as-we-go.md` | Always-on mentoring: teach new skills, techniques, and concepts while working, with a short "What you just learned" recap. |
 | `idp-control-plane.md` | The "Internal Developer Platform" operating ruleset — identity, the master execution loop, connector discovery, prototype gates, quality gates, and output format. |
 
 ## How to use
