@@ -2,6 +2,12 @@
 
 Skills adapted from upstream open-source repos. Frontmatter was normalized (name matched to folder, `when_to_use` folded into `description`) for auto-discovery; skill bodies are unmodified. Original licenses apply and are preserved (per-skill `LICENSE.txt` where provided).
 
+## hardikpandya/stop-slop
+- Source: https://github.com/hardikpandya/stop-slop
+- Author: Hardik Pandya (https://hvpandya.com)
+- License: MIT
+- Imported (1): `stop-slop` — remove predictable AI writing patterns from prose. Skill body and `references/` (`phrases.md`, `structures.md`, `examples.md`) imported verbatim.
+
 ## anthropics/skills
 - Source: https://github.com/anthropics/skills
 - License: Anthropic (see THIRD_PARTY_NOTICES)
