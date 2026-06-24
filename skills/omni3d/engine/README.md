@@ -74,6 +74,19 @@ integration code (verify on hardware); the `relief` path is verified in this rep
 - `cli.py` — `image` / `mesh` commands.
 - `tests/` — GPU-free plumbing tests (PNG validity, OBJ geometry, auto-select, import-without-torch).
 
+## Verification status
+Verified here (GPU-free):
+- ✅ image→3D `relief` baseline → real textured mesh (test + radial-bump demo:
+  36,864 verts / 72,962 faces, depth 0→0.18).
+- ✅ DiffusersBackend request logic (FLUX guidance=0, SDXL negatives, seed) via
+  injected fakes — 7/7 tests pass.
+- ✅ mock plumbing, VRAM auto-select, import-without-torch.
+
+Needs your hardware (cannot run in a GPU-less, download-restricted sandbox):
+- ⏳ real diffusion image weights + TRELLIS/TripoSR meshing — require a CUDA GPU
+  **and** Hugging Face model downloads. Run `setup.sh` then `preflight` on your
+  box; the code paths are in place.
+
 ## Licensing
 Defaults are permissive (Apache-2.0 / MIT) so output is yours to use. `sdxl-turbo`
 is non-commercial; some 3D models have community terms. **Verify the license of

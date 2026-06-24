@@ -88,5 +88,79 @@ class Plumbing(unittest.TestCase):
         self.assertIn("ok", r.stdout)
 
 
+class DiffusersBackendLogic(unittest.TestCase):
+    """Verify the real image backend's request logic WITHOUT torch/diffusers/GPU,
+    by injecting fake modules. Tests the part we authored (kwarg building); the
+    actual model call is standard diffusers."""
+
+    def setUp(self):
+        import types
+        sys.path.insert(0, str(ENGINE))
+        self._saved = {k: sys.modules.get(k) for k in ("torch", "diffusers")}
+
+        class FakeImage:
+            def save(self, p):
+                Path(p).write_bytes(b"\x89PNG\r\n\x1a\n")
+
+        class FakePipe:
+            def to(self, device):
+                self.device = device
+                return self
+
+            def __call__(self, **kwargs):
+                FakePipe.last = kwargs
+                return types.SimpleNamespace(images=[FakeImage()])
+
+        class FakeAuto:
+            @staticmethod
+            def from_pretrained(model_id, torch_dtype=None):
+                FakeAuto.model_id = model_id
+                return FakePipe()
+
+        ft = types.ModuleType("torch")
+        ft.float16, ft.float32 = "f16", "f32"
+        ft.cuda = types.SimpleNamespace(is_available=lambda: False)
+        ft.backends = types.SimpleNamespace(
+            mps=types.SimpleNamespace(is_available=lambda: False))
+        ft.Generator = lambda *a, **k: types.SimpleNamespace(manual_seed=lambda s: s)
+        fd = types.ModuleType("diffusers")
+        fd.AutoPipelineForText2Image = FakeAuto
+        sys.modules["torch"], sys.modules["diffusers"] = ft, fd
+        self.FakePipe = FakePipe
+
+    def tearDown(self):
+        for k, v in self._saved.items():
+            if v is None:
+                sys.modules.pop(k, None)
+            else:
+                sys.modules[k] = v
+
+    def test_flux_kwargs(self):
+        from omni_engine.backends.diffusers_backend import DiffusersBackend
+        from omni_engine.backends.base import ImageRequest
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "f.png"
+            DiffusersBackend(image_model="flux-schnell").generate_image(
+                ImageRequest(prompt="knight", negative_prompt="blurry", seed=7), out)
+            call = self.FakePipe.last
+            self.assertEqual(call["guidance_scale"], 0.0)       # schnell: no guidance
+            self.assertNotIn("negative_prompt", call)            # flux ignores negatives
+            self.assertEqual(call["num_inference_steps"], 4)     # flux default
+            self.assertIn("generator", call)                     # seed honored
+            self.assertTrue(out.exists())
+
+    def test_sdxl_kwargs(self):
+        from omni_engine.backends.diffusers_backend import DiffusersBackend
+        from omni_engine.backends.base import ImageRequest
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "s.png"
+            DiffusersBackend(image_model="sdxl").generate_image(
+                ImageRequest(prompt="knight", negative_prompt="blurry"), out)
+            call = self.FakePipe.last
+            self.assertEqual(call["negative_prompt"], "blurry")  # sdxl uses negatives
+            self.assertEqual(call["num_inference_steps"], 30)    # sdxl default
+            self.assertTrue(out.exists())
+
+
 if __name__ == "__main__":
     unittest.main()
