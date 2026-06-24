@@ -37,8 +37,30 @@ up in `.claude/settings.json`.
 | [`agents/`](./agents/) | `~/.claude/agents/` | 67 specialist subagents, one `.md` each (reviewers, build-resolvers, planners). |
 | [`rules/`](./rules/) | `~/.claude/CLAUDE.md` | Always-on global instructions (concatenated). |
 | [`commands/`](./commands/) | `~/.claude/commands/` | Slash commands (`/new-skill`, `/sync-skills`, `/skill-audit`). |
+| [`hooks/`](./hooks/) | `~/.claude/hooks/` | Global hook scripts (e.g. the harness router) + auto-registered into `~/.claude/settings.json`. |
 | `.claude/` | — | This repo's own config: the sync hook + settings. Not synced out. |
 | `global-skills-guide.pdf` | — | Plain-English guide to the imported ECC + ponytail batch. |
+
+---
+
+## The five ultimate harnesses 🏗️
+
+Five named orchestration loops that sit on top of the skill library — the
+distilled patterns the work keeps reusing. You don't call them: a
+`UserPromptSubmit` hook ([`hooks/harness-router.sh`](./hooks/harness-router.sh))
+reads your prompt and auto-routes it to the right one.
+
+| Harness | Skill | Fires on | Shape |
+|---|---|---|---|
+| Build | `harness-build` | "build / implement / add / ship …" | plan → parallel build → review → verify → ship |
+| Quality (GAN) | `harness-quality` | "polished / production-quality / no slop" | generate ↔ adversarial evaluator ↔ iterate |
+| Research | `harness-research` | "research / compare / investigate …" | fan-out → fetch → adversarially verify → cite |
+| Audit | `harness-audit` | "audit / review for problems …" | inventory → rank by severity → verify → fix |
+| Autonomous | `harness-autonomous` | "every N min / monitor / keep working" | wake → load memory → act → gate → reschedule |
+
+The router is registered globally on session start and is **idempotent + additive**
+— it never clobbers existing hooks. It stays silent on trivial prompts (a typo
+fix, a one-line question) so it adds rigor without ceremony.
 
 ---
 

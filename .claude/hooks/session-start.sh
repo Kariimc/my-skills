@@ -59,7 +59,59 @@ if [ -d "$PROJECT_DIR/agents" ] && compgen -G "$PROJECT_DIR/agents/*.md" > /dev/
   done
 fi
 
-# ── 5. Launcher settings (preserved from previous setup) ─────────────────────
+# ── 5. Hooks (global) ────────────────────────────────────────────────────────
+# Top-level hooks/*.sh are synced to ~/.claude/hooks/ so they can be wired into
+# global (user-level) settings and run in EVERY project — e.g. the harness
+# router that auto-routes prompts to the right ultimate-harness skill.
+if [ -d "$PROJECT_DIR/hooks" ] && compgen -G "$PROJECT_DIR/hooks/*.sh" > /dev/null; then
+  mkdir -p "$CLAUDE_DIR/hooks"
+  for hook in "$PROJECT_DIR"/hooks/*.sh; do
+    cp "$hook" "$CLAUDE_DIR/hooks/"
+    chmod +x "$CLAUDE_DIR/hooks/$(basename "$hook")"
+  done
+fi
+
+# ── 6. Register the harness router in global settings (idempotent) ────────────
+# Adds a UserPromptSubmit hook pointing at the synced router. Additive merge:
+# never removes or overwrites existing hooks, and skips if already registered.
+ROUTER_PATH="$CLAUDE_DIR/hooks/harness-router.sh"
+if command -v python3 >/dev/null 2>&1 && [ -f "$ROUTER_PATH" ]; then
+  SETTINGS_FILE="$CLAUDE_DIR/settings.json" ROUTER_CMD="$ROUTER_PATH" python3 - <<'PY' || true
+import json, os
+
+path = os.environ["SETTINGS_FILE"]
+cmd  = os.environ["ROUTER_CMD"]
+
+try:
+    with open(path) as f:
+        settings = json.load(f)
+    if not isinstance(settings, dict):
+        settings = {}
+except (FileNotFoundError, ValueError):
+    settings = {}
+
+hooks = settings.setdefault("hooks", {})
+ups = hooks.setdefault("UserPromptSubmit", [])
+
+# Already registered? (match on the router filename, path-independent)
+already = any(
+    "harness-router.sh" in (h.get("command", ""))
+    for group in ups if isinstance(group, dict)
+    for h in group.get("hooks", []) if isinstance(h, dict)
+)
+
+if not already:
+    ups.append({"hooks": [{"type": "command", "command": cmd}]})
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(settings, f, indent=2)
+        f.write("\n")
+    os.replace(tmp, path)
+    print("[session-start] registered harness-router UserPromptSubmit hook")
+PY
+fi
+
+# ── 7. Launcher settings (preserved from previous setup) ─────────────────────
 if [ -f "$PROJECT_DIR/.claude/launcher-settings.json" ]; then
   cp "$PROJECT_DIR/.claude/launcher-settings.json" "$CLAUDE_DIR/launcher-settings.json"
 fi
