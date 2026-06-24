@@ -111,7 +111,18 @@ if not already:
 PY
 fi
 
-# ── 7. Launcher settings (preserved from previous setup) ─────────────────────
+# ── 7. Activate the control-plane pre-commit guard (self-scoping) ────────────
+# Only repos that ship .githooks/pre-commit (i.e. this skills repo) get the
+# guard; every other repo is untouched. Makes the guard survive fresh clones
+# with no manual `git config` step.
+if [ -f "$PROJECT_DIR/.githooks/pre-commit" ] \
+   && git -C "$PROJECT_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+  chmod +x "$PROJECT_DIR"/.githooks/* 2>/dev/null || true
+  [ -f "$PROJECT_DIR/bin/skill-doctor.sh" ] && chmod +x "$PROJECT_DIR/bin/skill-doctor.sh" 2>/dev/null || true
+  git -C "$PROJECT_DIR" config core.hooksPath .githooks 2>/dev/null || true
+fi
+
+# ── 8. Launcher settings (preserved from previous setup) ─────────────────────
 if [ -f "$PROJECT_DIR/.claude/launcher-settings.json" ]; then
   cp "$PROJECT_DIR/.claude/launcher-settings.json" "$CLAUDE_DIR/launcher-settings.json"
 fi

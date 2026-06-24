@@ -1,0 +1,37 @@
+#!/bin/bash
+set -euo pipefail
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pre-commit guard — keeps the control plane from drifting on every commit.
+#
+# Activated by the SessionStart hook (which runs `git config core.hooksPath
+# .githooks` in any repo that ships this file), so it works on every fresh clone
+# without manual setup. In other repos it simply doesn't exist → no effect.
+#
+#   1. Runs skill-doctor in --fix mode to self-heal safe drift (README counts,
+#      triage report) and re-stages those metadata files.
+#   2. Re-runs in check mode; blocks the commit if any HARD failure remains.
+# ─────────────────────────────────────────────────────────────────────────────
+
+ROOT="$(git rev-parse --show-toplevel)"
+DOCTOR="$ROOT/bin/skill-doctor.sh"
+
+# No doctor in this repo → nothing to guard.
+[ -x "$DOCTOR" ] || exit 0
+
+# 1. Self-heal safe drift, then re-stage only the metadata files it owns.
+"$DOCTOR" --fix || true
+for meta in README.md skills/TRIGGERLESS-REPORT.md; do
+  if [ -f "$ROOT/$meta" ] && ! git -C "$ROOT" diff --quiet -- "$meta" 2>/dev/null; then
+    git -C "$ROOT" add -- "$meta"
+    echo "pre-commit: re-staged auto-fixed $meta"
+  fi
+done
+
+# 2. Hard gate.
+if ! "$DOCTOR"; then
+  echo "" >&2
+  echo "✗ pre-commit blocked: skill-doctor found HARD failures (above)." >&2
+  echo "  Fix them, or run: bin/skill-doctor.sh --fix" >&2
+  exit 1
+fi
