@@ -9,8 +9,8 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ENGINE_DIR="${ENGINE_DIR:-$HERE/../engine}"
 : "${OMNI3D_DIR:?set OMNI3D_DIR to your Omni-3d checkout (npm install done)}"
-IMG="${1:?usage: make_asset.sh <image> [budgetQuads]}"
-BUDGET="${2:-5000}"
+IMG="${1:?usage: make_asset.sh <image> [mobile_xr|hero|nanite]}"
+BUDGET="${2:-mobile_xr}"      # polyBudget preset
 WORK="$(mktemp -d)"
 
 echo "→ [1/3] engine: image → watertight solid GLB (no GPU)"
@@ -19,8 +19,8 @@ echo "→ [1/3] engine: image → watertight solid GLB (no GPU)"
 echo "→ [2/3] export mesh → json"
 python3 "$HERE/glb_to_json.py" "$WORK/asset.glb" "$WORK/mesh.json"
 
-echo "→ [3/3] Omni3D: real retopology (meshoptimizer) + EITL validation"
-cp "$HERE/omni_bridge.ts" "$OMNI3D_DIR/omni_bridge.ts"
-( cd "$OMNI3D_DIR" && ./node_modules/.bin/tsx omni_bridge.ts "$WORK/mesh.json" "$BUDGET" )
+echo "→ [3/3] Omni3D: FULL real pipeline (retopo → skin-weights → retarget → EITL)"
+cp "$HERE/pipeline_from_image.ts" "$HERE/omni_bridge.ts" "$OMNI3D_DIR/"
+( cd "$OMNI3D_DIR" && ./node_modules/.bin/tsx pipeline_from_image.ts "$WORK/mesh.json" "$BUDGET" )
 
 echo "→ game-ready asset: $WORK/asset.glb"

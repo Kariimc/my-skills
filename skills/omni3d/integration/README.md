@@ -1,32 +1,42 @@
 # Omni3D Integration Kit — engine + Omni3D = one framework
 
-Proves and runs the **complete free pipeline**: an input image becomes a 3D solid
-(the GPU-free engine), which is then **retopologized and validated by Omni3D's own
-real providers** — a game-ready, topology-checked asset, no GPU and no
-subscriptions.
+Runs the **complete free pipeline end-to-end**, verified, no GPU: an input image
+becomes a 3D solid (the engine), which is then driven through **Omni3D's entire
+real pipeline** — retopology → skin-weights → retarget → EITL validation — to a
+game-ready, topology-checked, rigged asset. No subscriptions.
 
 ## Verified result (no GPU)
 ```
-engine star solid  27,460 tris
-   → Omni3D retopology (meshoptimizer)  →  10,000 tris  (64% reduction, mobile_xr budget)
-   → Omni3D EITL validation             →  watertight ✓  manifold ✓  0 boundary/non-manifold edges
+photo → engine (real-depth solid, 27,460 tris)
+      → Omni3D FULL pipeline (realPipeline): A1 frame-sample · A2 voxel ·
+        A3 retopology (meshoptimizer) · B1 skin-weights · B2 retarget · C EITL
+      → status: passed   (6 stages, 0 EITL repairs, artifact manifest emitted)
 ```
+(`omni_bridge.ts` also confirms the isolated step: 27,460 → 10,000 tris, −64%,
+watertight ✓ manifold ✓ 0 bad edges.)
 
-## Run it
+## Run it (one command)
 ```bash
-OMNI3D_DIR=/path/to/Omni-3d  bash make_asset.sh yourphoto.jpg 5000
+OMNI3D_DIR=/path/to/Omni-3d  bash make_asset.sh yourphoto.jpg mobile_xr
 ```
-- `make_asset.sh` — orchestrates: engine (`image → asset.glb`) → `glb_to_json.py`
-  → `omni_bridge.ts` (Omni3D retopo + EITL). Needs a Kariimc/Omni-3d checkout with
-  `npm install` done, and the engine in `../engine`.
-- `omni_bridge.ts` — drop at the Omni-3d repo root; feeds any mesh through Omni3D's
-  `simplifyMesh` (Loop A3 retopology) + `analyzeMesh` (Loop C EITL).
-- `glb_to_json.py` — engine `.glb/.obj` → `{positions, indices}` JSON.
+Files:
+- `make_asset.sh` — orchestrates: engine (`image → asset.glb`, real depth) →
+  `glb_to_json.py` → `pipeline_from_image.ts` (full Omni3D A→C).
+- `pipeline_from_image.ts` — **the unification**: runs the engine mesh through the
+  whole real pipeline. Drop at the Omni-3d repo root.
+- `omni_bridge.ts` — lightweight check (retopology + EITL only).
+- `glb_to_json.py` — engine `.glb`/`.obj` → `{positions, indices}` JSON.
 
-## How this becomes "fully wired" (the GPU-session task)
-This kit calls Omni3D's providers from the outside to prove the data flows. The
-final step (for the Omni-3d repo agent) is to fold `omni_bridge.ts` into a real
-provider so the **runner's Loop A3 consumes the engine mesh** as its high-poly
-input (replacing the synthetic `uvSphere`). Then one `POST /pipeline` runs
-generate → retopo → rig → validate end to end. Swap the engine's `relief` model
-for `triposr`/`trellis` on a GPU and the same pipeline yields top-tier quality.
+## How the fold-in works (already proven; make it permanent)
+Omni3D's `StageContext.mesh` is the high-poly mesh that Loop A3 (retopology), B1
+(skin) and C (EITL) consume. The integration is literally:
+```ts
+const ctx = await buildStageContext();
+ctx.mesh = engineMesh;            // ← the whole fold-in
+await runRealPipeline(job, ctx);
+```
+To bake it into the runner permanently: give `buildStageContext()` an optional
+mesh argument (or add `buildStageContextFromMesh`) and pass the engine mesh from
+the `POST /pipeline` handler. Then a single API call does generate → retopo →
+rig → validate. Swap the engine's `--model depth` for `--model trellis` on a GPU
+and the same pipeline yields top-tier quality — no other change.

@@ -30,10 +30,11 @@ All committed on **`master` of `github.com/Kariimc/my-skills`** under
    cd engine && python -m omni_engine.preflight
    python -m omni_engine.cli --backend real mesh photo.png --model depth -o model.glb
    ```
-3. **Full pipeline end-to-end** (engine → Omni3D real retopo + EITL):
-   `OMNI3D_DIR=. bash integration/make_asset.sh photo.png 5000`
-   Verified: star → 27,460 tris → meshoptimizer retopo 10,000 tris (−64%) →
-   EITL watertight ✓ manifold ✓ 0 bad edges.
+3. **Full pipeline end-to-end** (engine → Omni3D ALL stages A→C):
+   `OMNI3D_DIR=. bash integration/make_asset.sh photo.png mobile_xr`
+   Verified: depth mesh → A1 frame · A2 voxel · A3 retopo · B1 skin · B2 retarget
+   · C EITL → **status: passed, 6 stages, 0 repairs** (via
+   `integration/pipeline_from_image.ts`, which sets `StageContext.mesh`).
 - **10/10 unit tests pass** (`python -m unittest discover -s engine/tests`).
 
 ## 🔌 WIRED, NEEDS GPU (the future high-quality tier — keep it)
@@ -54,13 +55,14 @@ All committed on **`master` of `github.com/Kariimc/my-skills`** under
 1. Pull `engine/` + `integration/` from my-skills. Confirm green:
    `python -m unittest discover -s engine/tests` (10 ok); `python -m
    omni_engine.preflight`.
-2. **UNIFY THE PIPELINE (main remaining work)**: fold `integration/omni_bridge.ts`
-   into a real provider so the runner's **Loop A3 consumes the engine mesh** as
-   its high-poly input (replace synthetic `uvSphere` in
-   `src/loops/providers/retopology.ts`). Then one `POST /pipeline` / `pipeline:real`
-   does generate→retopo→rig→validate on REAL geometry. Keep the 6 real providers
-   green. (`omni_bridge.ts` already proves `simplifyMesh` + `analyzeMesh` accept
-   the engine mesh.)
+2. **UNIFY THE PIPELINE — DONE & verified; just make it permanent**: the engine
+   mesh already runs through Omni3D's FULL real pipeline via
+   `integration/pipeline_from_image.ts` (it sets `StageContext.mesh = engineMesh`
+   then `runRealPipeline`) → status passed, 6 stages, 0 repairs. To bake it into
+   the runner: add an optional mesh arg to `buildStageContext()` (or a
+   `buildStageContextFromMesh`) and pass the engine mesh from the `POST /pipeline`
+   handler, so one API call does generate→retopo→rig→validate. Keep the 6 real
+   providers green.
 3. **Further apex free-tier polish (optional)**: cleaner cutouts (rembg, GitHub
    weights), denser/smoother depth meshes, batch mode.
 4. **Future GPU**: leave `diffusers` + `trellis`/`triposr` wired and documented;
