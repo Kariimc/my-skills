@@ -30,6 +30,9 @@ IMAGE_MODELS = {
     "sdxl-turbo": ImageModel(
         "stabilityai/sdxl-turbo", "SDXL-Turbo", 6,
         "STAI Non-Commercial (free, personal)", 2, "sdxl"),
+    "sd-turbo": ImageModel(
+        "stabilityai/sd-turbo", "SD-Turbo (1-step, CPU-feasible)", 4,
+        "STAI Non-Commercial (free, personal)", 1, "sd"),
     "sd15": ImageModel(
         "stable-diffusion-v1-5/stable-diffusion-v1-5", "SD 1.5", 4,
         "CreativeML OpenRAIL-M (free)", 25, "sd"),

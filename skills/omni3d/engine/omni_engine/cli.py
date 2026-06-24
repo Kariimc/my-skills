@@ -36,25 +36,29 @@ def main(argv=None) -> int:
     pm.add_argument("-o", "--out", default="out.glb")
     pm.add_argument("--seed", type=int, default=None)
     pm.add_argument("--no-texture", action="store_true")
+    pm.add_argument("--model", default="auto",
+                    help="auto | triposr | trellis | relief (relief = GPU-free baseline)")
 
     a = p.parse_args(argv)
 
-    kwargs = {}
-    if a.backend in ("diffusers", "real", "auto") and a.cmd == "image":
-        kwargs["image_model"] = a.model
-    backend = get_backend(a.backend, **kwargs)
-    try:
-        if a.cmd == "image":
-            out = backend.generate_image(
-                ImageRequest(prompt=a.prompt, negative_prompt=a.negative,
-                             width=a.width, height=a.height, steps=a.steps,
-                             seed=a.seed),
-                Path(a.out))
+    if a.cmd == "image":
+        if a.backend == "mock":
+            backend = get_backend("mock")
         else:
-            out = backend.image_to_3d(
-                MeshRequest(image_path=Path(a.image), texture=not a.no_texture,
-                            seed=a.seed),
-                Path(a.out))
+            backend = get_backend("diffusers", image_model=a.model)
+        target = lambda: backend.generate_image(
+            ImageRequest(prompt=a.prompt, negative_prompt=a.negative,
+                         width=a.width, height=a.height, steps=a.steps, seed=a.seed),
+            Path(a.out))
+    else:  # mesh
+        backend = get_backend("mock") if a.backend == "mock" \
+            else get_backend("mesh", model=a.model)
+        target = lambda: backend.image_to_3d(
+            MeshRequest(image_path=Path(a.image), texture=not a.no_texture, seed=a.seed),
+            Path(a.out))
+
+    try:
+        out = target()
         print(f"wrote {out}")
         return 0
     finally:

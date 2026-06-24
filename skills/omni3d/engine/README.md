@@ -43,19 +43,32 @@ python -m omni_engine.cli --backend diffusers mesh knight.png -o knight.glb
 | 6GB | sdxl-turbo | triposr | fast/light |
 | <6GB / none | use `--backend mock` | — | plumbing only |
 
-## Image → 3D (install one runner)
-The image backend ships ready; the 3D step needs the chosen model's runner:
-- **TRELLIS** (MIT, best): `pip install git+https://github.com/microsoft/TRELLIS.git` + its CUDA extras.
-- **Hunyuan3D-2** (free self-host): clone `Tencent/Hunyuan3D-2`, install its requirements.
-- **TripoSR** (MIT, ~6GB, fast): `pip install git+https://github.com/VAST-AI-Research/TripoSR.git`.
+## Image → 3D (two quality tiers, with automatic fallback)
+`mesh` always produces a real file. It tries your chosen GPU model, then falls
+back to the GPU-free baseline:
 
-Then the `mesh` command routes to it. (The `diffusers` backend currently raises a
-clear error for `mesh` until a runner is wired — tracked in the skill's roadmap.)
+- **`relief` (baseline, no GPU — VERIFIED here):** converts the image into a real
+  textured mesh (luminance height field → displaced grid → OBJ + MTL + texture,
+  openable in Blender/UE5/Unity). 2.5D, unlimited, free, runs anywhere. Needs
+  only Pillow + numpy.
+- **`triposr` (MIT, ~6GB GPU):** full single-image→mesh. `pip install
+  git+https://github.com/VAST-AI-Research/TripoSR.git`.
+- **`trellis` (MIT, best, CUDA GPU):** top-tier. `pip install
+  git+https://github.com/microsoft/TRELLIS.git` (+ extras).
+
+```bash
+python -m omni_engine.cli --backend real mesh knight.png --model relief  -o knight.obj   # works now, any machine
+python -m omni_engine.cli --backend real mesh knight.png --model triposr -o knight.glb   # GPU; falls back to relief if unavailable
+```
+`--model auto` tries triposr → trellis → relief. The GPU runners are real
+integration code (verify on hardware); the `relief` path is verified in this repo.
 
 ## Design (so it's testable + swappable)
 - `omni_engine/backends/base.py` — `Backend` contract (`generate_image`, `image_to_3d`).
 - `backends/mock.py` — zero-dependency backend that writes valid PNG/OBJ (used by tests + CPU dry-runs).
 - `backends/diffusers_backend.py` — real image generation (torch/diffusers, lazy-imported).
+- `backends/relief_backend.py` — real GPU-free image→3D (textured relief mesh).
+- `backends/mesh.py` — image→3D orchestrator: TripoSR/TRELLIS → relief fallback.
 - `config.py` — model registry + VRAM auto-selection (licenses noted).
 - `preflight.py` — environment doctor.
 - `cli.py` — `image` / `mesh` commands.

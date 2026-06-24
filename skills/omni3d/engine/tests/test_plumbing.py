@@ -56,6 +56,27 @@ class Plumbing(unittest.TestCase):
         self.assertEqual(autoselect_mesh(24), "trellis")
         self.assertEqual(autoselect_mesh(6), "triposr")
 
+    def test_relief_real_image_to_3d(self):
+        try:
+            from PIL import Image
+            import numpy as np
+        except Exception:
+            self.skipTest("Pillow/numpy not installed")
+        with tempfile.TemporaryDirectory() as d:
+            grad = np.tile(np.linspace(0, 255, 64, dtype=np.uint8), (64, 1))
+            Image.fromarray(np.stack([grad] * 3, axis=-1)).save(Path(d) / "g.png")
+            out = Path(d) / "r.obj"
+            r = self.run_cli("--backend", "real", "mesh", str(Path(d) / "g.png"),
+                             "--model", "relief", "-o", str(out))
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertTrue(out.exists())
+            zs = [float(line.split()[3]) for line in out.read_text().splitlines()
+                  if line.startswith("v ")]
+            self.assertGreater(len(zs), 100)            # a real grid of vertices
+            self.assertGreater(max(zs) - min(zs), 0.0)  # relief varies with the image
+            self.assertTrue((Path(d) / "r.mtl").exists())
+            self.assertTrue(any(p.name.endswith("_tex.png") for p in Path(d).iterdir()))
+
     def test_engine_imports_without_torch(self):
         # The package + factory must import even when torch/diffusers are absent.
         r = subprocess.run(
