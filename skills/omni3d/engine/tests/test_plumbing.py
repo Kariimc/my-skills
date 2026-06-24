@@ -77,6 +77,28 @@ class Plumbing(unittest.TestCase):
             self.assertTrue((Path(d) / "r.mtl").exists())
             self.assertTrue(any(p.name.endswith("_tex.png") for p in Path(d).iterdir()))
 
+    def test_relief_solid_glb(self):
+        try:
+            from PIL import Image
+            import numpy as np
+            import trimesh
+        except Exception:
+            self.skipTest("Pillow/numpy/trimesh not installed")
+        with tempfile.TemporaryDirectory() as d:
+            y, x = np.mgrid[0:96, 0:96]
+            r = np.sqrt((x - 48) ** 2 + (y - 48) ** 2)
+            bump = (255 * np.clip(1 - r / 48, 0, 1)).astype("uint8")
+            Image.fromarray(np.repeat(bump[..., None], 3, 2)).save(Path(d) / "b.png")
+            out = Path(d) / "b.glb"
+            res = self.run_cli("--backend", "real", "mesh", str(Path(d) / "b.png"),
+                               "--model", "relief", "-o", str(out))
+            self.assertEqual(res.returncode, 0, res.stderr)
+            self.assertTrue(out.exists() and out.stat().st_size > 0)
+            m = trimesh.load(str(out), force="mesh")
+            self.assertGreater(len(m.faces), 100)
+            self.assertTrue(m.is_watertight)        # closed solid, not a flat card
+            self.assertGreater(m.volume, 0.0)
+
     def test_engine_imports_without_torch(self):
         # The package + factory must import even when torch/diffusers are absent.
         r = subprocess.run(

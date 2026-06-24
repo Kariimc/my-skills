@@ -48,9 +48,10 @@ python -m omni_engine.cli --backend diffusers mesh knight.png -o knight.glb
 back to the GPU-free baseline:
 
 - **`relief` (baseline, no GPU — VERIFIED here):** converts the image into a real
-  textured mesh (luminance height field → displaced grid → OBJ + MTL + texture,
-  openable in Blender/UE5/Unity). 2.5D, unlimited, free, runs anywhere. Needs
-  only Pillow + numpy.
+  mesh. `.glb` output is a **watertight, textured SOLID** (front relief + flat
+  back + walls) that drops straight into UE5/Unity/Blender; `.obj` output is a
+  textured surface. Unlimited, free, runs anywhere. Needs Pillow + numpy
+  (+ trimesh + scipy for `.glb`).
 - **`triposr` (MIT, ~6GB GPU):** full single-image→mesh. `pip install
   git+https://github.com/VAST-AI-Research/TripoSR.git`.
 - **`trellis` (MIT, best, CUDA GPU):** top-tier. `pip install
@@ -76,8 +77,8 @@ integration code (verify on hardware); the `relief` path is verified in this rep
 
 ## Verification status
 Verified here (GPU-free):
-- ✅ image→3D `relief` baseline → real textured mesh (test + radial-bump demo:
-  36,864 verts / 72,962 faces, depth 0→0.18).
+- ✅ image→3D `relief` baseline → real **watertight textured solid GLB** (demo:
+  73,728 verts / 147,452 faces, watertight=True, volume>0) and OBJ surface.
 - ✅ DiffusersBackend request logic (FLUX guidance=0, SDXL negatives, seed) via
   injected fakes — 7/7 tests pass.
 - ✅ mock plumbing, VRAM auto-select, import-without-torch.

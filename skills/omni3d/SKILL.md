@@ -49,8 +49,8 @@ unlimited, zero per-asset cost. See `engine/` (Omni3D Free Local Generation
 Engine):
 - `image` (text→image): FLUX.1-schnell (Apache-2.0) / SDXL — replaces Midjourney.
 - `mesh` (image→3D): a GPU-free **`relief`** baseline works *now* on any machine
-  (real textured mesh, verified), with **TRELLIS/TripoSR** as the high-quality GPU
-  tier (auto-fallback) — replaces Meshy/Tripo.
+  (real **watertight textured solid `.glb`**, verified), with **TRELLIS/TripoSR**
+  as the high-quality GPU tier (auto-fallback) — replaces Meshy/Tripo.
 - Model is auto-picked from your VRAM; a `mock` backend runs with **no GPU** so
   the whole pipeline is testable (unit-tested green here).
 ```bash

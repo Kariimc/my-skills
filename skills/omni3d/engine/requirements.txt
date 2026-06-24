@@ -1,4 +1,11 @@
-# Real-generation dependencies (image backend). Install on a CUDA GPU machine.
+# --- GPU-FREE BASELINE (image→3D `relief`). Light, no GPU, runs anywhere. ---
+# These enable the verified no-GPU path: image → watertight textured .glb / .obj.
+Pillow>=10
+numpy>=1.24
+trimesh>=4         # solid .glb export
+scipy>=1.10        # trimesh mesh processing (normals / merge)
+
+# --- Real-generation dependencies (image backend). Install on a CUDA GPU machine.
 # The engine itself + the MockBackend need NONE of these — they exist only for
 # actual model inference. For a GPU build of torch, follow https://pytorch.org
 # (e.g. the cu124 wheels) instead of the default CPU wheel.
