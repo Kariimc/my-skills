@@ -49,6 +49,16 @@ into this repo (e.g. `./generation/`). It contains the package `omni_engine`:
   `npm run pipeline:real`).
 - Work on a feature branch; show me before merging to `main`.
 
+**UPDATE — already done + verified here (no GPU):** the engine now outputs
+watertight, subject-isolated, textured solid `.glb`, and a **verified integration
+bridge** feeds that mesh through Omni3D's real retopology (meshoptimizer) + EITL
+validation — see `skills/omni3d/integration/` (`make_asset.sh`, `omni_bridge.ts`):
+`27,460 → 10,000 tris, watertight ✓ manifold ✓`. Task 3 remaining: fold
+`omni_bridge.ts` into a runner provider so Loop A3 consumes the engine mesh
+(replace the synthetic `uvSphere`); then swap the engine model `relief` →
+`triposr`/`trellis` on your GPU for top-tier quality. Everything else above is in
+place.
+
 **MY HARDWARE:** <fill in — e.g. "RTX 4090, 24GB VRAM" or "no GPU yet, will rent">
 
 ---
