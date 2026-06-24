@@ -1,0 +1,15 @@
+version: 2
+
+# Dependabot keeps this project's dependencies up to date automatically.
+# It opens a pull request whenever something is outdated or has a security fix.
+# This repo's only package ecosystem today is the GitHub Actions used in
+# .github/workflows — add more ecosystems (npm, pip, etc.) here as the repo grows.
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "ci"
