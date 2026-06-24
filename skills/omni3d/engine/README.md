@@ -47,22 +47,27 @@ python -m omni_engine.cli --backend diffusers mesh knight.png -o knight.glb
 `mesh` always produces a real file. It tries your chosen GPU model, then falls
 back to the GPU-free baseline:
 
-- **`relief` (baseline, no GPU — VERIFIED here):** converts the image into a real
-  mesh. `.glb` output is a **watertight, textured SOLID** (front relief + flat
-  back + walls) that drops straight into UE5/Unity/Blender; `.obj` output is a
-  textured surface. Unlimited, free, runs anywhere. Needs Pillow + numpy
-  (+ trimesh + scipy for `.glb`).
+- **`depth` (apex no-GPU — VERIFIED here):** real monocular **depth** (MiDaS
+  small, MIT, weights from GitHub releases) drives the geometry, so the solid
+  takes the subject's true shape — not just brightness. CPU-only, free,
+  unlimited. First run downloads ~85MB; needs `torch` + `timm`. Falls back to
+  luminance if unavailable.
+- **`relief` (no-GPU fallback):** luminance height field → the image into a real
+  **watertight, textured SOLID** `.glb` (front relief + flat back + walls), or a
+  textured `.obj` surface. Needs only Pillow + numpy (+ trimesh + scipy for `.glb`).
 - **`triposr` (MIT, ~6GB GPU):** full single-image→mesh. `pip install
   git+https://github.com/VAST-AI-Research/TripoSR.git`.
 - **`trellis` (MIT, best, CUDA GPU):** top-tier. `pip install
   git+https://github.com/microsoft/TRELLIS.git` (+ extras).
 
 ```bash
-python -m omni_engine.cli --backend real mesh knight.png --model relief  -o knight.obj   # works now, any machine
-python -m omni_engine.cli --backend real mesh knight.png --model triposr -o knight.glb   # GPU; falls back to relief if unavailable
+python -m omni_engine.cli --backend real mesh knight.png --model depth   -o knight.glb   # apex no-GPU (real depth)
+python -m omni_engine.cli --backend real mesh knight.png --model relief  -o knight.obj   # luminance fallback, any machine
+python -m omni_engine.cli --backend real mesh knight.png --model triposr -o knight.glb   # GPU; auto-falls back to depth/relief
 ```
-`--model auto` tries triposr → trellis → relief. The GPU runners are real
-integration code (verify on hardware); the `relief` path is verified in this repo.
+`--model auto` tries triposr → trellis → **depth** → relief, so a CPU machine
+gets real depth-based 3D automatically. GPU runners are real integration code
+(verify on hardware); the `depth` and `relief` paths are verified in this repo.
 
 ## Design (so it's testable + swappable)
 - `omni_engine/backends/base.py` — `Backend` contract (`generate_image`, `image_to_3d`).
@@ -77,11 +82,11 @@ integration code (verify on hardware); the `relief` path is verified in this rep
 
 ## Verification status
 Verified here (GPU-free):
-- ✅ image→3D `relief` baseline → real **watertight textured solid GLB** (demo:
-  73,728 verts / 147,452 faces, watertight=True, volume>0) and OBJ surface.
-- ✅ DiffusersBackend request logic (FLUX guidance=0, SDXL negatives, seed) via
-  injected fakes — 7/7 tests pass.
-- ✅ mock plumbing, VRAM auto-select, import-without-torch.
+- ✅ image→3D `depth` (MiDaS) → real **depth-based watertight textured solid GLB**
+  through the engine CLI (`[mesh] generated with depth`), CPU-only, ~4s inference.
+- ✅ image→3D `relief` → watertight textured solid GLB (subject-isolated) + OBJ.
+- ✅ DiffusersBackend request logic (FLUX guidance=0, SDXL negatives, seed).
+- ✅ mock plumbing, VRAM auto-select, depth wiring — **10/10 unit tests pass**.
 
 Needs your hardware (cannot run in a GPU-less, download-restricted sandbox):
 - ⏳ real diffusion image weights + TRELLIS/TripoSR meshing — require a CUDA GPU

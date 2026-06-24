@@ -48,9 +48,10 @@ The heavy generation can run on **open-source models on your own GPU** —
 unlimited, zero per-asset cost. See `engine/` (Omni3D Free Local Generation
 Engine):
 - `image` (text→image): FLUX.1-schnell (Apache-2.0) / SDXL — replaces Midjourney.
-- `mesh` (image→3D): a GPU-free **`relief`** baseline works *now* on any machine
-  (real **watertight textured solid `.glb`**, verified), with **TRELLIS/TripoSR**
-  as the high-quality GPU tier (auto-fallback) — replaces Meshy/Tripo.
+- `mesh` (image→3D): GPU-free **real-depth** (`--model depth`, MiDaS) → watertight
+  textured solid `.glb` that takes the subject's true shape (verified, CPU-only),
+  luminance `relief` fallback, and **TRELLIS/TripoSR** as the GPU tier
+  (auto-fallback). Replaces Meshy/Tripo.
 - Model is auto-picked from your VRAM; a `mock` backend runs with **no GPU** so
   the whole pipeline is testable (unit-tested green here).
 ```bash

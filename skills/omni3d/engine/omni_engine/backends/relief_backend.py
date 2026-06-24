@@ -24,18 +24,25 @@ class ReliefBackend(Backend):
     name = "relief"
 
     def __init__(self, grid: int = 192, depth: float = 0.18,
-                 invert: bool = False, isolate: bool = True):
+                 invert: bool = False, isolate: bool = True, source: str = "luminance"):
         self.grid = max(8, int(grid))
         self.depth = float(depth)
         self.invert = bool(invert)
         self.isolate = bool(isolate)
+        self.source = source            # "luminance" | "depth" (MiDaS, real depth)
 
     def generate_image(self, req: ImageRequest, out_path: Path) -> Path:
         raise NotImplementedError("ReliefBackend is image→3D only; use the image backend for pictures.")
 
+    @staticmethod
+    def _luminance(small, np):
+        from PIL import ImageFilter, ImageOps
+        lum = ImageOps.grayscale(small).filter(ImageFilter.GaussianBlur(1))
+        return np.asarray(lum, dtype=np.float32) / 255.0
+
     # --- shared height-field computation ------------------------------------
     def _heightfield(self, req: MeshRequest):
-        from PIL import Image, ImageOps, ImageFilter
+        from PIL import Image
         import numpy as np
 
         img = Image.open(req.image_path).convert("RGB")
@@ -44,13 +51,21 @@ class ReliefBackend(Backend):
         gw, gh = max(2, round(w0 * scale)), max(2, round(h0 * scale))
         small = img.resize((gw, gh), Image.LANCZOS)
 
-        lum = ImageOps.grayscale(small).filter(ImageFilter.GaussianBlur(1))
-        H = np.asarray(lum, dtype=np.float32) / 255.0
+        if self.source == "depth":
+            try:
+                from .. import depth as depth_mod
+                H = depth_mod.estimate_depth(req.image_path, gw, gh)   # real MiDaS depth
+            except Exception as e:
+                sys.stderr.write(f"[relief] depth model unavailable ({e}); using luminance\n")
+                H = self._luminance(small, np)
+        else:
+            H = self._luminance(small, np)
+
         if self.invert:
             H = 1.0 - H
-        H -= H.min()
+        H = H - H.min()
         if H.max() > 0:
-            H /= H.max()
+            H = H / H.max()
 
         aspect = gw / gh
         ax, ay = (aspect, 1.0) if aspect >= 1 else (1.0, 1.0 / aspect)

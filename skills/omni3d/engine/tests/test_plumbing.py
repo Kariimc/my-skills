@@ -129,6 +129,31 @@ class Plumbing(unittest.TestCase):
             fill = float(m.volume / (bb[1] - bb[0]).prod())
             self.assertLess(fill, 0.5)   # star silhouette, not a full rectangular slab
 
+    def test_relief_depth_source_wiring(self):
+        try:
+            from PIL import Image
+            import numpy as np
+        except Exception:
+            self.skipTest("Pillow/numpy not installed")
+        sys.path.insert(0, str(ENGINE))
+        import omni_engine.depth as depmod
+        orig = depmod.estimate_depth
+        depmod.estimate_depth = lambda path, w, h: np.tile(
+            np.linspace(0, 1, w, dtype="float32"), (h, 1))   # synthetic depth ramp
+        try:
+            from omni_engine.backends.relief_backend import ReliefBackend
+            from omni_engine.backends.base import MeshRequest
+            with tempfile.TemporaryDirectory() as d:
+                Image.new("RGB", (64, 64), (120, 120, 120)).save(Path(d) / "x.png")
+                out = Path(d) / "x.obj"
+                ReliefBackend(source="depth").image_to_3d(
+                    MeshRequest(image_path=Path(d) / "x.png"), out)
+                zs = [float(l.split()[3]) for l in out.read_text().splitlines()
+                      if l.startswith("v ")]
+                self.assertGreater(max(zs) - min(zs), 0.0)   # height driven by the depth map
+        finally:
+            depmod.estimate_depth = orig
+
     def test_engine_imports_without_torch(self):
         # The package + factory must import even when torch/diffusers are absent.
         r = subprocess.run(

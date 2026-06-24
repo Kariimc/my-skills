@@ -5,6 +5,11 @@ numpy>=1.24
 trimesh>=4         # solid .glb export
 scipy>=1.10        # trimesh mesh processing (normals / merge)
 
+# Real DEPTH-based 3D (apex no-GPU, `--model depth`, MiDaS small): needs torch
+# (CPU build is fine — listed below) + timm. First run downloads ~85MB weights
+# from GitHub releases (MIT).
+timm>=0.9
+
 # --- Real-generation dependencies (image backend). Install on a CUDA GPU machine.
 # The engine itself + the MockBackend need NONE of these — they exist only for
 # actual model inference. For a GPU build of torch, follow https://pytorch.org

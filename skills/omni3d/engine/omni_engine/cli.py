@@ -37,7 +37,8 @@ def main(argv=None) -> int:
     pm.add_argument("--seed", type=int, default=None)
     pm.add_argument("--no-texture", action="store_true")
     pm.add_argument("--model", default="auto",
-                    help="auto | triposr | trellis | relief (relief = GPU-free baseline)")
+                    help="auto | triposr | trellis | depth | relief "
+                         "(depth = real MiDaS depth, GPU-free; relief = luminance fallback)")
 
     a = p.parse_args(argv)
 

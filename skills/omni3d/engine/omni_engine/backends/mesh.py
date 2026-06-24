@@ -13,9 +13,10 @@ from pathlib import Path
 from .base import Backend, ImageRequest, MeshRequest
 
 _ORDER = {
-    "auto":    ["triposr", "trellis", "relief"],
-    "triposr": ["triposr", "relief"],
-    "trellis": ["trellis", "relief"],
+    "auto":    ["triposr", "trellis", "depth", "relief"],   # GPU first, else real depth, else luminance
+    "triposr": ["triposr", "depth", "relief"],
+    "trellis": ["trellis", "depth", "relief"],
+    "depth":   ["depth", "relief"],
     "relief":  ["relief"],
 }
 
@@ -23,6 +24,11 @@ _ORDER = {
 def _run_relief(req: MeshRequest, out_path: Path) -> Path:
     from .relief_backend import ReliefBackend
     return ReliefBackend().image_to_3d(req, out_path)
+
+
+def _run_depth(req: MeshRequest, out_path: Path) -> Path:
+    from .relief_backend import ReliefBackend
+    return ReliefBackend(source="depth").image_to_3d(req, out_path)
 
 
 def _run_triposr(req: MeshRequest, out_path: Path) -> Path:
@@ -63,7 +69,8 @@ def _run_trellis(req: MeshRequest, out_path: Path) -> Path:
     return out_path
 
 
-_RUNNERS = {"relief": _run_relief, "triposr": _run_triposr, "trellis": _run_trellis}
+_RUNNERS = {"relief": _run_relief, "depth": _run_depth,
+            "triposr": _run_triposr, "trellis": _run_trellis}
 
 
 class MeshBackend(Backend):
