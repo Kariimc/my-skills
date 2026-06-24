@@ -33,7 +33,7 @@ up in `.claude/settings.json`.
 
 | Folder | Synced to | What it holds |
 |---|---|---|
-| [`skills/`](./skills/) | `~/.claude/skills/` | 396 skills, one folder each (`skills/<name>/SKILL.md`). See [the catalog](./skills/README.md). |
+| [`skills/`](./skills/) | `~/.claude/skills/` | 397 skills, one folder each (`skills/<name>/SKILL.md`). See [the catalog](./skills/README.md). |
 | [`agents/`](./agents/) | `~/.claude/agents/` | 67 specialist subagents, one `.md` each (reviewers, build-resolvers, planners). |
 | [`rules/`](./rules/) | `~/.claude/CLAUDE.md` | Always-on global instructions (concatenated). |
 | [`commands/`](./commands/) | `~/.claude/commands/` | Slash commands (`/new-skill`, `/sync-skills`, `/skill-audit`). |
@@ -101,7 +101,7 @@ There are **two** ways a skill runs:
 ### Step-by-step: use a skill in another project
 1. Open any repo with Claude Code.
 2. The SessionStart hook has already synced this repo into `~/.claude/`, so all
-   396 skills are live.
+   397 skills are live.
 3. Just describe your task — the right skill auto-fires — or type `/<name>`.
 
 ### Step-by-step: add or change a skill
@@ -129,7 +129,7 @@ description: Senior AppSec expert… Use when the user wants a security review,
 
 ## Maintenance
 
-- **Catalog:** [`skills/README.md`](./skills/README.md) — all 396 skills by category.
+- **Catalog:** [`skills/README.md`](./skills/README.md) — all 397 skills by category.
 - **Overlap report:** [`skills/OVERLAP-REPORT.md`](./skills/OVERLAP-REPORT.md) — colliding triggers + recommended merges.
 - **Audit anytime:** `/skill-audit`.
 

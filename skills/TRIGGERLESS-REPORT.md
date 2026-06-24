@@ -6,6 +6,6 @@
 > appended to its `description:`. Not a HARD failure — they still work when
 > called by name.
 
-Count: 0 of 396 skills.
+Count: 0 of 397 skills.
 
 _None — every skill has a trigger._
