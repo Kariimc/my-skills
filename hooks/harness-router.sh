@@ -4,7 +4,7 @@ set -euo pipefail
 # ─────────────────────────────────────────────────────────────────────────────
 # Harness router (UserPromptSubmit hook)
 #
-# Reads the user's prompt and, when it clearly matches one of the five "ultimate
+# Reads the user's prompt and, when it clearly matches one of the six "ultimate
 # harnesses", injects a short routing hint into context so the right harness
 # skill fires WITHOUT the user naming it. Conservative by design: emits at most
 # one hint, and only on a confident keyword match. On anything ambiguous it
@@ -49,9 +49,9 @@ if has(r"\bevery \d+\s*(s|sec|second|m|min|minute|h|hour|day)",
     hint = ("harness-autonomous", "Autonomous-Ops Harness",
             "loop + memory + schedule + recovery — persistent work across sessions")
 
-# 2. Audit — assess a surface for problems.
+# 2. Audit — assess a surface for problems (find, don't fix).
 elif has(r"\baudit\b", r"\bwhat'?s (broken|wrong|redundant|missing)\b",
-         r"\bsecurity review\b", r"\bvulnerab", r"\bdead code\b",
+         r"\bsecurity review\b", r"\bvulnerab",
          r"\bproduction[- ]ready", r"\binventory\b", r"\bassess\b",
          r"\bcheck .* for (bugs|issues|problems|security)\b"):
     hint = ("harness-audit", "Audit Harness",
@@ -72,7 +72,15 @@ elif has(r"\bproduction[- ]quality\b", r"\bpolished?\b", r"\bhigh[- ]craft\b",
     hint = ("harness-quality", "Quality (GAN) Harness",
             "generate ↔ adversarial evaluator ↔ iterate until it clears a strict rubric")
 
-# 5. Build — the catch-all for substantive code work.
+# 5. Refactor/Simplify — structure-only change, behavior preserved.
+elif has(r"\brefactor", r"\bsimplif", r"\bdedup", r"\bconsolidat",
+         r"\bdead code\b", r"\bduplicate (code|functions?|logic)\b",
+         r"\breduce .*(complexity|duplication)\b", r"\btidy up\b",
+         r"\bclean up (the |this |my )?(code|function|module|import)"):
+    hint = ("harness-refactor", "Refactor/Simplify Harness",
+            "baseline behavior → find dupes/dead code → small reversible steps → verify unchanged")
+
+# 6. Build — the catch-all for substantive code work.
 elif has(r"\bbuild (me |a |an |the )", r"\bimplement\b", r"\bship (a|an|the)\b",
          r"\bcreate (a|an) (app|game|api|tool|service|site|website|feature)\b",
          r"\badd .* (feature|endpoint|page|screen|command)\b",
@@ -85,8 +93,9 @@ if hint:
     print(
         f"[harness-router] This request matches the **{title}**. "
         f"Prefer the `{name}` skill ({blurb}) unless the task is trivial "
-        f"enough to do directly. The five ultimate harnesses are: harness-build, "
-        f"harness-quality, harness-research, harness-audit, harness-autonomous."
+        f"enough to do directly. The six ultimate harnesses are: harness-build, "
+        f"harness-quality, harness-research, harness-audit, harness-autonomous, "
+        f"harness-refactor."
     )
 PY
 exit 0

@@ -43,9 +43,9 @@ up in `.claude/settings.json`.
 
 ---
 
-## The five ultimate harnesses 🏗️
+## The six ultimate harnesses 🏗️
 
-Five named orchestration loops that sit on top of the skill library — the
+Six named orchestration loops that sit on top of the skill library — the
 distilled patterns the work keeps reusing. You don't call them: a
 `UserPromptSubmit` hook ([`hooks/harness-router.sh`](./hooks/harness-router.sh))
 reads your prompt and auto-routes it to the right one.
@@ -55,8 +55,9 @@ reads your prompt and auto-routes it to the right one.
 | Build | `harness-build` | "build / implement / add / ship …" | plan → parallel build → review → verify → ship |
 | Quality (GAN) | `harness-quality` | "polished / production-quality / no slop" | generate ↔ adversarial evaluator ↔ iterate |
 | Research | `harness-research` | "research / compare / investigate …" | fan-out → fetch → adversarially verify → cite |
-| Audit | `harness-audit` | "audit / review for problems …" | inventory → rank by severity → verify → fix |
+| Audit | `harness-audit` | "audit / review for problems …" (find) | inventory → rank by severity → verify |
 | Autonomous | `harness-autonomous` | "every N min / monitor / keep working" | wake → load memory → act → gate → reschedule |
+| Refactor | `harness-refactor` | "refactor / simplify / dedupe / dead code" (fix) | baseline → small reversible steps → verify unchanged |
 
 The router is registered globally on session start and is **idempotent + additive**
 — it never clobbers existing hooks. It stays silent on trivial prompts (a typo
