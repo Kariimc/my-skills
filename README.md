@@ -33,13 +33,35 @@ up in `.claude/settings.json`.
 
 | Folder | Synced to | What it holds |
 |---|---|---|
-| [`skills/`](./skills/) | `~/.claude/skills/` | 393 skills, one folder each (`skills/<name>/SKILL.md`). See [the catalog](./skills/README.md). |
+| [`skills/`](./skills/) | `~/.claude/skills/` | 394 skills, one folder each (`skills/<name>/SKILL.md`). See [the catalog](./skills/README.md). |
 | [`agents/`](./agents/) | `~/.claude/agents/` | 67 specialist subagents, one `.md` each (reviewers, build-resolvers, planners). |
 | [`rules/`](./rules/) | `~/.claude/CLAUDE.md` | Always-on global instructions (concatenated). |
 | [`commands/`](./commands/) | `~/.claude/commands/` | Slash commands (`/new-skill`, `/sync-skills`, `/skill-audit`). |
 | [`hooks/`](./hooks/) | `~/.claude/hooks/` | Global hook scripts (e.g. the harness router) + auto-registered into `~/.claude/settings.json`. |
+| [`bin/`](./bin/) | — | Control-plane tooling: `skill-doctor.sh`, `apex.sh`, `apex-gates.sh`, `apex-ratchet.sh`. |
+| [`apex/`](./apex/) | — | The apex layer: `GATES.md` manifest, `MISTAKE-LEDGER.md`, ratchet `checks/`. |
+| `.githooks/` | — | The armed guard: `pre-commit` + `pre-push` (via `core.hooksPath`). |
+| `.github/workflows/` | — | `apex.yml` — the CI mirror of the gate suite. |
 | `.claude/` | — | This repo's own config: the sync hook + settings. Not synced out. |
 | `global-skills-guide.pdf` | — | Plain-English guide to the imported ECC + ponytail batch. |
+
+---
+
+## 🜲 apex — the supreme guardrail layer
+
+One skill sits above everything: [**`apex`**](./skills/apex/SKILL.md), the
+self-enforcing immune system of the control plane. Run [`/apex`](./bin/apex.sh)
+once and it arms a tamper-resistant gate suite that runs on every **commit**,
+**push**, and **CI** build — and never has to be called again.
+
+- **Self-healing:** count/triage drift is auto-fixed before a commit can land.
+- **Self-guarding:** the `selfintegrity` gate is the guard that guards the guards.
+- **Self-extending:** the **ratchet** (`bin/apex-ratchet.sh`) turns every new
+  mistake into a permanent check under `apex/checks/`. A mistake happens at most
+  once. See [`apex/MISTAKE-LEDGER.md`](./apex/MISTAKE-LEDGER.md).
+
+Hierarchy: **apex** (immune system) → the six harnesses (how work gets done) →
+`skill-ship` (how the repo changes) → the skill library.
 
 ---
 
@@ -79,7 +101,7 @@ There are **two** ways a skill runs:
 ### Step-by-step: use a skill in another project
 1. Open any repo with Claude Code.
 2. The SessionStart hook has already synced this repo into `~/.claude/`, so all
-   393 skills are live.
+   394 skills are live.
 3. Just describe your task — the right skill auto-fires — or type `/<name>`.
 
 ### Step-by-step: add or change a skill
@@ -107,7 +129,7 @@ description: Senior AppSec expert… Use when the user wants a security review,
 
 ## Maintenance
 
-- **Catalog:** [`skills/README.md`](./skills/README.md) — all 393 skills by category.
+- **Catalog:** [`skills/README.md`](./skills/README.md) — all 394 skills by category.
 - **Overlap report:** [`skills/OVERLAP-REPORT.md`](./skills/OVERLAP-REPORT.md) — colliding triggers + recommended merges.
 - **Audit anytime:** `/skill-audit`.
 

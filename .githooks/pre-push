@@ -1,0 +1,30 @@
+#!/bin/bash
+set -uo pipefail
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Apex pre-push gate.
+#   1. Warns (does NOT block) on a direct push to master — landing is allowed,
+#      but never silent.
+#   2. Runs the full apex gate suite; blocks the push on any HARD failure.
+# Auto-armed by the SessionStart hook via core.hooksPath=.githooks.
+# ─────────────────────────────────────────────────────────────────────────────
+
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+GATES="$ROOT/bin/apex-gates.sh"
+[ -x "$GATES" ] || exit 0
+
+# stdin: <local ref> <local sha> <remote ref> <remote sha>
+while read -r _localref _localsha remoteref _remotesha; do
+  case "$remoteref" in
+    refs/heads/master|refs/heads/main)
+      echo "⚠ apex: pushing directly to ${remoteref#refs/heads/}. Allowed — but make sure this is intentional (the recommended flow is feature → review → land)." >&2
+      ;;
+  esac
+done
+
+if ! "$GATES" all; then
+  echo "" >&2
+  echo "✗ apex pre-push blocked: gate suite has HARD failures (above)." >&2
+  echo "  Fix them, or run: bin/apex.sh" >&2
+  exit 1
+fi

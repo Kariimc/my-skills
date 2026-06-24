@@ -2,19 +2,20 @@
 set -euo pipefail
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Pre-commit guard — keeps the control plane from drifting on every commit.
+# Apex pre-commit gate — keeps the control plane from drifting on every commit.
 #
 # Activated by the SessionStart hook (which runs `git config core.hooksPath
 # .githooks` in any repo that ships this file), so it works on every fresh clone
 # without manual setup. In other repos it simply doesn't exist → no effect.
 #
-#   1. Runs skill-doctor in --fix mode to self-heal safe drift (README counts,
-#      triage report) and re-stages those metadata files.
-#   2. Re-runs in check mode; blocks the commit if any HARD failure remains.
+#   1. Self-heals safe drift (README counts, triage report) and re-stages those
+#      metadata files.
+#   2. Runs the full apex gate suite (scoped to staged files); blocks on HARD.
 # ─────────────────────────────────────────────────────────────────────────────
 
 ROOT="$(git rev-parse --show-toplevel)"
 DOCTOR="$ROOT/bin/skill-doctor.sh"
+GATES="$ROOT/bin/apex-gates.sh"
 
 # No doctor in this repo → nothing to guard.
 [ -x "$DOCTOR" ] || exit 0
@@ -28,10 +29,15 @@ for meta in README.md skills/TRIGGERLESS-REPORT.md; do
   fi
 done
 
-# 2. Hard gate.
-if ! "$DOCTOR"; then
-  echo "" >&2
-  echo "✗ pre-commit blocked: skill-doctor found HARD failures (above)." >&2
-  echo "  Fix them, or run: bin/skill-doctor.sh --fix" >&2
+# 2. Full apex gate suite (or doctor-only fallback if apex-gates is absent).
+if [ -x "$GATES" ]; then
+  if ! "$GATES" all --staged; then
+    echo "" >&2
+    echo "✗ pre-commit blocked: apex gates found HARD failures (above)." >&2
+    echo "  Fix them, or run: bin/apex.sh" >&2
+    exit 1
+  fi
+elif ! "$DOCTOR"; then
+  echo "✗ pre-commit blocked: skill-doctor found HARD failures." >&2
   exit 1
 fi

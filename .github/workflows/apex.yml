@@ -1,0 +1,37 @@
+name: apex
+
+# CI mirror of the local apex gates. The trunk is protected even if local
+# git hooks are bypassed on another machine.
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Make scripts executable
+        run: chmod +x bin/*.sh .githooks/* hooks/*.sh 2>/dev/null || true
+
+      - name: Run apex gate suite
+        run: ./bin/apex-gates.sh all
+
+      - name: Assert no drift was needed (counts/triage already reconciled)
+        run: |
+          ./bin/skill-doctor.sh --fix >/dev/null 2>&1 || true
+          if ! git diff --quiet; then
+            echo "✗ Control-plane metadata is out of date. Run 'bin/skill-doctor.sh --fix' and commit." >&2
+            git --no-pager diff --stat
+            exit 1
+          fi
+          echo "✓ metadata in sync"
