@@ -1,0 +1,17 @@
+# Real-generation dependencies (image backend). Install on a CUDA GPU machine.
+# The engine itself + the MockBackend need NONE of these — they exist only for
+# actual model inference. For a GPU build of torch, follow https://pytorch.org
+# (e.g. the cu124 wheels) instead of the default CPU wheel.
+torch>=2.2
+diffusers>=0.30
+transformers>=4.44
+accelerate>=0.33
+safetensors>=0.4
+sentencepiece>=0.2     # FLUX / T5 text encoder
+protobuf>=4
+Pillow>=10
+
+# Image -> 3D runners are installed per chosen model (see engine/README.md):
+#   TRELLIS   : pip install git+https://github.com/microsoft/TRELLIS.git  (+ extras)
+#   Hunyuan3D : clone Tencent/Hunyuan3D-2 and install its requirements
+#   TripoSR   : pip install git+https://github.com/VAST-AI-Research/TripoSR.git

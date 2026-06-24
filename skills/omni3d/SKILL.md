@@ -43,6 +43,21 @@ the real file upload/download layer are **not yet wired** — artifacts come bac
 this is a working, schema-validated, self-correcting pipeline + engine bridge you
 can run and build on, not a turnkey photo→AAA-asset button.
 
+## Free local generation — no subscriptions (`engine/`)
+The heavy generation can run on **open-source models on your own GPU** —
+unlimited, zero per-asset cost. See `engine/` (Omni3D Free Local Generation
+Engine):
+- `image` (text→image): FLUX.1-schnell (Apache-2.0) / SDXL — replaces Midjourney.
+- `mesh` (image→3D): TRELLIS (MIT) / Hunyuan3D / TripoSR — replaces Meshy/Tripo.
+- Model is auto-picked from your VRAM; a `mock` backend runs with **no GPU** so
+  the whole pipeline is testable (unit-tested green here).
+```bash
+python -m omni_engine.preflight                                   # check GPU, pick models
+python -m omni_engine.cli --backend diffusers image "a knight" -o knight.png
+```
+Honest scope: high quality needs a CUDA GPU; the wiring is verified GPU-free, the
+models run on your hardware. Full matrix + licenses in `engine/README.md`.
+
 ## Prerequisites
 - **Node 20+** and **npm** (the pipeline runs TypeScript via `tsx`, no build step).
 - The Omni3D repo. The driver script clones it on first run.
