@@ -99,6 +99,36 @@ class Plumbing(unittest.TestCase):
             self.assertTrue(m.is_watertight)        # closed solid, not a flat card
             self.assertGreater(m.volume, 0.0)
 
+    def test_relief_isolates_subject(self):
+        try:
+            from PIL import Image, ImageDraw
+            import numpy as np
+            import trimesh
+            import scipy  # noqa
+        except Exception:
+            self.skipTest("Pillow/numpy/trimesh/scipy not installed")
+        import math
+        with tempfile.TemporaryDirectory() as d:
+            W = 256
+            img = Image.new("RGB", (W, W), (6, 6, 12))
+            dr = ImageDraw.Draw(img)
+            pts = []
+            for k in range(10):
+                ang = -math.pi / 2 + k * math.pi / 5
+                rad = 110 if k % 2 == 0 else 44
+                pts.append((W / 2 + rad * math.cos(ang), W / 2 + rad * math.sin(ang)))
+            dr.polygon(pts, fill=(240, 200, 90))
+            img.save(Path(d) / "star.png")
+            out = Path(d) / "star.glb"
+            res = self.run_cli("--backend", "real", "mesh", str(Path(d) / "star.png"),
+                               "--model", "relief", "-o", str(out))
+            self.assertEqual(res.returncode, 0, res.stderr)
+            m = trimesh.load(str(out), force="mesh")
+            self.assertTrue(m.is_watertight)
+            bb = m.bounds
+            fill = float(m.volume / (bb[1] - bb[0]).prod())
+            self.assertLess(fill, 0.5)   # star silhouette, not a full rectangular slab
+
     def test_engine_imports_without_torch(self):
         # The package + factory must import even when torch/diffusers are absent.
         r = subprocess.run(
