@@ -42,6 +42,19 @@ Skills adapted from upstream open-source repos. Frontmatter was normalized (name
 - Heavier alternative: install ECC as a managed plugin instead of loose files —
   `claude plugin marketplace add affaan-m/ECC` then `claude plugin install ecc@ecc`.
 
+## mvanhorn/last30days-skill
+- Source: https://github.com/mvanhorn/last30days-skill
+- Author: Matt Van Horn (https://github.com/mvanhorn)
+- License: MIT (c) 2026 Matt Van Horn (preserved at `skills/last30days/LICENSE`)
+- Imported (1): `last30days` — research what people said about any topic in the
+  last 30 days across Reddit, X, YouTube, TikTok, Hacker News, Polymarket,
+  GitHub, and the web. Vendored the **runtime subtree only** (`SKILL.md`,
+  `scripts/` + `scripts/lib/**`, `references/`); pruned demo `assets/`, dev/eval
+  scripts, tests, CI, and the Go MCP server per the upstream `.skillignore`.
+  Optional API keys widen source coverage; runs keyless via web search otherwise.
+- Paired with `skill-scout` + `skill-ship` by the authored `skill-radar`
+  discovery kit.
+
 ## DietrichGebert/ponytail
 - Source: https://github.com/DietrichGebert/ponytail
 - License: see upstream
