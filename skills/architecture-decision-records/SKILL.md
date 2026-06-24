@@ -1,6 +1,6 @@
 ---
 name: architecture-decision-records
-description: Capture architectural decisions made during Claude Code sessions as structured ADRs. Auto-detects decision moments, records context, alternatives considered, and rationale. Maintains an ADR log so future developers understand why the codebase is shaped the way it is.
+description: Capture architectural decisions made during Claude Code sessions as structured ADRs. Auto-detects decision moments, records context, alternatives considered, and rationale. Maintains an ADR log so future developers understand why the codebase is shaped the way it is. Use when the user wants to record an architectural decision as an ADR (Nygard format under docs/adr/), document why a framework/library/database/pattern was chosen over alternatives, or look up the rationale behind a past "why did we choose X?" decision.
 metadata:
   origin: ECC
 ---

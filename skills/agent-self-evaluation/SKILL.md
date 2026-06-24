@@ -1,6 +1,6 @@
 ---
 name: agent-self-evaluation
-description: Use after completing any non-trivial task. The agent self-rates its output on 5 axes — accuracy, completeness, clarity, actionability, conciseness — with concrete evidence per criterion. Produces a structured 1-5 scorecard with specific improvement suggestions.
+description: Use after completing any non-trivial task. The agent self-rates its output on 5 axes — accuracy, completeness, clarity, actionability, conciseness — with concrete evidence per criterion. Produces a structured 1-5 scorecard with specific improvement suggestions. Use when the user wants the agent to grade or rate its own just-completed output (code spanning multiple files, a multi-step workflow, a debugging session, a design doc) against the 5-axis rubric, or asks "how good was that?" / "rate yourself".
 origin: ECC
 ---
 

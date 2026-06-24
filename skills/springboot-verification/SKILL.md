@@ -1,6 +1,6 @@
 ---
 name: springboot-verification
-description: "Verification loop for Spring Boot projects: build, static analysis, tests with coverage, security scans, and diff review before release or PR."
+description: "Verification loop for Spring Boot projects: build, static analysis, tests with coverage, security scans, and diff review before release or PR. Use when the user wants to run the pre-PR or pre-deploy quality gate on a Spring Boot service — Maven/Gradle build, spotbugs/pmd/checkstyle, JUnit tests with JaCoCo coverage, OWASP dependency-check, and diff review."
 metadata:
   origin: ECC
 ---

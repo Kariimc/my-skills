@@ -1,6 +1,6 @@
 ---
 name: evm-token-decimals
-description: Prevent silent decimal mismatch bugs across EVM chains. Covers runtime decimal lookup, chain-aware caching, bridged-token precision drift, and safe normalization for bots, dashboards, and DeFi tools.
+description: Prevent silent decimal mismatch bugs across EVM chains. Covers runtime decimal lookup, chain-aware caching, bridged-token precision drift, and safe normalization for bots, dashboards, and DeFi tools. Use when the user wants to read ERC-20 balances or compute USD values across EVM chains, query and cache decimals() by chain and token, handle bridged-token precision drift, or normalize token amounts to WAD without float errors.
 metadata:
   origin: ECC direct-port adaptation
 version: "1.0.0"

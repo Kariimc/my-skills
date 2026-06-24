@@ -1,6 +1,6 @@
 ---
 name: rules-distill
-description: "Scan skills to extract cross-cutting principles and distill them into rules — append, revise, or create new rule files"
+description: "Scan skills to extract cross-cutting principles and distill them into rules — append, revise, or create new rule files. Use when the user wants periodic rules maintenance, to turn cross-cutting patterns found across installed skills into rule files, or to fill gaps where rules feel incomplete relative to the skills in use."
 metadata:
   origin: ECC
 ---

@@ -1,6 +1,6 @@
 ---
 name: error-handling
-description: Patterns for robust error handling across TypeScript, Python, and Go. Covers typed errors, error boundaries, retries, circuit breakers, and user-facing error messages.
+description: Patterns for robust error handling across TypeScript, Python, and Go. Covers typed errors, error boundaries, retries, circuit breakers, and user-facing error messages. Use when the user wants to design typed error/exception hierarchies, add retry-with-backoff or circuit breakers for flaky dependencies, build the Result no-throw pattern, wire up API error envelopes or React error boundaries, or stop silent error swallowing.
 metadata:
   origin: ECC
 ---

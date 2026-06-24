@@ -1,6 +1,6 @@
 ---
 name: pytorch-patterns
-description: PyTorch deep learning patterns and best practices for building robust, efficient, and reproducible training pipelines, model architectures, and data loading.
+description: PyTorch deep learning patterns and best practices for building robust, efficient, and reproducible training pipelines, model architectures, and data loading. Use when the user wants to write or review PyTorch models and training scripts, build reproducible deep learning experiments, set up DataLoaders, or optimize GPU memory and training speed.
 metadata:
   origin: ECC
 ---

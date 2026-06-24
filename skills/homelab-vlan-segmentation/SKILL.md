@@ -1,6 +1,6 @@
 ---
 name: homelab-vlan-segmentation
-description: Segmenting home networks into VLANs for IoT, guest, trusted, and server traffic using UniFi, pfSense/OPNsense, and MikroTik — including switch trunk config, firewall rules, and wireless SSID mapping.
+description: Segmenting home networks into VLANs for IoT, guest, trusted, and server traffic using UniFi, pfSense/OPNsense, and MikroTik — including switch trunk config, firewall rules, and wireless SSID mapping. Use when the user wants to set up home VLANs, isolate IoT or guest devices from trusted ones, configure trunk/access ports and SSID-to-VLAN mapping, or troubleshoot inter-VLAN routing and firewall rules on UniFi, pfSense, or OPNsense.
 metadata:
   origin: community
 ---

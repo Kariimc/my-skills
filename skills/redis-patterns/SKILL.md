@@ -1,6 +1,6 @@
 ---
 name: redis-patterns
-description: Redis data structure patterns, caching strategies, distributed locks, rate limiting, pub/sub, and connection management for production applications.
+description: Redis data structure patterns, caching strategies, distributed locks, rate limiting, pub/sub, and connection management for production applications. Use when the user wants to add Redis caching, build distributed locks or rate limiters, set up session/token storage, use Pub/Sub or Streams, or configure Redis pooling, eviction, and clustering for production.
 metadata:
   origin: ECC
 ---

@@ -1,6 +1,6 @@
 ---
 name: gan-style-harness
-description: "GAN-inspired Generator-Evaluator agent harness for building high-quality applications autonomously. Based on Anthropic's March 2026 harness design paper."
+description: "GAN-inspired Generator-Evaluator agent harness for building high-quality applications autonomously. Based on Anthropic's March 2026 harness design paper. Use when the user wants to build a complete app from a one-line prompt using a Planner/Generator/Evaluator multi-agent loop, drive frontend quality past AI-slop with a ruthless Playwright-based evaluator, or set up an adversarial generate-test-iterate harness for production-grade output."
 metadata:
   origin: ECC-community
 tools: Read, Write, Edit, Bash, Grep, Glob, Task

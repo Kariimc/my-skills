@@ -1,6 +1,6 @@
 ---
 name: configure-ecc
-description: Interactive installer for Everything Claude Code — guides users through selecting and installing skills and rules to user-level or project-level directories, verifies paths, and optionally optimizes installed files.
+description: Interactive installer for Everything Claude Code — guides users through selecting and installing skills and rules to user-level or project-level directories, verifies paths, and optionally optimizes installed files. Use when the user says "configure ecc", "install ecc", or "setup everything claude code", wants to selectively install ECC skills/rules to ~/.claude or .claude, or wants to verify, fix, or optimize an existing ECC installation.
 metadata:
   origin: ECC
 ---

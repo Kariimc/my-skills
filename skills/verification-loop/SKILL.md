@@ -1,6 +1,6 @@
 ---
 name: verification-loop
-description: "A comprehensive verification system for Claude Code sessions."
+description: "A comprehensive verification system for Claude Code sessions. Use when the user wants to run the full pre-PR quality gate on a JavaScript/TypeScript or Python project — npm/pnpm build, tsc/pyright type check, eslint/ruff lint, test suite with coverage, secret scan, and git diff review — to confirm a change is ready to merge."
 metadata:
   origin: ECC
 ---

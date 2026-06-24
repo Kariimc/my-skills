@@ -1,6 +1,6 @@
 ---
 name: agent-eval
-description: Head-to-head comparison of coding agents (Claude Code, Aider, Codex, etc.) on custom tasks with pass rate, cost, time, and consistency metrics
+description: Head-to-head comparison of coding agents (Claude Code, Aider, Codex, etc.) on custom tasks with pass rate, cost, time, and consistency metrics. Use when the user wants to benchmark or compare coding agents on their own repo with YAML task definitions, measure agent pass rate/cost/time/consistency before adopting a tool or model, or run reproducible git-worktree-isolated agent eval trials.
 metadata:
   origin: ECC
 tools: Read, Write, Edit, Bash, Grep, Glob

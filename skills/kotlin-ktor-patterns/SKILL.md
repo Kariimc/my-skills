@@ -1,6 +1,6 @@
 ---
 name: kotlin-ktor-patterns
-description: Ktor server patterns including routing DSL, plugins, authentication, Koin DI, kotlinx.serialization, WebSockets, and testApplication testing.
+description: Ktor server patterns including routing DSL, plugins, authentication, Koin DI, kotlinx.serialization, WebSockets, and testApplication testing. Use when the user wants to build a Ktor HTTP server, configure Ktor plugins (Auth, CORS, ContentNegotiation, StatusPages), wire Koin DI, add WebSockets, or write Ktor integration tests with testApplication.
 metadata:
   origin: ECC
 ---

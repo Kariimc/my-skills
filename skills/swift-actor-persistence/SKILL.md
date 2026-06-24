@@ -1,6 +1,6 @@
 ---
 name: swift-actor-persistence
-description: Thread-safe data persistence in Swift using actors — in-memory cache with file-backed storage, eliminating data races by design.
+description: Thread-safe data persistence in Swift using actors — in-memory cache with file-backed storage, eliminating data races by design. Use when the user wants to build a thread-safe Swift repository or local store with an actor, combine an in-memory cache with atomic file-backed JSON persistence for an offline-first iOS/macOS app, or replace DispatchQueue/NSLock synchronization with the actor model.
 metadata:
   origin: ECC
 ---

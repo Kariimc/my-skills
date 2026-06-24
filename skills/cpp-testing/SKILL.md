@@ -1,6 +1,6 @@
 ---
 name: cpp-testing
-description: Use only when writing/updating/fixing C++ tests, configuring GoogleTest/CTest, diagnosing failing or flaky tests, or adding coverage/sanitizers.
+description: Use only when writing/updating/fixing C++ tests, configuring GoogleTest/CTest, diagnosing failing or flaky tests, or adding coverage/sanitizers. Use when the user wants to write or fix C++17/20 unit and integration tests with GoogleTest/GoogleMock, wire up CMake/CTest execution, debug flaky C++ tests, or enable ASan/TSan/UBSan sanitizers for memory and race diagnostics.
 metadata:
   origin: ECC
 ---

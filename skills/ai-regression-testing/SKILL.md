@@ -1,6 +1,6 @@
 ---
 name: ai-regression-testing
-description: Regression testing strategies for AI-assisted development. Sandbox-mode API testing without database dependencies, automated bug-check workflows, and patterns to catch AI blind spots where the same model writes and reviews code.
+description: Regression testing strategies for AI-assisted development. Sandbox-mode API testing without database dependencies, automated bug-check workflows, and patterns to catch AI blind spots where the same model writes and reviews code. Use when the user wants to write regression tests after an AI agent modified API routes or backend logic, set up sandbox/mock-mode Vitest tests for Next.js API routes without a database, or catch recurring AI mistakes like sandbox/production response-shape drift and SELECT-clause omissions.
 metadata:
   origin: ECC
 ---

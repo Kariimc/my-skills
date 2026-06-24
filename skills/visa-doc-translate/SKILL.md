@@ -1,6 +1,6 @@
 ---
 name: visa-doc-translate
-description: Translate visa application documents (images) to English and create a bilingual PDF with original and translation
+description: Translate visa application documents (images) to English and create a bilingual PDF with original and translation. Use when the user provides a photo or scan (HEIC/PNG/JPG) of an official document — bank deposit, employment, retirement, or property certificate, business license, ID, or passport — and wants it OCR'd, professionally translated to English, and output as a two-page bilingual PDF for a visa application.
 ---
 
 You are helping translate visa application documents for visa applications.

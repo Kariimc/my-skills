@@ -1,6 +1,6 @@
 ---
 name: quarkus-verification
-description: "Verification loop for Quarkus projects: build, static analysis, tests with coverage, security scans, native compilation, and diff review before release or PR."
+description: "Verification loop for Quarkus projects: build, static analysis, tests with coverage, security scans, native compilation, and diff review before release or PR. Use when the user wants to verify a Quarkus service before a PR or deploy, run the full Maven/Gradle build-lint-test-scan-native pipeline, or validate coverage thresholds and native image compatibility."
 metadata:
   origin: ECC
 ---

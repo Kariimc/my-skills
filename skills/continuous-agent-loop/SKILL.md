@@ -1,6 +1,6 @@
 ---
 name: continuous-agent-loop
-description: Patterns for continuous autonomous agent loops with quality gates, evals, and recovery controls.
+description: Patterns for continuous autonomous agent loops with quality gates, evals, and recovery controls. Use when the user wants to build or choose a continuous autonomous Claude Code loop — sequential, continuous-PR, RFC-DAG, or infinite parallel generation — and needs quality gates, eval checkpoints, and recovery controls wired into the loop.
 metadata:
   origin: ECC
 ---

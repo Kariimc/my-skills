@@ -1,6 +1,6 @@
 ---
 name: healthcare-eval-harness
-description: Patient safety evaluation harness for healthcare application deployments. Automated test suites for CDSS accuracy, PHI exposure, clinical workflow integrity, and integration compliance. Blocks deployments on safety failures.
+description: Patient safety evaluation harness for healthcare application deployments. Automated test suites for CDSS accuracy, PHI exposure, clinical workflow integrity, and integration compliance. Blocks deployments on safety failures. Use when the user wants to set up patient-safety test gates before deploying an EMR/EHR, verify CDSS logic or PHI-leak protections after changes, or configure CI/CD safety gating for healthcare apps.
 metadata:
   origin: Health1 Super Speciality Hospitals — contributed by Dr. Keyur Patel
 version: "1.0.0"

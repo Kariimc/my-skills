@@ -1,6 +1,6 @@
 ---
 name: csharp-testing
-description: C# and .NET testing patterns with xUnit, FluentAssertions, mocking, integration tests, and test organization best practices.
+description: C# and .NET testing patterns with xUnit, FluentAssertions, mocking, integration tests, and test organization best practices. Use when the user wants to write or review C#/.NET tests with xUnit and FluentAssertions, mock dependencies with NSubstitute or Moq, build ASP.NET Core integration tests with WebApplicationFactory or Testcontainers, or debug flaky/slow .NET tests.
 metadata:
   origin: ECC
 ---
