@@ -1,0 +1,4 @@
+# Built 3D meshes are reproducible via build.sh and can be large (~2MB each).
+# Keep the repo lean: track the generator, references, previews and manifest;
+# regenerate the .glb solids on demand. Remove this line if you want them in git.
+assets/

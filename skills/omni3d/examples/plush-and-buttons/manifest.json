@@ -1,0 +1,169 @@
+{
+  "asset_set": "plush-and-buttons",
+  "generator": "Omni3D free local generation engine (relief backend, MiDaS-class luminance height field)",
+  "pipeline": "PIL procedural reference -> omni_engine.cli mesh --model relief -> watertight textured solid .glb",
+  "engine_targets": {
+    "engine": "ue5|unity",
+    "unitScale": "cm",
+    "up": "+Z relief",
+    "note": "1 unit = 1 cm; import-ready solids"
+  },
+  "gpu_used": false,
+  "counts": {
+    "total": 6,
+    "plush_character": 3,
+    "button_prop": 3
+  },
+  "assets": [
+    {
+      "name": "button_heart_2hole",
+      "category": "button_prop",
+      "reference": "refs/button_heart_2hole.png",
+      "mesh": "assets/button_heart_2hole.glb",
+      "preview": "previews/button_heart_2hole.png",
+      "vertices": 73728,
+      "faces": 33876,
+      "watertight": true,
+      "winding_consistent": true,
+      "textured": true,
+      "bbox_cm": [
+        [
+          -0.322,
+          -0.332,
+          0.0
+        ],
+        [
+          0.322,
+          0.238,
+          0.24
+        ]
+      ],
+      "glb_bytes": 2020308
+    },
+    {
+      "name": "button_round_2hole",
+      "category": "button_prop",
+      "reference": "refs/button_round_2hole.png",
+      "mesh": "assets/button_round_2hole.glb",
+      "preview": "previews/button_round_2hole.png",
+      "vertices": 73728,
+      "faces": 55700,
+      "watertight": true,
+      "winding_consistent": true,
+      "textured": true,
+      "bbox_cm": [
+        [
+          -0.348,
+          -0.348,
+          0.0
+        ],
+        [
+          0.348,
+          0.348,
+          0.212
+        ]
+      ],
+      "glb_bytes": 2301732
+    },
+    {
+      "name": "button_round_4hole",
+      "category": "button_prop",
+      "reference": "refs/button_round_4hole.png",
+      "mesh": "assets/button_round_4hole.glb",
+      "preview": "previews/button_round_4hole.png",
+      "vertices": 73728,
+      "faces": 55716,
+      "watertight": true,
+      "winding_consistent": true,
+      "textured": true,
+      "bbox_cm": [
+        [
+          -0.348,
+          -0.348,
+          0.0
+        ],
+        [
+          0.348,
+          0.348,
+          0.261
+        ]
+      ],
+      "glb_bytes": 2322812
+    },
+    {
+      "name": "plush_bunny",
+      "category": "plush_character",
+      "reference": "refs/plush_bunny.png",
+      "mesh": "assets/plush_bunny.glb",
+      "preview": "previews/plush_bunny.png",
+      "vertices": 73728,
+      "faces": 40420,
+      "watertight": true,
+      "winding_consistent": true,
+      "textured": true,
+      "bbox_cm": [
+        [
+          -0.259,
+          -0.427,
+          0.0
+        ],
+        [
+          0.259,
+          0.437,
+          0.27
+        ]
+      ],
+      "glb_bytes": 2187472
+    },
+    {
+      "name": "plush_ginger_cat",
+      "category": "plush_character",
+      "reference": "refs/plush_ginger_cat.png",
+      "mesh": "assets/plush_ginger_cat.glb",
+      "preview": "previews/plush_ginger_cat.png",
+      "vertices": 73728,
+      "faces": 40480,
+      "watertight": true,
+      "winding_consistent": true,
+      "textured": true,
+      "bbox_cm": [
+        [
+          -0.259,
+          -0.432,
+          0.0
+        ],
+        [
+          0.296,
+          0.338,
+          0.247
+        ]
+      ],
+      "glb_bytes": 2186684
+    },
+    {
+      "name": "plush_teddy_bear",
+      "category": "plush_character",
+      "reference": "refs/plush_teddy_bear.png",
+      "mesh": "assets/plush_teddy_bear.glb",
+      "preview": "previews/plush_teddy_bear.png",
+      "vertices": 73728,
+      "faces": 54416,
+      "watertight": true,
+      "winding_consistent": true,
+      "textured": true,
+      "bbox_cm": [
+        [
+          -0.306,
+          -0.458,
+          0.0
+        ],
+        [
+          0.306,
+          0.374,
+          0.221
+        ]
+      ],
+      "glb_bytes": 2397036
+    }
+  ]
+}
