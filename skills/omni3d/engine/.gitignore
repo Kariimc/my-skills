@@ -6,3 +6,6 @@ __pycache__/
 *.obj
 *.fbx
 !omni_engine/**
+# …but never track bytecode caches, even under the force-included omni_engine/**
+omni_engine/**/__pycache__/
+omni_engine/**/*.pyc
