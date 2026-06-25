@@ -18,7 +18,11 @@ set -euo pipefail
 # Run async so the session starts immediately; sync finishes in the background.
 echo '{"async": true, "asyncTimeout": 60000}'
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+# Source repo to sync FROM. Priority:
+#   1. first argument  ($1)            — used by the global installer
+#   2. $CLAUDE_PROJECT_DIR             — set by Claude when this repo is open
+#   3. current directory               — last-resort fallback
+PROJECT_DIR="${1:-${CLAUDE_PROJECT_DIR:-$(pwd)}}"
 CLAUDE_DIR="$HOME/.claude"
 mkdir -p "$CLAUDE_DIR"
 
