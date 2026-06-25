@@ -115,6 +115,44 @@ if not already:
 PY
 fi
 
+# ── 6b. Register guard-destructive as a global PreToolUse hook (idempotent) ──
+GUARD_PATH="$CLAUDE_DIR/hooks/guard-destructive.sh"
+if command -v python3 >/dev/null 2>&1 && [ -f "$GUARD_PATH" ]; then
+  chmod +x "$GUARD_PATH"
+  SETTINGS_FILE="$CLAUDE_DIR/settings.json" GUARD_CMD="$GUARD_PATH" python3 - <<'PY' || true
+import json, os
+
+path = os.environ["SETTINGS_FILE"]
+cmd  = os.environ["GUARD_CMD"]
+
+try:
+    with open(path) as f:
+        settings = json.load(f)
+    if not isinstance(settings, dict):
+        settings = {}
+except (FileNotFoundError, ValueError):
+    settings = {}
+
+hooks = settings.setdefault("hooks", {})
+ptu = hooks.setdefault("PreToolUse", [])
+
+already = any(
+    "guard-destructive.sh" in (h.get("command", ""))
+    for group in ptu if isinstance(group, dict)
+    for h in group.get("hooks", []) if isinstance(h, dict)
+)
+
+if not already:
+    ptu.append({"hooks": [{"type": "command", "command": cmd}]})
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(settings, f, indent=2)
+        f.write("\n")
+    os.replace(tmp, path)
+    print("[session-start] registered guard-destructive PreToolUse hook")
+PY
+fi
+
 # ── 7. Activate the control-plane pre-commit guard (self-scoping) ────────────
 # Only repos that ship .githooks/pre-commit (i.e. this skills repo) get the
 # guard; every other repo is untouched. Makes the guard survive fresh clones
