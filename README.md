@@ -29,6 +29,24 @@ up in `.claude/settings.json`.
 
 ---
 
+## Make it global (one-time setup per computer)
+
+Out of the box the hook only runs when you open **this** repo. To make all
+skills load in **every** project on your machine, run the installer once. It
+registers a global SessionStart hook in `~/.claude/settings.json` pointing at
+your local clone, and does an immediate sync.
+
+1. Clone this repo somewhere on your computer (e.g. `git clone https://github.com/kariimc/my-skills.git`).
+2. Open a terminal (on Windows use **Git Bash**) and `cd` into the folder.
+3. Run: `bash install-global.sh`
+4. Restart Claude Code. Your skills now load in every project, every session.
+
+Re-running the installer is safe — it replaces the old hook instead of stacking
+duplicates. Works on macOS, Linux, and Windows (Git Bash). Requires `bash` on
+your PATH (Git for Windows provides it with the default install options).
+
+---
+
 ## Repo layout
 
 | Folder | Synced to | What it holds |
