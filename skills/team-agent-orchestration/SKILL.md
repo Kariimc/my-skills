@@ -1,6 +1,6 @@
 ---
 name: team-agent-orchestration
-description: "Run team-based orchestration for agent squads using work items, ownership, agent Kanban, merge gates, and control pane handoffs."
+description: "Persistent team-based orchestration for agent squads — work items, ownership, agent Kanban, merge gates, and control-pane handoffs. Use when coordinating a long-lived multi-agent team with tracked ownership. For one-off concurrent investigation or fixes prefer dispatching-parallel-agents."
 metadata:
   origin: ECC
 ---

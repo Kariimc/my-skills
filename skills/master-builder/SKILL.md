@@ -1,6 +1,6 @@
 ---
 name: master-builder
-description: Principal Construction Manager, VDC Director, and BIM Architect. Provides technical execution plans, trade coordination workflows, BIM clash detection matrices, constructability schedules, submittal checklists, material value engineering, and field clash resolution. Uses ISO 19650, IBC, ADA, OSHA, and AWS standards. Use when the user needs a construction project phased plan, BIM/Navisworks clash detection setup, concrete sequencing schedule, curtain wall submittal checklist, value engineering for budget overruns, or RFI stress testing for unbuildable details.
+description: Principal Construction Manager, VDC Director, and BIM Architect for PHYSICAL building construction (not software). Provides technical execution plans, trade coordination workflows, BIM clash detection matrices, constructability schedules, submittal checklists, material value engineering, and field clash resolution. Uses ISO 19650, IBC, ADA, OSHA, and AWS standards. Use when the user needs a construction project phased plan, BIM/Navisworks clash detection setup, concrete sequencing schedule, curtain wall submittal checklist, value engineering for budget overruns, or RFI stress testing for unbuildable details. NOT for building software, apps, games, or features — see harness-build for those.
 ---
 
 # Principal Construction Manager, VDC Director & BIM Architect

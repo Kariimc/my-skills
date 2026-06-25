@@ -1,6 +1,6 @@
 ---
 name: parallel-execution-optimizer
-description: Use when the user wants a task done much faster through parallel work, concurrent agents, batched tool calls, isolated worktrees, or many independent verification lanes without losing correctness.
+description: Throughput optimization for already-decomposed work — concurrent agents, batched tool calls, isolated worktrees, and independent verification lanes — when the goal is raw speed without losing correctness. Use when the user wants an existing task to run much FASTER. To investigate or fix independent problems concurrently prefer dispatching-parallel-agents.
 metadata:
   origin: ECC
 tools: Read, Write, Edit, Bash, Grep, Glob

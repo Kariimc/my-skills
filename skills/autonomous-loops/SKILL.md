@@ -1,6 +1,6 @@
 ---
 name: autonomous-loops
-description: "Patterns and architectures for autonomous Claude Code loops — from simple sequential pipelines to RFC-driven multi-agent DAG systems. Use when the user wants to run Claude Code unattended in a loop, choose between sequential claude -p pipelines, continuous PR loops, infinite agentic generation, or Ralphinho-style RFC-driven DAG orchestration, and add cross-iteration context, quality gates, and exit conditions."
+description: "Reference catalog of autonomous Claude Code loop architectures — sequential claude -p pipelines, continuous PR loops, infinite agentic generation, and Ralphinho-style RFC-driven DAG orchestration — with their tradeoffs. Use when the user wants to CHOOSE or compare loop architectures. To actually run an autonomous loop prefer harness-autonomous; for quality-gate and eval wiring see continuous-agent-loop."
 metadata:
   origin: ECC
 ---
