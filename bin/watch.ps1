@@ -118,9 +118,44 @@ $ts = Get-Date -Format "HH:mm:ss"
 Add-Content $LogFile "[$ts] watching: $($WatchDirs -join ', ')"
 Write-Host "Watching for changes. Log: $LogFile  |  Ctrl-C to stop."
 
+# ── pull from GitHub on a schedule ───────────────────────────────────────────
+function Pull-FromGitHub {
+    Set-Location $RepoRoot
+    $ts = Get-Date -Format "HH:mm:ss"
+    $before = git rev-parse HEAD 2>$null
+    git pull --rebase origin master 2>&1 | Out-Null
+    $after = git rev-parse HEAD 2>$null
+    if ($before -ne $after) {
+        Add-Content $LogFile "[$ts] pulled new changes from GitHub — syncing"
+        # Sync to ~/.claude (same as after a local commit)
+        $dirs = @(
+            @{ src = "skills";   dst = "$ClaudeDir\skills" },
+            @{ src = "commands"; dst = "$ClaudeDir\commands" },
+            @{ src = "agents";   dst = "$ClaudeDir\agents" }
+        )
+        foreach ($pair in $dirs) {
+            $src = Join-Path $RepoRoot $pair.src
+            if (Test-Path $src) {
+                New-Item -ItemType Directory -Force -Path $pair.dst | Out-Null
+                Copy-Item "$src\*" $pair.dst -Recurse -Force
+            }
+        }
+        $rulesDir = Join-Path $RepoRoot "rules"
+        if (Test-Path $rulesDir) {
+            $rules = Get-ChildItem "$rulesDir\*.md" | Where-Object { $_.Name -ne "README.md" } | Sort-Object Name
+            if ($rules) {
+                ($rules | Get-Content -Raw) -join "`n`n" | Set-Content "$ClaudeDir\CLAUDE.md" -Encoding UTF8
+            }
+        }
+        Add-Content $LogFile "[$ts] synced to $ClaudeDir"
+    }
+}
+
 # Debounce: coalesce rapid writes into one commit
-$lastEvent = [datetime]::MinValue
-$debounceMs = 2000
+$lastEvent   = [datetime]::MinValue
+$lastPull    = [datetime]::UtcNow
+$debounceMs  = 2000
+$pullEveryMs = 5 * 60 * 1000   # pull from GitHub every 5 minutes
 
 while ($true) {
     $changed = $false
@@ -140,5 +175,12 @@ while ($true) {
             $lastEvent = [datetime]::MinValue
             Sync-AndCommit
         }
+    }
+
+    # Pull from GitHub every 5 minutes
+    $sincePull = ([datetime]::UtcNow - $lastPull).TotalMilliseconds
+    if ($sincePull -ge $pullEveryMs) {
+        $lastPull = [datetime]::UtcNow
+        Pull-FromGitHub
     }
 }
