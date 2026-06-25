@@ -1,6 +1,6 @@
 ---
 name: tdd-workflow
-description: Use this skill when writing new features, fixing bugs, or refactoring code. Enforces test-driven development with 80%+ coverage including unit, integration, and E2E tests.
+description: Coverage-gated TDD execution driven by a plan file. Use when executing a *.plan.md task under an enforced 80%+ coverage bar across unit, integration, and E2E tests. For the red-green-refactor discipline itself see test-driven-development; for overall test strategy see test-engineer.
 argument-hint: <path/to/*.plan.md>
 metadata:
   origin: ECC
