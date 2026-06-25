@@ -1,0 +1,5 @@
+#!/bin/bash
+# Sync skills/commands/agents/rules to ~/.claude after every git pull in this repo.
+CLAUDE_PROJECT_DIR="$(git rev-parse --show-toplevel)" \
+  bash "$(git rev-parse --show-toplevel)/.claude/hooks/session-start.sh" \
+  >/dev/null 2>&1 &
