@@ -25,9 +25,10 @@ if [ ! -f "$HOOK" ]; then
 fi
 
 # Merge a SessionStart hook into the GLOBAL settings file using Node (which is
-# always present, because Claude Code itself runs on Node). We override
-# CLAUDE_PROJECT_DIR so the hook always syncs FROM this repo, no matter which
-# project you happen to have open.
+# always present, because Claude Code itself runs on Node). We pass this repo's
+# path to the script as an argument so it always syncs FROM here, no matter
+# which project you have open. Using an argument (not an inline env var) keeps
+# the command portable to Windows shells.
 REPO="$REPO" HOOK="$HOOK" node -e '
 const fs = require("fs"), os = require("os"), path = require("path");
 const dir = path.join(os.homedir(), ".claude");
@@ -40,7 +41,7 @@ let arr = Array.isArray(s.hooks.SessionStart) ? s.hooks.SessionStart : [];
 // Drop any earlier my-skills hook so we never stack duplicates.
 arr = arr.filter(g => !(g.hooks || []).some(h => String(h.command || "").includes("session-start.sh")));
 const repo = process.env.REPO, hook = process.env.HOOK;
-const command = `CLAUDE_PROJECT_DIR="${repo}" bash "${hook}"`;
+const command = `bash "${hook}" "${repo}"`;
 arr.push({ hooks: [{ type: "command", command }] });
 s.hooks.SessionStart = arr;
 fs.writeFileSync(file, JSON.stringify(s, null, 2));
@@ -48,7 +49,7 @@ console.log("Wired global SessionStart hook -> " + repo);
 '
 
 # Run the sync once right now so you do not have to restart to see your skills.
-CLAUDE_PROJECT_DIR="$REPO" bash "$HOOK" >/dev/null 2>&1 || true
+bash "$HOOK" "$REPO" >/dev/null 2>&1 || true
 
 echo "Done. All skills/rules/commands/agents are now synced to ~/.claude/"
 echo "From now on they load automatically in every project, every session."
