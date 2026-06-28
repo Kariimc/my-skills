@@ -1,7 +1,7 @@
 ---
 name: last30days
 version: "3.8.1"
-description: "Research what people actually say about any topic in the last 30 days. Pulls posts and engagement from Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub, and the web."
+description: "Research what people actually say about any topic in the last 30 days. Pulls posts and engagement from Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub, and the web. Use when the user wants recent real-world discussion of a topic from the last 30 days — posts and engagement across Reddit, X, YouTube, TikTok, Hacker News, Polymarket, GitHub, and the web."
 argument-hint: 'last30days nvidia earnings reaction | last30days AI video tools | last30days what users want in react'
 allowed-tools: Bash, Read, Write, AskUserQuestion, WebSearch
 homepage: https://github.com/mvanhorn/last30days-skill

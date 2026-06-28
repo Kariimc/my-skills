@@ -1,6 +1,6 @@
 ---
 name: continuous-learning-v2
-description: Instinct-based learning system that observes sessions via hooks, creates atomic instincts with confidence scoring, and evolves them into skills/commands/agents. v2.1 adds project-scoped instincts to prevent cross-project contamination.
+description: Instinct-based learning system that observes sessions via hooks, creates atomic instincts with confidence scoring, and evolves them into skills/commands/agents. v2.1 adds project-scoped instincts to prevent cross-project contamination. Use when the user wants to set up hook-based learning from Claude Code sessions — create, tune, review, or evolve confidence-scored 'instincts' into skills, commands, or agents with project-scoped or global scope.
 metadata:
   origin: ECC
 version: 2.1.0

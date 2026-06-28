@@ -1,6 +1,6 @@
 ---
 name: team-builder
-description: Interactive agent picker for composing and dispatching parallel teams
+description: Interactive agent picker for composing and dispatching parallel teams Use when the user wants to browse available agent personas and interactively compose and dispatch an ad-hoc parallel team from one or more domains.
 metadata:
   origin: community
 ---

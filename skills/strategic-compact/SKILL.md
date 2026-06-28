@@ -1,6 +1,6 @@
 ---
 name: strategic-compact
-description: Suggests manual context compaction at logical intervals to preserve context through task phases rather than arbitrary auto-compaction.
+description: Suggests manual context compaction at logical intervals to preserve context through task phases rather than arbitrary auto-compaction. Use when the user wants to compact context at logical task boundaries during long or multi-phase sessions — between phases, after milestones, or when output quality degrades under context pressure.
 metadata:
   origin: ECC
 ---

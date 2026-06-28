@@ -34,6 +34,25 @@ if [ -z "$ROOT" ] || [ ! -d "$ROOT/skills" ]; then
 fi
 cd "$ROOT"
 
+# Extract the raw description value from a SKILL.md (handles plain, quoted, and
+# block `>`/`|` scalars): everything from `description:` up to the next
+# top-level frontmatter key or the closing `---`.
+extract_desc() {
+  awk '
+    NR==1 && $0=="---" {infm=1; next}
+    infm && /^---[[:space:]]*$/ {exit}
+    infm && /^description[[:space:]]*:/ {
+      cap=1; line=$0; sub(/^description[[:space:]]*:[[:space:]]*/,"",line); print line; next
+    }
+    infm && cap && /^[A-Za-z0-9_-]+[[:space:]]*:/ {cap=0}
+    infm && cap {print}
+  ' "$1"
+}
+
+# Descriptions intentionally tuned long for trigger precision — exempt from the
+# SOFT length warning (still subject to the HARD 1024 ceiling).
+long_desc_ok=" docx xlsx claude-api "
+
 hard=0
 soft=0
 triageless=()
@@ -51,9 +70,22 @@ for dir in skills/*/; do
   elif [ "$name" != "$folder" ]; then
     echo "HARD  $folder — name mismatch (frontmatter name='$name')"; hard=$((hard+1))
   fi
-  # Trigger check — same pattern used to surface the original 79.
-  if ! grep -qiE 'use (when|this|it|for)|trigger' "$f"; then
+  # Trigger check — scoped to the DESCRIPTION, not the whole file. The
+  # description is the only text Claude loads for auto-invocation matching, so a
+  # skill with "When to Activate" in its body but a trigger-less description will
+  # not fire reliably. Accept the full family of trigger phrasings.
+  desc="$(extract_desc "$f")"
+  if ! printf '%s' "$desc" | grep -qiE 'use (when|whenever|this|it|for|to|after|before|only|specifically)|trigger|activate|invoke when|(when|whenever) (the user|you)'; then
     triageless+=("$folder"); soft=$((soft+1))
+  fi
+  # Description length — Claude Code rejects/truncates descriptions over 1024
+  # chars, which silently breaks auto-invocation. HARD over 1024, SOFT over 700.
+  oneline="$(printf '%s' "$desc" | tr '\n' ' ' | sed -E 's/^[[:space:]]*[>|][+-]?[0-9]*[[:space:]]*//; s/[[:space:]]+/ /g; s/^ //; s/ $//')"
+  dlen=${#oneline}
+  if [ "$dlen" -gt 1024 ]; then
+    echo "HARD  $folder — description ${dlen} chars (>1024; Claude Code will reject/truncate it)"; hard=$((hard+1))
+  elif [ "$dlen" -gt 700 ] && [ "${long_desc_ok#* $folder }" = "$long_desc_ok" ]; then
+    echo "SOFT  $folder — description ${dlen} chars (>700; trim for reliable matching)"; soft=$((soft+1))
   fi
 done
 

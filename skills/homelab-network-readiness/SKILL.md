@@ -1,6 +1,6 @@
 ---
 name: homelab-network-readiness
-description: Readiness checklist for homelab VLAN segmentation, local DNS filtering, and WireGuard-style remote access before changing router, firewall, DHCP, or VPN configuration.
+description: Readiness checklist for homelab VLAN segmentation, local DNS filtering, and WireGuard-style remote access before changing router, firewall, DHCP, or VPN configuration. Use when the user wants a pre-change readiness review for a homelab network — VLAN segmentation, local DNS filtering, or WireGuard remote access — before touching router, firewall, DHCP, or VPN config.
 metadata:
   origin: community
 ---

@@ -1,6 +1,6 @@
 ---
 name: motion-advanced
-description: Advanced motion patterns for React / Next.js — drag & drop, gestures, text animations, SVG path drawing, custom hooks, imperative sequences (useAnimate), loaders, and the full API decision tree. Requires motion-foundations.
+description: Advanced motion patterns for React / Next.js — drag & drop, gestures, text animations, SVG path drawing, custom hooks, imperative sequences (useAnimate), loaders, and the full API decision tree. Requires motion-foundations. Use when the user wants advanced React/Next.js motion — drag and drop, gestures, reorderable lists, text animations, SVG path drawing, custom animation hooks, or imperative useAnimate sequences.
 version: 1.0
 tags: [motion, animation, advanced, gestures, svg]
 category: frontend
