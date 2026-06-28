@@ -1,6 +1,6 @@
 ---
 name: agentic-engineering
-description: Operate as an agentic engineer using eval-first execution, decomposition, and cost-aware model routing.
+description: Operate as an agentic engineer using eval-first execution, decomposition, and cost-aware model routing. Use when the user wants to run an eval-first agentic engineering workflow — define completion criteria, decompose work into agent-sized units, and route model tiers by task complexity.
 metadata:
   origin: ECC
 ---

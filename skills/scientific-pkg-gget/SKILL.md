@@ -1,6 +1,6 @@
 ---
 name: scientific-pkg-gget
-description: gget CLI and Python workflow for quick genomic database queries, sequence lookup, BLAST-style searches, enrichment checks, and reproducible bioinformatics evidence logs.
+description: gget CLI and Python workflow for quick genomic database queries, sequence lookup, BLAST-style searches, enrichment checks, and reproducible bioinformatics evidence logs. Use when the user wants quick bioinformatics lookups with the gget CLI or Python package — Ensembl IDs and sequences, BLAST/BLAT searches, enrichment checks, or reproducible genomic evidence logs.
 metadata:
   origin: community
 ---

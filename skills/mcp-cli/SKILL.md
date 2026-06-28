@@ -1,6 +1,6 @@
 ---
 name: mcp-cli
-description: Use MCP servers on-demand via the mcp CLI tool - discover tools, resources, and prompts without polluting context with pre-loaded MCP integrations
+description: Use MCP servers on-demand via the mcp CLI tool - discover tools, resources, and prompts without polluting context with pre-loaded MCP integrations Use when the user wants to discover or make one-off calls to an MCP server via the mcp CLI without adding it as a permanent, context-polluting integration.
 source: obra/superpowers-lab
 ---
 

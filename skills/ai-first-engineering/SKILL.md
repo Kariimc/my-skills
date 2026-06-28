@@ -1,6 +1,6 @@
 ---
 name: ai-first-engineering
-description: Engineering operating model for teams where AI agents generate a large share of implementation output.
+description: Engineering operating model for teams where AI agents generate a large share of implementation output. Use when the user wants to design process, code review, or architecture for a team that ships a large share of its code via AI agents.
 metadata:
   origin: ECC
 ---

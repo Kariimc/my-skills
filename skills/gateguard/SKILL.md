@@ -1,6 +1,6 @@
 ---
 name: gateguard
-description: Fact-forcing gate that blocks Edit/Write/Bash (including MultiEdit) and demands concrete investigation (importers, data schemas, user instruction) before allowing the action. Measurably improves output quality by +2.25 points vs ungated agents.
+description: Fact-forcing gate that blocks Edit/Write/Bash (including MultiEdit) and demands concrete investigation (importers, data schemas, user instruction) before allowing the action. Measurably improves output quality by +2.25 points vs ungated agents. Use when the user wants to install a fact-forcing PreToolUse gate that blocks Edit/Write/Bash until Claude investigates importers, data schemas, and instructions first — for codebases where edits ripple across modules.
 metadata:
   origin: community
 ---

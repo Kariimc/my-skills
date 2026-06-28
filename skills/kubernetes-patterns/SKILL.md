@@ -1,6 +1,6 @@
 ---
 name: kubernetes-patterns
-description: Kubernetes workload patterns, resource management, RBAC, probes, autoscaling, ConfigMap/Secret handling, and kubectl debugging for production-grade deployments.
+description: Kubernetes workload patterns, resource management, RBAC, probes, autoscaling, ConfigMap/Secret handling, and kubectl debugging for production-grade deployments. Use when the user wants to write or debug Kubernetes manifests — Deployments, Services, probes, RBAC, autoscaling, ConfigMaps and Secrets — or diagnose CrashLoopBackOff, OOMKilled, or pending pods.
 metadata:
   origin: ECC
 ---

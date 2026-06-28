@@ -1,6 +1,6 @@
 ---
 name: ecc-guide
-description: Guide users through ECC's current agents, skills, commands, hooks, rules, install profiles, and project onboarding by reading the live repository surface before answering.
+description: Guide users through ECC's current agents, skills, commands, hooks, rules, install profiles, and project onboarding by reading the live repository surface before answering. Use when the user wants help understanding, navigating, installing, or choosing parts of Everything Claude Code (ECC) — skills, commands, agents, hooks, rules, or install profiles.
 metadata:
   origin: community
 ---

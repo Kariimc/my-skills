@@ -1,6 +1,6 @@
 ---
 name: network-interface-health
-description: Diagnose interface errors, drops, CRCs, duplex mismatches, flapping, speed negotiation issues, and counter trends on routers, switches, and Linux hosts.
+description: Diagnose interface errors, drops, CRCs, duplex mismatches, flapping, speed negotiation issues, and counter trends on routers, switches, and Linux hosts. Use when the user wants to diagnose interface errors, drops, CRCs, duplex mismatches, flapping, or speed-negotiation issues on routers, switches, or Linux hosts using counter trends.
 metadata:
   origin: community
 ---

@@ -1,6 +1,6 @@
 ---
 name: santa-method
-description: "Multi-agent adversarial verification with convergence loop. Two independent review agents must both pass before output ships."
+description: "Multi-agent adversarial verification with convergence loop. Two independent review agents must both pass before output ships. Use when the user wants two independent adversarial review agents to both pass before output ships — for code going to production without human review, customer-facing content, or elevated hallucination risk."
 metadata:
   origin: "Ronald Skelton - Founder, RapportScore.ai"
 ---

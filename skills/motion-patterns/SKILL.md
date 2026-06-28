@@ -1,6 +1,6 @@
 ---
 name: motion-patterns
-description: Production-ready animation patterns for React / Next.js — button, modal, toast, stagger, page transitions, exit animations, scroll, and layout — built on motion-foundations tokens and springs.
+description: Production-ready animation patterns for React / Next.js — button, modal, toast, stagger, page transitions, exit animations, scroll, and layout — built on motion-foundations tokens and springs. Use when the user wants production-ready React/Next.js animation patterns — button, modal, toast, stagger, page transitions, exit, scroll, or layout — built on motion-foundations tokens.
 version: 1.0
 tags: [motion, animation, ui-patterns]
 category: frontend

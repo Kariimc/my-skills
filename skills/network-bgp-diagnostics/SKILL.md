@@ -1,6 +1,6 @@
 ---
 name: network-bgp-diagnostics
-description: Diagnostics-only BGP troubleshooting patterns for neighbor state, route exchange, prefix policy, AS path inspection, and safe evidence collection.
+description: Diagnostics-only BGP troubleshooting patterns for neighbor state, route exchange, prefix policy, AS path inspection, and safe evidence collection. Use when a BGP session is down, flapping, stuck in Idle/Connect/Active, or established with missing or unexpected prefixes, and needs read-only diagnosis and evidence collection.
 metadata:
   origin: community
 ---

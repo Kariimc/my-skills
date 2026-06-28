@@ -1,6 +1,6 @@
 ---
 name: api-design
-description: REST API design patterns including resource naming, status codes, pagination, filtering, error responses, versioning, and rate limiting for production APIs.
+description: REST API design patterns including resource naming, status codes, pagination, filtering, error responses, versioning, and rate limiting for production APIs. Use when the user wants to design or review REST API endpoints — resource naming, status codes, pagination, filtering, error responses, versioning, or rate limiting.
 metadata:
   origin: ECC
 ---
