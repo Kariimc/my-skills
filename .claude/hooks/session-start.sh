@@ -23,6 +23,13 @@ echo '{"async": true, "asyncTimeout": 60000}'
 #   2. $CLAUDE_PROJECT_DIR             — set by Claude when this repo is open
 #   3. current directory               — last-resort fallback
 PROJECT_DIR="${1:-${CLAUDE_PROJECT_DIR:-$(pwd)}}"
+
+# Grab the latest skills/rules before syncing them into ~/.claude/. Fast-forward
+# only, so a pull-only clone can never hit a merge conflict or block the session.
+if git -C "$PROJECT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  git -C "$PROJECT_DIR" pull --ff-only >/dev/null 2>&1 || true
+fi
+
 CLAUDE_DIR="$HOME/.claude"
 mkdir -p "$CLAUDE_DIR"
 
