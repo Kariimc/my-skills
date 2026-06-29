@@ -1,0 +1,27 @@
+{
+  "_help": "Edit this to change how the council runs, then: python council.py \"your question\" --config council.config.json  (or use run.ps1 / run.sh). The Claude-only inline method does NOT use this file. provider options: ollama (free, local, no key) | groq | openrouter | gemini (free cloud keys) | openai | anthropic | auto.",
+  "provider": "ollama",
+  "depth": "deep",
+  "grounded": null,
+  "model": "llama3.1",
+  "models": null,
+
+  "_example_mixed_tier_anthropic": {
+    "provider": "anthropic",
+    "models": {
+      "triage": "claude-haiku-4-5-20251001",
+      "proposer": "claude-sonnet-4-6",
+      "aggregator": "claude-opus-4-8",
+      "verifier": "claude-opus-4-8"
+    }
+  },
+  "_example_openrouter_diversity": {
+    "provider": "openrouter",
+    "models": {
+      "triage": "meta-llama/llama-3.3-70b-instruct:free",
+      "proposer": "qwen/qwen3-coder-480b:free",
+      "aggregator": "deepseek/deepseek-r1:free",
+      "verifier": "google/gemma-3-27b-it:free"
+    }
+  }
+}

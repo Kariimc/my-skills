@@ -265,6 +265,7 @@ and recommended merges.
 | `cost-aware-llm-pipeline` | Cost optimization patterns for LLM API usage — model routing by task complexity, budget tracking, retry logic, and prompt caching |
 | `cost-tracking` | Track and report Claude Code token usage, spending, and budgets from the local ECC cost-tracker metrics log |
 | `council` | Convene a four-voice council for ambiguous decisions, tradeoffs, and go/no-go calls |
+| `council-moa` | Mixture-of-agents council — advisors propose through distinct lenses, debate, an Arbiter synthesizes one decision, an adversary verifies it (CLI + dashboard) |
 | `cpp-coding-standards` | C++ coding standards based on the C++ Core Guidelines (isocpp.github.io) |
 | `cpp-testing` | Use only when writing/updating/fixing C++ tests, configuring GoogleTest/CTest, diagnosing failing or flaky tests, or adding coverage/sani… |
 | `crosspost` | Multi-platform content distribution across X, LinkedIn, Threads, and Bluesky. Adapts content per platform using content-engine patterns.… |
