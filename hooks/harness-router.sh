@@ -23,7 +23,15 @@ HARNESS_HOOK_INPUT="$(cat)"
 export HARNESS_HOOK_INPUT
 
 python3 - <<'PY'
-import os, json, re
+import os, json, re, sys
+
+# Force UTF-8 stdout so the arrows in the hint blurbs never crash on Windows
+# consoles that default to cp1252 (UnicodeEncodeError would otherwise block the
+# prompt). errors="replace" degrades gracefully on any other unencodable char.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 
 try:
     data = json.loads(os.environ.get("HARNESS_HOOK_INPUT") or "{}")
