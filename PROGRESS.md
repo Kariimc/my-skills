@@ -63,10 +63,12 @@ PARTIAL (core done, tail is ongoing habit or user-gated):
    rotate it). Only rotation: a Higgsfield support ticket. Containment is
    permanent policy (credential-map.md §1). Delete the old handoff docs in
    `~/Downloads` that still carry it.
-2. **Run the brain history purge** (classifier requires the user to run or
-   specifically name it; script is safety-railed, .git backup exists):
-   `C:\Users\karii\AppData\Local\Python\pythoncore-3.14-64\python.exe <session-scratchpad>\purge_history.py`
-   — a durable copy lives at `C:\Dev\brain\purge_history.py` (committed).
+2. ~~Brain history purge~~ **DONE 2026-07-03** — user ran `purge_history.py`
+   v2 (token-exact; v1's safety rail correctly caught its own 40-hex
+   over-match and was rolled back cleanly). 26 occurrences purged, tree
+   verified byte-identical, old objects pruned, re-scan shows only git SHAs.
+   The unpurged .git backup was destroyed. Brain is now eligible for an
+   encrypted off-machine backup / private encrypted remote per adr/0003.
 3. **Advisor interview** (~15 min) → plan-12mo v1 + flagship decision (#25).
 4. Authorize the MCP connectors you actually use (claude.ai settings).
 5. When the EliteBook lands (~Jul 6): machine-rebuild-runbook.md, and back up
