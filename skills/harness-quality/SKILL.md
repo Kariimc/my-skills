@@ -59,6 +59,33 @@ PLAN → ┌─ GENERATOR ──build──▶ artifact ─┐
 - Feed the evaluator's findings back to the generator. Repeat until the score
   clears the threshold for N consecutive rounds (loop-until-dry), then stop.
 
+## Output contract
+
+Before generating anything, the rubric must exist as a table — this IS the
+contract; without it the loop cannot terminate:
+
+```
+| Dimension | Weight | 1-10 score meaning | Threshold |
+```
+
+Every round reports one line per dimension plus the verdict:
+`ROUND <n>: total <x>/10 vs threshold <t> → CONTINUE|PASS(<n> consecutive)`
+
+Final report:
+
+```
+RESULT:  PASS after <n> rounds (scores: <dim=score, ...>)
+ARTIFACT: <path/URL of the final artifact>
+EVAL LOG: <one line per round: round, total, top deficiency fixed>
+RESIDUAL: <what still scores lowest and why it's acceptable>
+```
+
+Worked example verdict line:
+`ROUND 3: total 8.4/10 vs 8.0 → PASS(2 consecutive) — motion=9 distinctiveness=8 copy=8`
+
+The evaluator's score is the only one that counts. A generator claiming
+quality without an evaluator round is a contract violation — re-run the loop.
+
 ## Related
 `gan-style-harness` (full reference), `eval-harness`,
 `agent-self-evaluation`, `benchmark-optimization-loop`. Underlying agents:
