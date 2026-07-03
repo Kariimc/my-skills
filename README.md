@@ -83,12 +83,13 @@ Hierarchy: **apex** (immune system) → the six harnesses (how work gets done) �
 
 ---
 
-## The six ultimate harnesses 🏗️
+## The six harnesses 🏗️
 
-Six named orchestration loops that sit on top of the skill library — the
-distilled patterns the work keeps reusing. You don't call them: a
-`UserPromptSubmit` hook ([`hooks/harness-router.sh`](./hooks/harness-router.sh))
-reads your prompt and auto-routes it to the right one.
+Six named orchestration loops that sit on top of the skill library — for work
+a single focused loop genuinely can't do (exceeds one context, needs an
+adversarial pass, or must be source-verified). A `UserPromptSubmit` hook
+([`hooks/harness-router.sh`](./hooks/harness-router.sh)) reads your prompt and
+suggests the matching one — a hint, not a mandate; simple tasks run directly.
 
 | Harness | Skill | Fires on | Shape |
 |---|---|---|---|
