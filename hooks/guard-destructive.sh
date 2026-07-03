@@ -4,17 +4,59 @@
 # session-start.sh so it fires in every project, not just this one.
 #
 # Exit 0 = allow. Exit 2 = block (Claude sees the message and adjusts).
+#
+# Performance: hooks run on the tool-call hot path, so this script must stay
+# cheap. It pre-filters with pure-bash string checks and only spawns a python
+# interpreter (a single one) when the payload could actually match a guarded
+# pattern. Windows process spawns cost ~0.5-1.2s each, so every avoided spawn
+# is real latency saved on every single tool call.
 
 input="$(cat)"
 
-# Only guard Bash tool calls.
-tool="$(printf '%s' "$input" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("tool_name",""))' 2>/dev/null)"
-[ "$tool" = "Bash" ] || exit 0
+# Cheap pre-filter 1: only Bash tool calls are guarded. The JSON field check is
+# a substring test — no interpreter needed for the overwhelmingly common case.
+case "$input" in
+  *'"tool_name":"Bash"'*|*'"tool_name": "Bash"'*) ;;
+  *) exit 0 ;;
+esac
 
-python3 - "$input" <<'PY'
+# Cheap pre-filter 2: none of the guarded keywords present -> allow instantly.
+case "$input" in
+  *rm\ *|*'git push'*|*'git reset'*|*DROP\ *|*drop\ *|*TRUNCATE*|*truncate*) ;;
+  *) exit 0 ;;
+esac
+
+# Resolve the fastest available python once. The Windows Store alias shim
+# (WindowsApps\python3) adds ~1s per spawn and can be a non-functional App
+# Installer stub; prefer a real interpreter when one exists.
+GUARD_PY=""
+for cand in \
+  "$LOCALAPPDATA/Python/pythoncore-3.14-64/python.exe" \
+  "$LOCALAPPDATA/Programs/Python/Python313/python.exe" \
+  "$LOCALAPPDATA/Programs/Python/Python312/python.exe"; do
+  [ -x "$cand" ] && GUARD_PY="$cand" && break
+done
+if [ -z "$GUARD_PY" ]; then
+  if command -v python3 >/dev/null 2>&1; then GUARD_PY=python3
+  elif command -v python >/dev/null 2>&1; then GUARD_PY=python
+  else exit 0  # fail open: no interpreter, cannot inspect safely
+  fi
+fi
+
+# Single interpreter pass: parse, match, decide. Input goes via argv because
+# the heredoc already occupies stdin.
+"$GUARD_PY" - "$input" <<'PY'
 import json, sys, re
 
-cmd = json.loads(sys.argv[1]).get("tool_input", {}).get("command", "")
+try:
+    data = json.loads(sys.argv[1])
+except (ValueError, IndexError):
+    sys.exit(0)
+
+if data.get("tool_name") != "Bash":
+    sys.exit(0)
+
+cmd = data.get("tool_input", {}).get("command", "")
 
 HARD = [
     # rm -rf of filesystem root or home

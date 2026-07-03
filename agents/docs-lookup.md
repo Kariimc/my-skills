@@ -1,7 +1,7 @@
 ---
 name: docs-lookup
 description: When the user asks how to use a library, framework, or API or needs up-to-date code examples, use Context7 MCP to fetch current documentation and return answers with examples. Invoke for docs/API/setup questions.
-tools: ["Read", "Grep", "mcp__context7__resolve-library-id", "mcp__context7__query-docs"]
+tools: ["Read", "Grep", "WebSearch", "WebFetch", "mcp__context7__resolve-library-id", "mcp__context7__query-docs"]
 model: sonnet
 ---
 
@@ -50,7 +50,7 @@ Do not call resolve or query more than 3 times total per request. If results are
 
 - Summarize the answer using the fetched documentation.
 - Include relevant code snippets and cite the library (and version when relevant).
-- If Context7 is unavailable or returns nothing useful, say so and answer from knowledge with a note that docs may be outdated.
+- If the Context7 tools are not available in your environment (the MCP server may not be configured) or return nothing useful, fall back to WebSearch + WebFetch against the library's official documentation site, and say which source you used. Only answer purely from knowledge as a last resort, with a note that docs may be outdated.
 
 ## Output Format
 

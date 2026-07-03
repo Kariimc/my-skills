@@ -1,6 +1,6 @@
 ---
 name: videodb
-description: See, Understand, Act on video and audio. See- ingest from local files, URLs, RTSP/live feeds, or live record desktop; return realtime context and playable stream links. Understand- extract frames, build visual/semantic/temporal indexes, and search moments with timestamps and auto-clips. Act- transcode and normalize (codec, fps, resolution, aspect ratio), perform timeline edits (subtitles, text/image overlays, branding, audio overlays, dubbing, translation), generate media assets (image, audio, video), and create real time alerts for events from live streams or desktop capture. Use when the user wants to ingest, index, search, edit, or set real-time alerts on video, audio, live streams, or desktop captures with timestamped, playable evidence.
+description: See, understand, and act on video and audio. Ingest local files, URLs, RTSP/live feeds, or desktop recordings; extract frames, build visual/semantic/temporal indexes, and search moments with timestamps and auto-clips; transcode, edit timelines (subtitles, overlays, dubbing, translation), generate media assets, and create real-time alerts from live streams. Use when the user wants to ingest, index, search, edit, or set real-time alerts on video, audio, live streams, or desktop captures with timestamped, playable evidence.
 metadata:
   origin: ECC
 allowed-tools: Read Grep Glob Bash(python:*)

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TRAINING_TITLE__</title>
+<style>
+  :root{--bg:#0b0e14;--card:#131826;--ink:#e8ecf4;--mut:#8b93a7;--acc:#5eead4;--acc2:#a78bfa;--bad:#f87171;--ok:#34d399;--line:#232a3d}
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,Segoe UI,sans-serif;padding:24px 16px 96px}
+  .wrap{max-width:720px;margin:0 auto}
+  h1{font-size:1.6rem;margin-bottom:4px}
+  .sub{color:var(--mut);margin-bottom:20px}
+  .bar{position:sticky;top:0;background:linear-gradient(var(--bg) 70%,transparent);padding:12px 0;z-index:5}
+  .track{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+  .fill{height:100%;width:0%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .4s}
+  .meta{display:flex;justify-content:space-between;color:var(--mut);font-size:.85rem;margin-top:6px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin:16px 0;display:none}
+  .card.on{display:block;animation:in .3s ease}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .tag{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+  .card h2{font-size:1.15rem;margin-bottom:10px}
+  .card p{margin:8px 0;color:#cdd4e3}
+  pre{background:#0a0d15;border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto;font-size:.85rem;line-height:1.5;margin:10px 0}
+  code{font-family:ui-monospace,Consolas,monospace;color:#9ae6ff}
+  .opt{display:block;width:100%;text-align:left;background:#0e1322;border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:12px 14px;margin:8px 0;cursor:pointer;font:inherit;transition:border-color .15s}
+  .opt:hover{border-color:var(--acc)}
+  .opt.right{border-color:var(--ok);background:#0d1f1a}
+  .opt.wrong{border-color:var(--bad);background:#22121a}
+  .why{display:none;margin-top:10px;padding:10px 12px;border-radius:8px;font-size:.9rem}
+  .why.on{display:block}
+  .why.ok{background:#0d1f1a;color:var(--ok)}
+  .why.no{background:#22121a;color:var(--bad)}
+  .nav{display:flex;gap:10px;margin-top:16px}
+  .btn{background:linear-gradient(90deg,var(--acc),var(--acc2));color:#08111c;font-weight:700;border:0;border-radius:10px;padding:10px 18px;cursor:pointer;font:inherit}
+  .btn.ghost{background:none;border:1px solid var(--line);color:var(--mut)}
+  .btn:disabled{opacity:.35;cursor:default}
+  ul.check{list-style:none;padding:0}
+  ul.check li{padding:6px 0;cursor:pointer}
+  ul.check li::before{content:"○ ";color:var(--mut)}
+  ul.check li.done::before{content:"● ";color:var(--ok)}
+  .score{font-size:2.2rem;font-weight:800;background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .streak{color:var(--mut);font-size:.9rem;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>__TRAINING_TITLE__</h1>
+  <div class="sub">__TRAINING_SUBTITLE__ · built __DATE__ by your advisor</div>
+  <div class="bar"><div class="track"><div class="fill" id="fill"></div></div>
+    <div class="meta"><span id="pos"></span><span id="scoreLive"></span></div></div>
+  <div id="deck"></div>
+  <div class="nav">
+    <button class="btn ghost" id="back">Back</button>
+    <button class="btn" id="next">Next</button>
+  </div>
+</div>
+<script>
+// ── CONTENT ──────────────────────────────────────────────────────────────
+// The advisor fills this object. Card types:
+//  {type:"lesson", tag, title, html}
+//  {type:"quiz", question, options:[..], answer:<idx>, why}
+//  {type:"challenge", title, html, checklist:[..]}
+//  {type:"done"}  ← always last, auto-added if missing
+const TRAINING = /*__TRAINING_JSON__*/ {
+  id: "sample-training",
+  title: "Sample Training",
+  cards: [
+    {type:"lesson", tag:"Idea 1", title:"Replace me", html:"<p>Generated content goes here.</p>"},
+    {type:"quiz", question:"Does the quiz work?", options:["Yes","No"], answer:0, why:"Instant feedback with an explanation."},
+    {type:"challenge", title:"Mini-challenge", html:"<p>Apply it to a real project.</p>", checklist:["Did the thing","Verified it"]},
+    {type:"done"}
+  ]
+};
+// ── ENGINE (do not edit below when generating a training) ────────────────
+const KEY="advisor-training-"+TRAINING.id;
+const S=JSON.parse(localStorage.getItem(KEY)||'{"best":0,"runs":0,"streak":0,"last":""}');
+if(!TRAINING.cards.some(c=>c.type==="done"))TRAINING.cards.push({type:"done"});
+let i=0,score=0,answered={};
+const deck=document.getElementById("deck");
+const els=TRAINING.cards.map((c,idx)=>{
+  const d=document.createElement("div");d.className="card";
+  if(c.type==="lesson")d.innerHTML=`<div class="tag">${c.tag||"Lesson"}</div><h2>${c.title}</h2>${c.html}`;
+  if(c.type==="quiz"){d.innerHTML=`<div class="tag">Quiz</div><h2>${c.question}</h2>`+
+    c.options.map((o,oi)=>`<button class="opt" data-oi="${oi}">${o}</button>`).join("")+
+    `<div class="why"></div>`;
+    d.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+      if(answered[idx]!==undefined)return;
+      const oi=+b.dataset.oi;answered[idx]=oi;
+      const ok=oi===c.answer;if(ok)score++;
+      b.classList.add(ok?"right":"wrong");
+      if(!ok)d.querySelectorAll(".opt")[c.answer].classList.add("right");
+      const w=d.querySelector(".why");w.textContent=(ok?"✔ ":"✘ ")+c.why;
+      w.classList.add("on",ok?"ok":"no");upd();
+    });}
+  if(c.type==="challenge"){d.innerHTML=`<div class="tag">Challenge</div><h2>${c.title}</h2>${c.html}`+
+    `<ul class="check">`+c.checklist.map(x=>`<li>${x}</li>`).join("")+`</ul>`;
+    d.querySelectorAll("li").forEach(li=>li.onclick=()=>li.classList.toggle("done"));}
+  if(c.type==="done")d.innerHTML=`<div class="tag">Done</div><h2>Session complete</h2>
+    <div class="score" id="finalScore"></div><div class="streak" id="streakLine"></div>
+    <p style="margin-top:12px">Re-quiz reshuffles the questions — spaced repetition beats cramming. Come back tomorrow.</p>
+    <button class="btn" style="margin-top:8px" onclick="requiz()">Re-quiz me</button>`;
+  deck.appendChild(d);return d;});
+const nQuiz=TRAINING.cards.filter(c=>c.type==="quiz").length;
+function upd(){
+  els.forEach((d,x)=>d.classList.toggle("on",x===i));
+  document.getElementById("fill").style.width=(100*i/(els.length-1))+"%";
+  document.getElementById("pos").textContent=`Card ${i+1} / ${els.length}`;
+  document.getElementById("scoreLive").textContent=nQuiz?`Score ${score}/${nQuiz} · best ${S.best}/${nQuiz}`:"";
+  document.getElementById("back").disabled=i===0;
+  document.getElementById("next").disabled=i===els.length-1;
+  if(TRAINING.cards[i].type==="done")finish();
+}
+function finish(){
+  const today=new Date().toISOString().slice(0,10);
+  if(S.last!==today){const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
+    S.streak=(S.last===y)?S.streak+1:1;S.last=today;}
+  S.runs++;S.best=Math.max(S.best,score);
+  localStorage.setItem(KEY,JSON.stringify(S));
+  document.getElementById("finalScore").textContent=`${score} / ${nQuiz}`;
+  document.getElementById("streakLine").textContent=`🔥 ${S.streak}-day streak · run #${S.runs} · personal best ${S.best}/${nQuiz}`;
+}
+function requiz(){
+  TRAINING.cards.forEach((c,idx)=>{
+    if(c.type!=="quiz")return;
+    const pair=c.options.map((o,oi)=>({o,ok:oi===c.answer}));
+    for(let k=pair.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[pair[k],pair[j]]=[pair[j],pair[k]];}
+    c.options=pair.map(p=>p.o);c.answer=pair.findIndex(p=>p.ok);
+    const d=els[idx];
+    d.innerHTML=`<div class="tag">Quiz</div><h2>${c.question}</h2>`+
+      c.options.map((o,oi)=>`<button class="opt" data-oi="${oi}">${o}</button>`).join("")+
+      `<div class="why"></div>`;
+    d.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+      if(answered[idx]!==undefined)return;
+      const oi=+b.dataset.oi;answered[idx]=oi;
+      const ok=oi===c.answer;if(ok)score++;
+      b.classList.add(ok?"right":"wrong");
+      if(!ok)d.querySelectorAll(".opt")[c.answer].classList.add("right");
+      const w=d.querySelector(".why");w.textContent=(ok?"✔ ":"✘ ")+c.why;
+      w.classList.add("on",ok?"ok":"no");upd();
+    });
+  });
+  score=0;answered={};i=0;upd();
+}
+document.getElementById("next").onclick=()=>{if(i<els.length-1){i++;upd();}};
+document.getElementById("back").onclick=()=>{if(i>0){i--;upd();}};
+addEventListener("keydown",e=>{if(e.key==="ArrowRight")document.getElementById("next").click();if(e.key==="ArrowLeft")document.getElementById("back").click();});
+upd();
+</script>
+</body>
+</html>

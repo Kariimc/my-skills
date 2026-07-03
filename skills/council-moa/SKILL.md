@@ -1,6 +1,6 @@
 ---
 name: council-moa
-description: Run a mixture-of-agents council to produce one synthesized, verified decision instead of a single off-the-cuff answer. Use this whenever a decision, recommendation, architecture or design choice, plan, tradeoff, strategy, or open-ended question is high-stakes, ambiguous, contested, or hard to reverse — and whenever the user asks for "the best possible answer", a second opinion, multiple perspectives, a panel/council/debate, or to "stress-test", "pressure-test", or "red-team" an idea. Multiple advisor agents propose independently through distinct lenses, debate, an Arbiter synthesizes the strongest answer, and an adversary verifies it. Do NOT use for routine, low-stakes, factual-lookup, formatting, or trivially-answerable requests where the extra model calls aren't worth the cost and latency.
+description: Run a mixture-of-agents council to produce one synthesized, verified decision. Use whenever a decision, recommendation, architecture or design choice, plan, tradeoff, or strategy is high-stakes, ambiguous, contested, or hard to reverse — or the user asks for "the best possible answer", a second opinion, multiple perspectives, a panel/council/debate, or to "stress-test" or "red-team" an idea. Advisors propose independently through distinct lenses, debate, an Arbiter synthesizes, an adversary verifies. Do NOT use for routine, low-stakes, or factual-lookup requests.
 ---
 
 # Council — Mixture-of-Agents decision engine
