@@ -5,15 +5,19 @@
 
 ## Where we are
 
-Full control-plane audit is DONE and all fixes are on branch
-**`audit/peak-condition`** (pushed). Gates: skill-doctor HARD=0 SOFT=0;
-apex-gates all green. 411 skills, 67 agents.
+Full control-plane audit is DONE; all fixes on branch **`audit/peak-condition`**.
+Gates: skill-doctor HARD=0 SOFT=0; apex-gates all green. 411 skills, 67 agents.
 
-**Open PR manually** (gh CLI was just installed via winget this session — new
-terminals should have it; authenticate with `gh auth login` first):
-https://github.com/Kariimc/my-skills/compare/master...audit/peak-condition
-PR body ready in the session scratchpad as pr-body.md (or regenerate from the
-commit messages of d718068 + f1fb946 + the rules-restructure commit).
+**PR #19 is OPEN (draft):** https://github.com/Kariimc/my-skills/pull/19
+First CI run failed on the drift gate (missing exec bit on
+bin/apply-hook-tuning.sh — Linux chmod read as metadata drift); fixed with
+`git update-index --chmod=+x` and re-pushed. Awaiting green CI + user's merge
+approval, then mark ready + merge.
+
+gh CLI auth: `gh auth login --with-token` fails here (stored token lacks
+read:org). Per-call pattern that works (details in project memory
+gh-cli-auth-pattern): `export GH_TOKEN=$(printf 'protocol=https\nhost=github.com\n\n' | git credential fill | sed -n 's/^password=//p')`.
+For durable auth the user should run `gh auth login` once interactively.
 
 ## What changed this session (all on audit/peak-condition)
 
@@ -42,13 +46,21 @@ commit messages of d718068 + f1fb946 + the rules-restructure commit).
 
 ## Next actions (in order)
 
-1. Open + merge the PR (user gates merges to master).
+1. Merge PR #19 once CI is green (user gates merges to master).
 2. **Run the advisor interview** — say "advisor, interview me" (~15 min).
    Turns plan-12mo.md DRAFT v0 into v1 with real numbers. This is the highest-
-   leverage pending item.
+   leverage pending item. Needs the user live — cannot be done autonomously.
 3. Optional: authorize the MCP connectors actually used (claude.ai connector
    settings / `/mcp`); ~40 plugin servers are unauthenticated noise right now.
-4. Optional: `claude mcp add context7` if doc-indexed lookups are wanted.
+
+## Tooling installed 2026-07-03 (second session)
+
+- context7 MCP added at user scope (`claude mcp add --scope user context7 --
+  npx -y @upstash/context7-mcp`) — verified Connected. docs-lookup agent can
+  now use it.
+- winget (user scope, new shells have them on PATH): jq 1.8.2, ripgrep 15.1.0,
+  fd 10.4.2, shellcheck 0.11.0. Use jq in hooks instead of python for JSON;
+  shellcheck the .githooks/bin scripts when editing them.
 
 ## Machine gotchas (full detail in project memory)
 
