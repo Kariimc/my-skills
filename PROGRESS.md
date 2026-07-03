@@ -57,10 +57,14 @@ PARTIAL (core done, tail is ongoing habit or user-gated):
 
 ## USER-GATED (only you can do these)
 
-1. **Rotate the Higgsfield token** on the platform → paste into
-   `C:\Dev\neon-forge-ui\token.txt` (see Where-we-are for the full recipe).
-2. **Approve the brain history purge** (script ready + backed up) — or run
-   `purge_history.py` from an interactive session.
+1. ~~Rotate the Higgsfield token~~ **IMPOSSIBLE** — verified 2026-07-03 via
+   the platform's own API: no user-facing regeneration exists; the token is a
+   permanent standing credential scoped to the user's website repos.
+   Containment is the permanent policy (credential-map.md §1). Delete the old
+   handoff docs in `~/Downloads` that still carry it.
+2. **Approve the brain history purge** (script ready + backed up) — now
+   MANDATORY, not optional: purging history is the only way the secret ever
+   stops being recoverable (adr/0003 amendment).
 3. **Advisor interview** (~15 min) → plan-12mo v1 + flagship decision (#25).
 4. Authorize the MCP connectors you actually use (claude.ai settings).
 5. When the EliteBook lands (~Jul 6): machine-rebuild-runbook.md, and back up

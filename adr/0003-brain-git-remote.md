@@ -1,6 +1,15 @@
 # 0003 — The brain has no git remote (single point of failure)
 
-- **Status:** Accepted
+- **Status:** Accepted — **amended 2026-07-03 (same day):** rotation is
+  IMPOSSIBLE. Higgsfield has no user-facing token regeneration — verified via
+  the platform's own `website_repo_access` API, which returns the same
+  standing token on every call. Everywhere this ADR says "rotate at the
+  provider", read: *cannot be done; the token is permanently live.* This makes
+  the **history purge strictly mandatory** (it is now the only way the secret
+  ever stops being recoverable from the repo) and hardens the remote gate:
+  any future remote must be private **and client-side encrypted**, no
+  exceptions, since the secret it once carried can never be invalidated.
+  Details: `brain/wiki/credential-map.md` §1.
 - **Date:** 2026-07-03
 - **Deciders:** control-plane owner
 - **Grounds:** `C:/Dev/brain` working tree (git repo, branch `master`, **no
