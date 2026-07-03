@@ -58,5 +58,27 @@ SCOPE → INVENTORY (read live surface) → RANK (severity) → VERIFY → FIX (
 - Production readiness → `production-audit`, `silent-failure-hunter` agent.
 - Automation/cost → `automation-audit-ops`, `cost-tracking`.
 
+## Output contract
+
+Findings table, ranked, every row evidence-cited — then stop (audit finds;
+fixing is a separate step the user triggers):
+
+```
+| # | Severity | Finding (one sentence) | Evidence (file:line or command output) | Proposed fix |
+```
+
+Close with exactly two lines:
+`VERIFIED: <n> of <m> findings adversarially confirmed; <k> killed as false positives`
+`USER-GATED: <anything needing the user's call, or "none">`
+
+Worked example row:
+
+```
+| 1 | HIGH | gate_secrets PEM pattern parsed as grep options — gate silently inert | bin/apex-gates.sh:84, repro: grep rc=2 vs rc=0 with -e | add -e before "$pat" |
+```
+
+A finding without a file:line or reproducible command is NOT a finding — drop
+it or mark it explicitly as `UNVERIFIED-HYPOTHESIS`.
+
 ## Related
 `code-review`, `verification-before-completion`.

@@ -1,0 +1,36 @@
+---
+name: REPLACE-with-folder-name
+description: >-
+  One-sentence what it is — then the trigger: Use when the user wants to
+  <verbs and concrete situations that should auto-fire this skill>.
+metadata:
+  origin: authored
+---
+
+# <Skill title>
+
+One paragraph: what this skill does and the core discipline it enforces.
+
+## When to use
+- "<real phrasing a user would type>"
+
+## When NOT to use
+- <the neighboring case that should route elsewhere> → `<other-skill>`
+
+## Steps
+1. <concrete action — command, file, check>
+2. <concrete action>
+3. <verification step — how the skill proves it worked>
+
+## Worked example
+Input: <minimal real request>
+Output: <the exact artifact/report produced>
+
+## Output contract
+```
+<the literal shape the skill's final report must take>
+```
+If <gate/check> fails: report `BLOCKED at <gate>: <evidence>` and stop.
+
+## Related
+`<sibling-skill>`, `<sibling-skill>`

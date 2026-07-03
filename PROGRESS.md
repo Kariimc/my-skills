@@ -1,85 +1,67 @@
 # PROGRESS — session handoff
 
-> Last updated: 2026-07-03 (final-week session). Read this first;
-> if it conflicts with the code, the code wins.
+> Last updated: 2026-07-03 (final-week session, durable-leverage execution).
+> Read this first; if it conflicts with the code, the code wins.
 
 ## Where we are
 
-- **PR #19 (peak-condition audit) MERGED** to master as `ac27eca`. CI green.
-- **Branch `rework/karpathy-rules` in flight:** rules/ rewritten Karpathy-style
-  (9 files → 6, core loop + short leash + evidence-over-vibes; deleted
-  06-silent-execution, 08-deliverable-only, idp-control-plane — essence folded
-  into 00-core and 04). Adversarial review workflow ran before the PR.
-- **25-item durable-leverage audit DONE** (12-agent evidence sweep, outputs
-  the plan below): 0 DONE, 19 PARTIAL, 6 NOT_STARTED (#8 golden examples,
-  #12 hard-problems queue, #15 mid-tier curriculum, #17 research digest,
-  #18 synthetic data, #21 migration guides).
-- gh CLI durably authenticated (keyring, account Kariimc). context7 MCP added
-  (user scope, connected). jq / ripgrep / fd / shellcheck installed (user
-  scope; new shells have them).
+- PR #19 (peak-condition audit) and PR #20 (Karpathy rules rework) both
+  **MERGED** to master. Global CLAUDE.md now 804 words, Karpathy-shaped.
+- Branch **`build/durable-leverage-pack`**: the 25-item list executed (see
+  scoreboard below). Waves A–C ran as multi-agent workflows; D–E ran solo
+  after a session-limit block killed subagent spawning.
+- Brain repo: 14 new wiki artifacts + ARCHITECTURE.md, all committed locally
+  (brain has NO remote — deliberate until token history is purged, see
+  `adr/0003-brain-git-remote.md`).
 
-## THE 4-DAY PLAN (Karpathy-weighted; access ends in ~4 days)
+## 25-item scoreboard (was 0 DONE / 19 PARTIAL / 6 NOT_STARTED)
 
-Principle: convert intelligence into evals, playbooks, guardrails, finished
-decisions. Skip: #14 orchestration layer, #18 synthetic data, most Tier 4.
+DONE (artifact exists, grounded, verified where runnable):
+1 playbooks (wiki: debugging-heuristics, decision-frameworks,
+  architecture-tradeoffs) · 2 evals (.claude/evals/ + runnable
+  bin/eval-router.sh — 182/182) · 4 deep-maps (ARCHITECTURE.md ×3 repos;
+  Agetnic OS already had one) · 5 user distillation (wiki/user-primer.md) ·
+  6 scaffolds (scaffolds/) · 7 verification (gates + ratchet #9 + eval
+  runner) · 8 golden examples (golden-examples/) · 9 ADRs (adr/0001–0004) ·
+  10 debugging check-trees (in debugging-heuristics.md) · 11 instinct gates
+  (ratchet #9 + fixed inert gate_secrets) · 12 hard-problems queue (wiki) ·
+  14 model-agnostic stance (adr/0004) · 15 mid-tier curriculum (wiki +
+  training) · 17 niche digest (wiki, cited) · 18 dataset
+  (datasets/harness-routing, validated) · 19 undocumented systems
+  (credential-map, machine-rebuild-runbook) · 20 taste rubric (wiki) ·
+  21 migration guides (windows-10-eol-migration + SPOF plan) · 23 onboarding
+  (cold-start test run; primer written; hoopclone memories corrected) ·
+  24 worked-examples index (wiki) · nano-artifact (nano/nano_plane.py,
+  tested: route/gate/loop all pass, incl. a planted-secret catch).
 
-**Day 1 — Prune + urgent hygiene (½d), start recipes (½d)**
-- SECURITY (do first): move `C:\Dev\neon-forge-ui\token.txt` out of the repo;
-  confirm rotation of the Higgsfield token found in plaintext in an archived
-  transcript (`C:\Dev\brain\raw\inputs\`, flagged in ingestion-log.md).
-- Prune the 411-skill library to the set actually used (delete-first; use
-  agent-sort/config-gc). Complexity must pay rent.
-- Start playbooks: distill `debugging-heuristics.md`, `decision-frameworks.md`,
-  `architecture-tradeoffs.md` into `C:\Dev\brain\wiki\` from the 8 archived
-  transcripts + the 2 Agetnic-OS ADRs.
+PARTIAL (core done, tail is ongoing habit or user-gated):
+3 skill hardening — convention doc + 4 harnesses have output contracts; the
+  other ~400 skills are an ongoing ratchet, not a one-shot ·
+13 trainings — 2 interactive trainings live (~/.claude/advisor/trainings/);
+  the habit is the asset · 16 ship — inventoried + ranked in
+  hard-problems-queue; actual shipping = user decisions ·
+22 automation — XAVIER scheduled task exists but has NEVER fired (run
+  morning-briefing.ps1 once manually, then verify the 08:00 trigger) ·
+25 roadmap — structure + adversarial inputs done; real numbers need the
+  interview.
 
-**Day 2 — Recipes/playbooks (#1, #10, #24)**
-- Symptom→hypothesis→check debugging trees per real stack: Windows/PowerShell
-  (finish windows-env-repair DRAFT), Cloudflare Workers/wrangler, Claude Code
-  hooks. Store in brain/wiki.
-- Worked-examples index (`brain/wiki/worked-examples.md`): per hard problem —
-  problem → approach → key moves → outcome, linking the 8 transcripts.
+## USER-GATED (only you can do these)
 
-**Day 3 — Private evals (#2, #23)**
-- Author `.claude/evals/` rubrics + runnable checks for top workflows:
-  harness-router routing accuracy (expand the 1 smoke case to a 100+
-  prompt→expected-harness suite), second-brain ingest correctness,
-  neon-forge-ui component acceptance. Wire into apex-gates/CI.
-- Cold-start onboarding test: fresh session gets only CLAUDE.md + PROGRESS.md +
-  MEMORY.md; patch every gap it reveals; reconcile stale per-project memories
-  (hoopclone memory contradicts reality).
+1. **Rotate the Higgsfield token** (user said "later" — it's burned; also
+   still recoverable from brain git HISTORY; purge before any brain remote).
+2. **Advisor interview** (~15 min) → plan-12mo v1 + flagship decision (#25).
+3. Win10 vs Win11: an Agetnic-OS memory says Win11 "confirmed", env says
+   Win10 Home past EOL. Answer decides whether the EOL migration is real.
+4. Authorize the MCP connectors you actually use (claude.ai settings).
+5. Merge the `build/durable-leverage-pack` PR when CI is green.
 
-**Day 4 — Tutoring→notes (#13, #20) + nano-artifact + decisions**
-- Tutoring sessions on weakest fundamentals → spaced-repetition notes;
-  1-2 more advisor trainings.
-- Personal taste rubric (stop-slop format, scored 1-10 + threshold) extracted
-  from loved examples, for UI and writing.
-- Nano-artifact: minimal readable reimplementation of the control-plane core
-  (router + gates + one harness loop) the user fully understands.
-- END: advisor interview (~15 min, user parked it here) → plan-12mo v1 with
-  real numbers + flagship decision + adversarial premortem (#25).
+## Machine gotchas (full detail in project memory + wiki/debugging-heuristics)
 
-## Next actions (in order)
-
-1. Merge PR for `rework/karpathy-rules` (user gates merges).
-2. Execute Day 1 (security items first).
-3. User-only: authorize the MCP connectors actually used (claude.ai connector
-   settings); ~40 plugin servers are unauthenticated noise.
-4. Advisor interview at the END of day 4 (user's explicit sequencing).
-
-## Machine gotchas (full detail in project memory)
-
-- `python3`/`python` = slow WindowsApps shim (~1.2s/spawn). Fast interpreter:
-  `C:\Users\karii\AppData\Local\Python\pythoncore-3.14-64\python.exe`.
-- Git Bash forks are slow; bulk per-file shell loops over 400+ dirs time out —
-  use single-pass awk/python.
-- Commits/pushes run the apex gate suite: ~5 min each. Run in background with
-  a 10-min budget.
-- Long-lived agent shells have stale PATH: gh/jq/rg/fd need full paths there;
-  fresh terminals are fine.
-- Editing ~/.claude/settings.json is classifier-blocked for the agent — hand
-  the user a script (pattern: bin/apply-hook-tuning.sh).
-- Never put guarded strings (rm -rf /, force push) literally in a Bash command
-  line — the live guard blocks the call; pipe test payloads from files.
-- Windows 10 Home 10.0.19045: past end-of-support since Oct 2025 — migration
-  plan is an open item (#21).
+- Fast python: `C:\Users\karii\AppData\Local\Python\pythoncore-3.14-64\python.exe`
+  (PATH `python` = 1.2s WindowsApps shim). ASCII-only in printed strings —
+  cp1252 consoles crash on unicode arrows.
+- Apex gates ~5 min per commit/push; run in background with 10-min budget.
+- Long-lived shells have stale PATH (gh/jq/rg/fd need full paths).
+- settings.json edits are classifier-blocked — hand the user a script.
+- Never put guarded strings or live tokens literally in a command line — the
+  guard/classifier blocks the call; pipe from files.

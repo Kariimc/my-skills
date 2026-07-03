@@ -58,6 +58,26 @@ For competitor work, chain the purpose-built trio:
 `competitive-platform-analysis` → `benchmark-methodology` →
 `competitive-report-structure`.
 
+## Output contract
+
+The final answer MUST separate what's known from what isn't:
+
+```
+ANSWER:     <the synthesis — every non-trivial claim ends with [n]>
+SOURCES:    [n] = <title — URL — date accessed>
+CONFIDENCE: <high/medium/low per major claim, one line each>
+UNVERIFIED: <claims that survived on one source or none — listed, not blended in>
+MISSING:    <the angle/source a completeness pass says wasn't covered>
+```
+
+Worked example claim + source pair:
+`Micro-SaaS template stores commonly monetize via one-time tiers around $99–299 [3]`
+`[3] Freemius — State of Micro-SaaS 2025 — https://freemius.com/... — accessed 2026-07-03`
+
+Hard rules for a mid-tier executor: never cite a source you didn't fetch;
+a claim with no source goes under UNVERIFIED, never in ANSWER; when two
+sources conflict, show both with dates instead of picking silently.
+
 ## Related
 `deep-research` (full harness), `exa-search`, `iterative-retrieval`,
 `research-ops`.

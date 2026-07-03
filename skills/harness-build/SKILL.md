@@ -64,6 +64,31 @@ intent → PLAN → BUILD (parallel) → REVIEW → VERIFY → SHIP
 ## Quality gates (all must pass before SHIP)
 correctness · security · performance · simplicity · loop-integrity.
 
+## Output contract
+
+The harness's final report MUST be exactly this shape — no extra prose:
+
+```
+SHIPPED: <one line — what now exists and where (branch/PR/paths)>
+CHANGED: <file list with one-phrase purpose each>
+GATES:   correctness=<pass/fail+evidence> security=<..> simplicity=<..>
+VERIFY:  <the actual command run and its real output line — not "tests pass">
+RISKS:   <known risks + rollback step, or "none">
+```
+
+Worked example (real shape, minimal case):
+
+```
+SHIPPED: /export endpoint on branch feat/export (PR #12, draft)
+CHANGED: api/export.ts (new route), api/router.ts (mount), export.test.ts (4 cases)
+GATES:   correctness=pass(4/4 tests) security=pass(no input reaches shell) simplicity=pass(no new deps)
+VERIFY:  `npm test -- export` → "4 passed, 0 failed"
+RISKS:   large exports unpaginated — follow-up issue #13; rollback = revert PR
+```
+
+If any gate fails, STOP and report `BLOCKED at <gate>: <evidence>` instead of
+shipping — a mid-tier model must never improvise past a failed gate.
+
 ## Related
 `plan-orchestrate`, `software-implementation`, `orch-pipeline`,
 `subagent-driven-development`, `verify`, `code-review`.
