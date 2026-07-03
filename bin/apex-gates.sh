@@ -81,8 +81,8 @@ gate_secrets() {
   while IFS= read -r file; do
     [ -f "$file" ] || continue
     case "$file" in *.png|*.jpg|*.jpeg|*.gif|*.pdf|*.ico|*.webp) continue;; esac
-    if grep -nIEq "$pat" "$file" 2>/dev/null; then
-      echo "    leak in $file:"; grep -nIE "$pat" "$file" 2>/dev/null | sed 's/^/      /' | cut -c1-120; hits=$((hits+1))
+    if grep -nIEq -e "$pat" "$file" 2>/dev/null; then
+      echo "    leak in $file:"; grep -nIE -e "$pat" "$file" 2>/dev/null | sed 's/^/      /' | cut -c1-120; hits=$((hits+1))
     fi
   done < <(scan_files)
   [ "$hits" -gt 0 ] && note_hard "$hits file(s) contain credential-shaped strings"

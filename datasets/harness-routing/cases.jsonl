@@ -1,0 +1,182 @@
+{"prompt": "run the PR watcher every 5 minutes and fix what breaks", "expected": "harness-autonomous"}
+{"prompt": "check the deploy every 30 seconds until it goes green", "expected": "harness-autonomous"}
+{"prompt": "poll the queue every 2 min and process new jobs", "expected": "harness-autonomous"}
+{"prompt": "back up the database every 6 hours", "expected": "harness-autonomous"}
+{"prompt": "run this on a schedule overnight", "expected": "harness-autonomous"}
+{"prompt": "schedule a nightly regression run", "expected": "harness-autonomous"}
+{"prompt": "set up a cron job for the sitemap rebuild", "expected": "harness-autonomous"}
+{"prompt": "add a cron entry to purge stale sessions daily", "expected": "harness-autonomous"}
+{"prompt": "keep working through the backlog until it's empty", "expected": "harness-autonomous"}
+{"prompt": "keep running the babysitter until all PRs merge", "expected": "harness-autonomous"}
+{"prompt": "keep going until the test suite is fully green", "expected": "harness-autonomous"}
+{"prompt": "run this autonomously without me babysitting it", "expected": "harness-autonomous"}
+{"prompt": "monitor CI and re-push until it passes", "expected": "harness-autonomous"}
+{"prompt": "watch the error logs and alert me on spikes", "expected": "harness-autonomous"}
+{"prompt": "babysit the open pull requests today", "expected": "harness-autonomous"}
+{"prompt": "process the whole list in a loop", "expected": "harness-autonomous"}
+{"prompt": "do this continuously in the background", "expected": "harness-autonomous"}
+{"prompt": "run it continuously and report anomalies", "expected": "harness-autonomous"}
+{"prompt": "set up a recurring weekly report", "expected": "harness-autonomous"}
+{"prompt": "make this a recurring task every Monday", "expected": "harness-autonomous"}
+{"prompt": "monitor the staging environment for regressions", "expected": "harness-autonomous"}
+{"prompt": "watch the folder and ingest new files as they land", "expected": "harness-autonomous"}
+{"prompt": "keep the index warm continuously", "expected": "harness-autonomous"}
+{"prompt": "run every day at 2am and email the digest", "expected": "none"}
+{"prompt": "audit the auth flow for security holes", "expected": "harness-audit"}
+{"prompt": "audit our Terraform for misconfigurations", "expected": "harness-audit"}
+{"prompt": "do a security audit of the payments service", "expected": "harness-audit"}
+{"prompt": "audit the repo for secrets in git history", "expected": "harness-audit"}
+{"prompt": "run an accessibility audit on the checkout page", "expected": "harness-audit"}
+{"prompt": "audit the API surface for breaking changes", "expected": "harness-audit"}
+{"prompt": "give me a security review of the login endpoint", "expected": "harness-audit"}
+{"prompt": "security review the file upload handler", "expected": "harness-audit"}
+{"prompt": "scan the dependencies for vulnerabilities", "expected": "harness-audit"}
+{"prompt": "are there any known vulnerabilities in these packages", "expected": "harness-audit"}
+{"prompt": "is this service production-ready?", "expected": "harness-audit"}
+{"prompt": "is the deploy pipeline production ready", "expected": "harness-audit"}
+{"prompt": "take an inventory of every public endpoint", "expected": "harness-audit"}
+{"prompt": "inventory the feature flags still in use", "expected": "harness-audit"}
+{"prompt": "assess the blast radius of this change", "expected": "harness-audit"}
+{"prompt": "assess our current logging coverage", "expected": "harness-audit"}
+{"prompt": "what's broken in the onboarding funnel", "expected": "harness-audit"}
+{"prompt": "what's wrong with the retry logic", "expected": "harness-audit"}
+{"prompt": "what's redundant across these config files", "expected": "harness-audit"}
+{"prompt": "what's missing from the error handling", "expected": "harness-audit"}
+{"prompt": "check the session handling for security problems", "expected": "harness-audit"}
+{"prompt": "check the parser for bugs", "expected": "harness-audit"}
+{"prompt": "check the webhook code for issues", "expected": "harness-audit"}
+{"prompt": "research the best message queue for our load", "expected": "harness-research"}
+{"prompt": "research approaches to rate limiting at scale", "expected": "harness-research"}
+{"prompt": "investigate why latency spikes at midnight", "expected": "harness-research"}
+{"prompt": "investigate the root cause of the memory leak", "expected": "harness-research"}
+{"prompt": "compare Postgres vs MySQL for our workload", "expected": "harness-research"}
+{"prompt": "compare Stripe and Adyen on fees and coverage", "expected": "harness-research"}
+{"prompt": "who are the main competitors in this space", "expected": "harness-research"}
+{"prompt": "size up the competitor landscape for note apps", "expected": "harness-research"}
+{"prompt": "do a competitive analysis of the top 3 tools", "expected": "harness-research"}
+{"prompt": "run a market analysis for AI meeting notetakers", "expected": "harness-research"}
+{"prompt": "do market research on the wearables segment", "expected": "harness-research"}
+{"prompt": "what's the best vector database right now", "expected": "harness-research"}
+{"prompt": "what's the best way to do blue-green deploys", "expected": "harness-research"}
+{"prompt": "find out which CDN has the lowest TTFB", "expected": "harness-research"}
+{"prompt": "find out whether this library is still maintained", "expected": "harness-research"}
+{"prompt": "do due diligence on this acquisition target", "expected": "harness-research"}
+{"prompt": "fact-check the claims in this blog post", "expected": "harness-research"}
+{"prompt": "fact check these statistics before I publish", "expected": "harness-research"}
+{"prompt": "make the dashboard beautiful", "expected": "harness-quality"}
+{"prompt": "the hero section should be beautiful and modern", "expected": "harness-quality"}
+{"prompt": "I want production-quality output, no shortcuts", "expected": "harness-quality"}
+{"prompt": "ship production-quality copy for the landing page", "expected": "harness-quality"}
+{"prompt": "the final result must be polished", "expected": "harness-quality"}
+{"prompt": "make sure the animation feels polished", "expected": "harness-quality"}
+{"prompt": "no slop — every pixel should be intentional", "expected": "harness-quality"}
+{"prompt": "make it stunning", "expected": "harness-quality"}
+{"prompt": "the deck needs to look stunning", "expected": "harness-quality"}
+{"prompt": "give me a high-craft onboarding flow", "expected": "harness-quality"}
+{"prompt": "top-quality illustrations only", "expected": "harness-quality"}
+{"prompt": "make it look great", "expected": "harness-quality"}
+{"prompt": "make it gorgeous", "expected": "harness-quality"}
+{"prompt": "make it premium", "expected": "harness-quality"}
+{"prompt": "make it look premium and expensive", "expected": "harness-quality"}
+{"prompt": "refactor the auth module into smaller units", "expected": "harness-refactor"}
+{"prompt": "refactor this god class", "expected": "harness-refactor"}
+{"prompt": "refactor the payment code without changing behavior", "expected": "harness-refactor"}
+{"prompt": "simplify this nested conditional", "expected": "harness-refactor"}
+{"prompt": "simplify the state management here", "expected": "harness-refactor"}
+{"prompt": "dedupe the validation logic across controllers", "expected": "harness-refactor"}
+{"prompt": "deduplicate the config loaders", "expected": "harness-refactor"}
+{"prompt": "consolidate these three helper files", "expected": "harness-refactor"}
+{"prompt": "consolidate the duplicated fetch wrappers", "expected": "harness-refactor"}
+{"prompt": "remove the dead code in utils", "expected": "harness-refactor"}
+{"prompt": "there's dead code all over this file, strip it", "expected": "harness-refactor"}
+{"prompt": "find the duplicate functions and merge them", "expected": "harness-refactor"}
+{"prompt": "we have duplicate logic in the services layer", "expected": "harness-refactor"}
+{"prompt": "reduce the complexity of this parser", "expected": "harness-refactor"}
+{"prompt": "reduce duplication between the two clients", "expected": "harness-refactor"}
+{"prompt": "tidy up the codebase", "expected": "harness-refactor"}
+{"prompt": "tidy up before we hand this off", "expected": "harness-refactor"}
+{"prompt": "clean up the code in this module", "expected": "harness-refactor"}
+{"prompt": "clean up my imports", "expected": "harness-refactor"}
+{"prompt": "clean up this function", "expected": "harness-refactor"}
+{"prompt": "clean up the module structure", "expected": "harness-refactor"}
+{"prompt": "build me a REST API for todos", "expected": "harness-build"}
+{"prompt": "build a multiplayer snake game", "expected": "harness-build"}
+{"prompt": "build an app to track my workouts", "expected": "harness-build"}
+{"prompt": "build the ingestion pipeline", "expected": "harness-build"}
+{"prompt": "implement pagination for the results list", "expected": "harness-build"}
+{"prompt": "implement OAuth login", "expected": "harness-build"}
+{"prompt": "implement the webhook receiver", "expected": "harness-build"}
+{"prompt": "ship a new settings page", "expected": "harness-build"}
+{"prompt": "ship the export feature", "expected": "harness-build"}
+{"prompt": "ship an admin dashboard", "expected": "harness-build"}
+{"prompt": "create an app for splitting bills", "expected": "harness-build"}
+{"prompt": "create a game about recycling", "expected": "harness-build"}
+{"prompt": "create an API for the mobile client", "expected": "harness-build"}
+{"prompt": "create a tool to lint our configs", "expected": "harness-build"}
+{"prompt": "create a website for the launch", "expected": "harness-build"}
+{"prompt": "add a dark mode feature", "expected": "harness-build"}
+{"prompt": "add an endpoint for password reset", "expected": "harness-build"}
+{"prompt": "add a settings page to the app", "expected": "harness-build"}
+{"prompt": "add an onboarding screen", "expected": "harness-build"}
+{"prompt": "add a slash command for status", "expected": "harness-build"}
+{"prompt": "write a CLI to scaffold projects", "expected": "harness-build"}
+{"prompt": "write an app that reads RSS feeds", "expected": "harness-build"}
+{"prompt": "write a service to resize images", "expected": "harness-build"}
+{"prompt": "hey, how's it going?", "expected": "none"}
+{"prompt": "thanks, that's perfect", "expected": "none"}
+{"prompt": "what time is it?", "expected": "none"}
+{"prompt": "good morning", "expected": "none"}
+{"prompt": "lol nice", "expected": "none"}
+{"prompt": "can you explain what a closure is?", "expected": "none"}
+{"prompt": "what does this error mean?", "expected": "none"}
+{"prompt": "translate this sentence to French", "expected": "none"}
+{"prompt": "what's 17 times 23?", "expected": "none"}
+{"prompt": "summarize this paragraph", "expected": "none"}
+{"prompt": "rename this variable to userId", "expected": "none"}
+{"prompt": "fix the typo in the README", "expected": "none"}
+{"prompt": "what's the capital of France?", "expected": "none"}
+{"prompt": "tell me a joke", "expected": "none"}
+{"prompt": "who wrote Hamlet?", "expected": "none"}
+{"prompt": "format this JSON", "expected": "none"}
+{"prompt": "convert this to TypeScript", "expected": "none"}
+{"prompt": "explain how git rebase works", "expected": "none"}
+{"prompt": "polish the landing page", "expected": "none"}
+{"prompt": "we still need to polish the onboarding", "expected": "none"}
+{"prompt": "polishing the UI copy", "expected": "none"}
+{"prompt": "ship it", "expected": "none"}
+{"prompt": "let's just ship it today", "expected": "none"}
+{"prompt": "we're shipping the app on Friday", "expected": "none"}
+{"prompt": "add pagination", "expected": "none"}
+{"prompt": "add error handling", "expected": "none"}
+{"prompt": "add logging to the worker", "expected": "none"}
+{"prompt": "add tests for the parser", "expected": "none"}
+{"prompt": "rebuild the search index", "expected": "none"}
+{"prompt": "the build is failing", "expected": "none"}
+{"prompt": "building blocks for the design system", "expected": "none"}
+{"prompt": "audit the project for dead code", "expected": "harness-audit"}
+{"prompt": "audit this file for duplicate functions", "expected": "harness-audit"}
+{"prompt": "remove dead code from the handlers", "expected": "harness-refactor"}
+{"prompt": "compare a few charting libraries and pick one to build with", "expected": "harness-research"}
+{"prompt": "audit the vendors and compare their security posture", "expected": "harness-audit"}
+{"prompt": "build a tool to monitor uptime", "expected": "harness-autonomous"}
+{"prompt": "build a dashboard that monitors uptime", "expected": "harness-build"}
+{"prompt": "watch the logs and audit for anomalies", "expected": "harness-autonomous"}
+{"prompt": "schedule a job to clean up dead code nightly", "expected": "harness-autonomous"}
+{"prompt": "build a beautiful landing page", "expected": "harness-quality"}
+{"prompt": "refactor this until the API feels polished", "expected": "harness-quality"}
+{"prompt": "assess whether Kafka or RabbitMQ fits better", "expected": "harness-audit"}
+{"prompt": "investigate this crash and find the root cause", "expected": "harness-research"}
+{"prompt": "check the migration script for issues", "expected": "harness-audit"}
+{"prompt": "clean up the meeting notes", "expected": "none"}
+{"prompt": "clean up my desk reminders", "expected": "none"}
+{"prompt": "update the inventory count for SKU 42", "expected": "harness-audit"}
+{"prompt": "design a watch face UI", "expected": "harness-autonomous"}
+{"prompt": "compare these two color swatches for me", "expected": "harness-research"}
+{"prompt": "help me implement the sorting comparator", "expected": "harness-build"}
+{"prompt": "can you simplify this explanation into code", "expected": "harness-refactor"}
+{"prompt": "there is dead code here and also a bug to fix", "expected": "harness-refactor"}
+{"prompt": "make the service production-ready", "expected": "harness-audit"}
+{"prompt": "rewrite the docs with no slop", "expected": "harness-quality"}
+{"prompt": "add a recurring subscription plan", "expected": "harness-autonomous"}
+{"prompt": "run due diligence on this open-source dependency", "expected": "harness-research"}
+{"prompt": "read the research and summarize the tradeoffs", "expected": "harness-research"}

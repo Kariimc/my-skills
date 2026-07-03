@@ -13,6 +13,7 @@ most once. New entries are added by `bin/apex-ratchet.sh`. Append-only.
 | 6 | Credential-shaped strings reaching a commit | `gate_secrets` |
 | 7 | The guards themselves being deleted, gutted, or un-wired | `gate_selfintegrity` |
 | 8 | A regression landing on `master` with local hooks bypassed | `.github/workflows/apex.yml` (CI mirror) |
+| 9 | A bare high-entropy token (40-hex, no prefix) committed in plaintext — `gate_secrets` only matched *prefixed* keys and its PEM pattern started with `-----`, which grep parsed as options (rc=2), leaving it silently inert on Windows | `apex/checks/no-plaintext-secrets-in-brain.sh` (bare-token + literal-assignment shapes) **+** fixed `gate_secrets` to pass `-e` |
 
 > Gates 1–8 were the mistakes of the first month. Everything after this line is a
 > mistake the ratchet caught once and will never allow again.
