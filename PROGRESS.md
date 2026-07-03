@@ -5,14 +5,24 @@
 
 ## Where we are
 
-- PR #19 (peak-condition audit) and PR #20 (Karpathy rules rework) both
-  **MERGED** to master. Global CLAUDE.md now 804 words, Karpathy-shaped.
-- Branch **`build/durable-leverage-pack`**: the 25-item list executed (see
-  scoreboard below). Waves A–C ran as multi-agent workflows; D–E ran solo
-  after a session-limit block killed subagent spawning.
-- Brain repo: 14 new wiki artifacts + ARCHITECTURE.md, all committed locally
-  (brain has NO remote — deliberate until token history is purged, see
-  `adr/0003-brain-git-remote.md`).
+- PRs #19, #20, and **#21 (durable-leverage pack) all MERGED** to master.
+  Global CLAUDE.md 804 words, Karpathy-shaped; the 25-item list is executed
+  (scoreboard below).
+- Brain repo: 16 wiki artifacts + ARCHITECTURE.md committed locally. NO
+  remote — deliberate until token rotation + history purge
+  (`adr/0003-brain-git-remote.md`). A tested in-memory purge script is ready
+  at the session scratchpad (`purge_history.py`, .git backup taken); running
+  it needs the user's explicit go (classifier-gated as destructive).
+- **Machine migration incoming:** HP EliteBook arrives ~2026-07-06; Win11
+  upgrade path found for the current Win10 box. Setup = follow
+  `brain/wiki/machine-rebuild-runbook.md`; close the brain+advisor SPOF gap
+  BEFORE retiring this box.
+- Higgsfield token: after the user rotates it on the platform, the new value
+  goes in **`C:\Dev\neon-forge-ui\token.txt`** (entire file = the token, one
+  line; deploy.ps1 reads env-first then that file; no persistent HF_TOKEN env
+  var exists). Then clear/refresh the old cached credential for
+  apps-repos.higgsfield.ai in Windows Credential Manager and verify with
+  `git ls-remote`.
 
 ## 25-item scoreboard (was 0 DONE / 19 PARTIAL / 6 NOT_STARTED)
 
@@ -47,13 +57,23 @@ PARTIAL (core done, tail is ongoing habit or user-gated):
 
 ## USER-GATED (only you can do these)
 
-1. **Rotate the Higgsfield token** (user said "later" — it's burned; also
-   still recoverable from brain git HISTORY; purge before any brain remote).
-2. **Advisor interview** (~15 min) → plan-12mo v1 + flagship decision (#25).
-3. Win10 vs Win11: an Agetnic-OS memory says Win11 "confirmed", env says
-   Win10 Home past EOL. Answer decides whether the EOL migration is real.
+1. ~~Rotate the Higgsfield token~~ **IMPOSSIBLE user-side** — verified twice
+   2026-07-03: no regeneration exists AND the token is **account-scoped** (a
+   fresh website returned the byte-identical token, so rebuild/delete cannot
+   rotate it). Only rotation: a Higgsfield support ticket. Containment is
+   permanent policy (credential-map.md §1). Delete the old handoff docs in
+   `~/Downloads` that still carry it.
+2. **Run the brain history purge** (classifier requires the user to run or
+   specifically name it; script is safety-railed, .git backup exists):
+   `C:\Users\karii\AppData\Local\Python\pythoncore-3.14-64\python.exe <session-scratchpad>\purge_history.py`
+   — a durable copy lives at `C:\Dev\brain\purge_history.py` (committed).
+3. **Advisor interview** (~15 min) → plan-12mo v1 + flagship decision (#25).
 4. Authorize the MCP connectors you actually use (claude.ai settings).
-5. Merge the `build/durable-leverage-pack` PR when CI is green.
+5. When the EliteBook lands (~Jul 6): machine-rebuild-runbook.md, and back up
+   brain + ~/.claude/advisor off-machine first.
+
+(Resolved: Win10-vs-Win11 contradiction — it IS Win10 today; upgrade path
+found; the wrong Agetnic-OS memory has been corrected.)
 
 ## Machine gotchas (full detail in project memory + wiki/debugging-heuristics)
 
