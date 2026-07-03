@@ -1,16 +1,15 @@
 ---
 name: visual-prototype
 description: >-
-  Build a high-fidelity, fully interactive, single-file UI/UX prototype with a built-in
-  "Tweak & Comment" review overlay (click-to-pin feedback, live markdown export, theme/
-  brand/motion/density/viewport tweaks, and loading/empty/error/reset states). Use this
-  whenever the user wants to prototype, mock up, design, wireframe, or visualize an app,
-  screen, dashboard, game UI, landing page, component, or user flow they can click through
-  and give feedback on — even if they don't say the word "prototype." Trigger it for "show
-  me what X could look like," "make a clickable mockup," "design a UI for," "build a demo
-  of this screen," or when iterating on a prototype from pasted review feedback. This is the
-  default skill for visual front-end mockups meant for review and iteration, similar to
-  Claude Design.
+  Build a high-fidelity, interactive, single-file UI/UX prototype with a
+  built-in "Tweak & Comment" review overlay (click-to-pin feedback, markdown
+  export, theme/motion/viewport tweaks). Use whenever the user wants to
+  prototype, mock up, design, wireframe, or visualize an app, screen,
+  dashboard, game UI, landing page, component, or user flow they can click
+  through — even without the word "prototype." Trigger for "show me what X
+  could look like," "make a clickable mockup," "design a UI for," "build a
+  demo of this screen," or when iterating from pasted review feedback. The
+  default skill for reviewable front-end mockups.
 ---
 
 # Visual Prototype

@@ -1,13 +1,14 @@
 # Skills Catalog
 
-386 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
+411 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
 auto-loaded into every project via the SessionStart sync hook (see the repo
 root `README.md`). Claude invokes a skill automatically when your request
 matches its `description` — you can also force one with `/<skill-name>`.
 
 Counts: 52 original · 6 authored (engineering/game gaps) · 49 imported &
 adapted from upstream repos (see [Imported skills](#imported-skills)) · 276
-imported in the ECC + ponytail batch (see [Imported batch](#-imported-batch--ecc--ponytail)).
+imported in the ECC + ponytail batch (see [Imported batch](#-imported-batch--ecc--ponytail))
+· plus later one-off additions (advisor, codebase-memory, neon-forge-ui, windows-env-repair, …).
 
 ---
 
@@ -36,6 +37,8 @@ imported in the ECC + ponytail batch (see [Imported batch](#-imported-batch--ecc
 | `backend-design` | Game/realtime backends — matchmaking, leaderboards, WebSockets, anti-cheat. |
 | `api-integration` | Integrate free/open APIs — auth, rate limiting, async fetch pipelines. |
 | `session-start-hook` | Build Claude Code SessionStart hooks for web/remote environments. |
+| `codebase-memory` | Query the codebase knowledge graph (callers, call chains, impact analysis, dead code) via the codebase-memory MCP tools. |
+| `windows-env-repair` | Repair a broken Windows dev environment — OneDrive-redirected folders, lost project paths, broken git links, config drift. |
 
 ## 🌐 Web & Frontend
 | Skill | What it does |
@@ -45,6 +48,7 @@ imported in the ECC + ponytail batch (see [Imported batch](#-imported-batch--ecc
 | `web-scraper` | Robust web scraping pipelines. |
 | `accessibility` | WCAG 2.2 AA/AAA, ARIA, keyboard nav, automated a11y CI testing. |
 | `visual-prototype` | High-fidelity single-file interactive UI mockups with a built-in "Tweak & Comment" review overlay (click-to-pin feedback, markdown export). |
+| `neon-forge-ui` | Expert agent for the Neon Forge UI library (React 19 + TanStack Start + Tailwind v4 dark-mode component workbench) — add components, preview, deploy. |
 
 ## 🎨 Design & Creative
 | Skill | What it does |

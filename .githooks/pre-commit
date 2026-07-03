@@ -20,8 +20,14 @@ GATES="$ROOT/bin/apex-gates.sh"
 # No doctor in this repo → nothing to guard.
 [ -x "$DOCTOR" ] || exit 0
 
-# 1. Self-heal safe drift, then re-stage only the metadata files it owns.
-"$DOCTOR" --fix || true
+# 1. Self-heal safe drift + doctor gate in ONE pass. skill-doctor exits
+#    nonzero on HARD findings even in --fix mode, so this run both heals and
+#    enforces — the full doctor takes minutes on Windows, so it must not run
+#    twice per commit.
+if ! "$DOCTOR" --fix; then
+  echo "✗ pre-commit blocked: skill-doctor found HARD failures." >&2
+  exit 1
+fi
 for meta in README.md skills/TRIGGERLESS-REPORT.md; do
   if [ -f "$ROOT/$meta" ] && ! git -C "$ROOT" diff --quiet -- "$meta" 2>/dev/null; then
     git -C "$ROOT" add -- "$meta"
@@ -29,15 +35,14 @@ for meta in README.md skills/TRIGGERLESS-REPORT.md; do
   fi
 done
 
-# 2. Full apex gate suite (or doctor-only fallback if apex-gates is absent).
+# 2. Remaining apex gates (doctor already ran above — skip its gate).
 if [ -x "$GATES" ]; then
-  if ! "$GATES" all --staged; then
-    echo "" >&2
-    echo "✗ pre-commit blocked: apex gates found HARD failures (above)." >&2
-    echo "  Fix them, or run: bin/apex.sh" >&2
-    exit 1
-  fi
-elif ! "$DOCTOR"; then
-  echo "✗ pre-commit blocked: skill-doctor found HARD failures." >&2
-  exit 1
+  for g in hooklint secrets selfintegrity extra live; do
+    if ! "$GATES" "$g" --staged; then
+      echo "" >&2
+      echo "✗ pre-commit blocked: apex gate '$g' failed (above)." >&2
+      echo "  Fix it, or run: bin/apex.sh" >&2
+      exit 1
+    fi
+  done
 fi

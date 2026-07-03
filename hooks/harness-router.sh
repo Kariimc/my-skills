@@ -14,15 +14,29 @@ set -euo pipefail
 # context. We print one short hint block, or nothing.
 # ─────────────────────────────────────────────────────────────────────────────
 
-# No python3 → no-op (never block the prompt).
-command -v python3 >/dev/null 2>&1 || { exit 0; }
+# Resolve the fastest available python; no interpreter → no-op (never block
+# the prompt). Prefer a real install over the WindowsApps Store shim, which
+# adds ~1s per spawn on this machine.
+ROUTER_PY=""
+for cand in \
+  "${LOCALAPPDATA:-}/Python/pythoncore-3.14-64/python.exe" \
+  "${LOCALAPPDATA:-}/Programs/Python/Python313/python.exe" \
+  "${LOCALAPPDATA:-}/Programs/Python/Python312/python.exe"; do
+  [ -x "$cand" ] && ROUTER_PY="$cand" && break
+done
+if [ -z "$ROUTER_PY" ]; then
+  if command -v python3 >/dev/null 2>&1; then ROUTER_PY=python3
+  elif command -v python >/dev/null 2>&1; then ROUTER_PY=python
+  else exit 0
+  fi
+fi
 
 # Read the hook payload from stdin into an env var. We can't let the heredoc
 # below consume stdin (Python would then read the script, not the payload).
 HARNESS_HOOK_INPUT="$(cat)"
 export HARNESS_HOOK_INPUT
 
-python3 - <<'PY'
+"$ROUTER_PY" - <<'PY'
 import os, json, re, sys
 
 # Force UTF-8 stdout so the arrows in the hint blurbs never crash on Windows
