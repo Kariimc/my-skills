@@ -57,14 +57,16 @@ PARTIAL (core done, tail is ongoing habit or user-gated):
 
 ## USER-GATED (only you can do these)
 
-1. ~~Rotate the Higgsfield token~~ **IMPOSSIBLE** — verified 2026-07-03 via
-   the platform's own API: no user-facing regeneration exists; the token is a
-   permanent standing credential scoped to the user's website repos.
-   Containment is the permanent policy (credential-map.md §1). Delete the old
-   handoff docs in `~/Downloads` that still carry it.
-2. **Approve the brain history purge** (script ready + backed up) — now
-   MANDATORY, not optional: purging history is the only way the secret ever
-   stops being recoverable (adr/0003 amendment).
+1. ~~Rotate the Higgsfield token~~ **IMPOSSIBLE user-side** — verified twice
+   2026-07-03: no regeneration exists AND the token is **account-scoped** (a
+   fresh website returned the byte-identical token, so rebuild/delete cannot
+   rotate it). Only rotation: a Higgsfield support ticket. Containment is
+   permanent policy (credential-map.md §1). Delete the old handoff docs in
+   `~/Downloads` that still carry it.
+2. **Run the brain history purge** (classifier requires the user to run or
+   specifically name it; script is safety-railed, .git backup exists):
+   `C:\Users\karii\AppData\Local\Python\pythoncore-3.14-64\python.exe <session-scratchpad>\purge_history.py`
+   — a durable copy lives at `C:\Dev\brain\purge_history.py` (committed).
 3. **Advisor interview** (~15 min) → plan-12mo v1 + flagship decision (#25).
 4. Authorize the MCP connectors you actually use (claude.ai settings).
 5. When the EliteBook lands (~Jul 6): machine-rebuild-runbook.md, and back up
