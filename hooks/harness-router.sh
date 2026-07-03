@@ -77,7 +77,7 @@ elif has(r"\baudit\b", r"\bwhat'?s (broken|wrong|redundant|missing)\b",
          r"\bproduction[- ]ready", r"\binventory\b", r"\bassess\b",
          r"\bcheck .* for (bugs|issues|problems|security)\b"):
     hint = ("harness-audit", "Audit Harness",
-            "inventory the live surface → rank by severity → verify → code-first fixes")
+            "inventory the live surface → rank by severity → verify (read-only; fixes are a separate step)")
 
 # 3. Research — investigate / compare / fact-find.
 elif has(r"\bresearch\b", r"\binvestigat", r"\bcompare\b", r"\bcompetitor",
@@ -113,11 +113,9 @@ elif has(r"\bbuild (me |a |an |the )", r"\bimplement\b", r"\bship (a|an|the)\b",
 if hint:
     name, title, blurb = hint
     print(
-        f"[harness-router] This request matches the **{title}**. "
-        f"Prefer the `{name}` skill ({blurb}) unless the task is trivial "
-        f"enough to do directly. The six ultimate harnesses are: harness-build, "
-        f"harness-quality, harness-research, harness-audit, harness-autonomous, "
-        f"harness-refactor."
+        f"[harness-router] This may match the **{title}** — `{name}` "
+        f"({blurb}). Hint, not a mandate: use it only if the task genuinely "
+        f"exceeds a single focused loop; otherwise do the work directly."
     )
 PY
 exit 0

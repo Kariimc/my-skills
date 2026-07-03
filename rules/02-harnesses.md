@@ -1,28 +1,19 @@
-# THE SIX ULTIMATE HARNESSES
+# ORCHESTRATION — DEFAULT SIMPLE, SCALE DELIBERATELY
 
-Six named orchestration loops sit on top of the skill library. They are the
-canonical way substantial work gets done. A `UserPromptSubmit` hook
-(`harness-router.sh`) auto-routes matching prompts to the right one, but you
-should reach for them on your own judgement too — the router is a safety net,
-not the only trigger.
+Default to the direct core loop above. Reach for an orchestration harness
+skill only when a single focused loop genuinely can't do the job: the work
+exceeds one context window, needs an adversarial pass, or every claim must be
+source-verified.
 
-| Harness | Skill | Use when | Shape |
-|---|---|---|---|
-| Build | `harness-build` | build / implement / add / ship a feature, app, game, API | plan → parallel build → review → verify → ship |
-| Quality (GAN) | `harness-quality` | output must be polished / production-grade / no slop | generate ↔ adversarial evaluator ↔ iterate to a rubric |
-| Research | `harness-research` | research / investigate / compare / fact-find | fan-out searches → fetch → adversarially verify → cite |
-| Audit | `harness-audit` | audit / review a surface for problems (find) | inventory live surface → rank by severity → verify |
-| Autonomous | `harness-autonomous` | continuous / scheduled / monitored / looping work | wake → load memory → act → gate → persist → reschedule |
-| Refactor | `harness-refactor` | refactor / simplify / dedupe / remove dead code (fix) | baseline behavior → small reversible steps → verify unchanged |
+| Harness skill | Use when |
+|---|---|
+| `harness-build` | multi-part feature/app/API builds |
+| `harness-quality` | output must clear an adversarial quality bar |
+| `harness-research` | fact-finding; every claim checked against a source |
+| `harness-audit` | find problems across a surface (read-only) |
+| `harness-refactor` | change structure, prove behavior unchanged |
+| `harness-autonomous` | scheduled / looping work across sessions |
 
-Audit vs Refactor: Audit *finds* problems (read-only); Refactor *fixes*
-structure without changing behavior. "audit for dead code" → audit;
-"remove dead code" → refactor.
-
-Rules of thumb:
-- Skip the harness for trivial work (single-file fix, one-line answer) — they
-  exist to add rigor to substantial tasks, not ceremony to small ones.
-- Harnesses compose: `harness-autonomous` runs the others on a schedule;
-  `harness-quality` is `harness-build` with an adversarial quality gate.
-- Each harness delegates to the real specialist agents and skills already in the
-  library (build-resolvers, reviewers, `deep-research`, `gan-*`, audit skills).
+Audit finds, refactor fixes. A UserPromptSubmit router may suggest a harness —
+treat it as a hint, not a mandate. Never add orchestration where a simple
+script or single loop would do; complexity must pay rent.

@@ -4,19 +4,21 @@ Markdown files here are concatenated (sorted by filename) into your **global**
 `~/.claude/CLAUDE.md` on every session start. That file is loaded as
 instructions in **every** project you open — so these are your always-on rules.
 
+The set is deliberately Karpathy-shaped: one core loop (understand → smallest
+change → verify → distill), a short leash with diff-level transparency, and
+orchestration only where a simple loop genuinely can't do the job.
+
 | File | Purpose |
 |---|---|
-| `02-harnesses.md` | The six ultimate harnesses and when each applies. |
-| `03-apex.md` | Apex gates: the control-plane quality bar and how it's enforced. |
-| `04-response-mode.md` | LEARNING MODE (my-coding-journey only, teaching rules live in that repo's CLAUDE.md) vs APEX MODE (dense, deliverable-first) everywhere else. |
-| `05-github-workflow.md` | Autonomous git/GitHub flow — branch, commit, PR; ask only before merging to master. |
-| `06-silent-execution.md` | No narration before/during/after tool runs; deliver outcomes only. |
+| `00-core.md` | The core loop: understand first, smallest change, prove it, distill. Short leash; autonomy scales with verification. Preview gate for brand-new builds. |
+| `02-harnesses.md` | Orchestration inverted: default simple; six harness skills only when a task exceeds one context. Complexity must pay rent. |
+| `03-apex.md` | Gates are law: never bypass, fix the gate instead; ratchet each escaped mistake into a permanent check. |
+| `04-response-mode.md` | Output style: learning mode in my-coding-journey only; everywhere else write like a good commit message — outcome first, show the diff, evidence over vibes. |
+| `05-github-workflow.md` | Autonomous git/GitHub; small single-purpose commits; the one gate is merging to master. |
 | `07-progress-file.md` | Read/maintain PROGRESS.md as the session handoff in any repo. |
-| `08-deliverable-only.md` | Reply shape is prompt → deliverable; no process talk, no mechanics. |
-| `idp-control-plane.md` | Lean IDP lifecycle — understand → prototype gate (new builds) → build → validate (correctness/security/perf/simplicity/loop-safety) → document. |
 
 Learning-mode teaching rules (explain-like-I'm-five, step-by-step, 🎓 recaps)
-moved into `C:\Dev\my-coding-journey\CLAUDE.md` — they load only there.
+live in `C:\Dev\my-coding-journey\CLAUDE.md` — they load only there.
 
 ## How to use
 - **Add a rule set:** drop a new `NN-name.md` file here. Use a numeric prefix to
