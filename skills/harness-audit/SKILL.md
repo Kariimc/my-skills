@@ -80,5 +80,14 @@ Worked example row:
 A finding without a file:line or reproducible command is NOT a finding — drop
 it or mark it explicitly as `UNVERIFIED-HYPOTHESIS`.
 
+## Subagent protocol (all dispatches)
+- **Refusals escalate, never re-route.** A subagent safety refusal is returned
+  verbatim to the operator/user; NEVER rephrase, split, or retry the request to
+  get around it. Log it as `BLOCKED-SAFETY: <task>` and continue other lanes.
+- **Artifacts, not claims.** A subagent's "done" counts only with pasted command
+  output / diff / URL. No artifact → treat as not done, one revise cycle.
+- **Two revisions, then up.** A subtask failing its gate twice escalates to the
+  operator with the failing evidence — never a third silent retry.
+
 ## Related
 `code-review`, `verification-before-completion`.

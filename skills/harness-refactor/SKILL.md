@@ -59,6 +59,30 @@ BASELINE → IDENTIFY → REFACTOR (small step) → VERIFY (behavior unchanged) 
 - Stop when the targeted smell is gone — refactoring has no natural "done", so
   bound it to the goal you started with. Don't gold-plate.
 
+## Output contract
+
+"Behavior unchanged" is evidenced, never asserted:
+
+```
+BASELINE: <test command + count green before any change>
+STEPS:    <n> transformations, each named (extract/inline/dedupe/delete) + LOC delta
+VERIFY:   <same test command + count green after — identical count or explained>
+REVERTED: <steps rolled back mid-run, or "none">
+SMELL:    <the targeted smell> → <gone|reduced, with the measurement>
+```
+
+Worked example:
+`BASELINE: pytest -q → 47 passed · STEPS: 4 (extract crowd_bowl, extract spawner, dedupe texture-load, delete dead GameState wire) −212 LOC · VERIFY: pytest -q → 47 passed · REVERTED: none · SMELL: main.gd god-object → 430→61 lines`
+
+## Subagent protocol (all dispatches)
+- **Refusals escalate, never re-route.** A subagent safety refusal is returned
+  verbatim to the operator/user; NEVER rephrase, split, or retry the request to
+  get around it. Log it as `BLOCKED-SAFETY: <task>` and continue other lanes.
+- **Artifacts, not claims.** A subagent's "done" counts only with pasted command
+  output / diff / URL. No artifact → treat as not done, one revise cycle.
+- **Two revisions, then up.** A subtask failing its gate twice escalates to the
+  operator with the failing evidence — never a third silent retry.
+
 ## Related
 `simplify` (slash), `make-interfaces-feel-better`, `finding-duplicate-functions`.
 Underlying agents: `code-simplifier`, `refactor-cleaner`, `type-design-analyzer`.

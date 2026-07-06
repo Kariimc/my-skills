@@ -89,6 +89,15 @@ RISKS:   large exports unpaginated — follow-up issue #13; rollback = revert PR
 If any gate fails, STOP and report `BLOCKED at <gate>: <evidence>` instead of
 shipping — a mid-tier model must never improvise past a failed gate.
 
+## Subagent protocol (all dispatches)
+- **Refusals escalate, never re-route.** A subagent safety refusal is returned
+  verbatim to the operator/user; NEVER rephrase, split, or retry the request to
+  get around it. Log it as `BLOCKED-SAFETY: <task>` and continue other lanes.
+- **Artifacts, not claims.** A subagent's "done" counts only with pasted command
+  output / diff / URL. No artifact → treat as not done, one revise cycle.
+- **Two revisions, then up.** A subtask failing its gate twice escalates to the
+  operator with the failing evidence — never a third silent retry.
+
 ## Related
 `plan-orchestrate`, `software-implementation`, `orch-pipeline`,
 `subagent-driven-development`, `verify`, `code-review`.
