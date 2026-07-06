@@ -33,10 +33,47 @@ fi
 CLAUDE_DIR="$HOME/.claude"
 mkdir -p "$CLAUDE_DIR"
 
-# ── 1. Skills ────────────────────────────────────────────────────────────────
+# ── Mirror helpers (repo is the SOURCE OF TRUTH) ─────────────────────────────
+# The old sync used additive `cp -r`, so anything deleted or renamed in the repo
+# lingered in ~/.claude/ forever (skills kept auto-triggering). These mirror the
+# destination to the repo — deletions propagate. rsync isn't available on the
+# Windows/git-bash host, so this is delete-then-copy. Both print what they remove
+# so the first sync per machine (which may drop hand-dropped local-only entries)
+# is auditable. WARNING: a skill/command/agent that exists ONLY in ~/.claude and
+# not in the repo will be removed — put it in the repo to keep it.
+mirror_tree() {  # $2 becomes an exact copy of the tree at $1
+  local src="$1" dst="$2" removed=""
+  if [ -d "$dst" ]; then
+    removed=$(comm -23 \
+      <(cd "$dst" && find . -type f 2>/dev/null | sort) \
+      <(cd "$src" && find . -type f 2>/dev/null | sort)) || true
+    [ -n "$removed" ] && { echo "[session-start] mirror $(basename "$dst"): removing entries gone from repo:"; echo "$removed" | sed 's|^\./|  - |'; }
+    rm -rf "$dst"
+  fi
+  mkdir -p "$dst"
+  cp -r "$src/." "$dst/"
+}
+mirror_md_files() {  # $2 := the non-README *.md files of $1 (per-file mirror)
+  local src="$1" dst="$2" base=""
+  mkdir -p "$dst"
+  for existing in "$dst"/*.md; do
+    [ -e "$existing" ] || continue
+    base=$(basename "$existing")
+    [ "$base" = "README.md" ] && continue
+    if [ ! -f "$src/$base" ]; then
+      echo "[session-start] mirror $(basename "$dst"): removing $base (gone from repo)"
+      rm -f "$existing"
+    fi
+  done
+  for f in "$src"/*.md; do
+    [ "$(basename "$f")" = "README.md" ] && continue
+    cp "$f" "$dst/"
+  done
+}
+
+# ── 1. Skills (MIRROR) ───────────────────────────────────────────────────────
 if [ -d "$PROJECT_DIR/skills" ]; then
-  mkdir -p "$CLAUDE_DIR/skills"
-  cp -r "$PROJECT_DIR/skills/." "$CLAUDE_DIR/skills/"
+  mirror_tree "$PROJECT_DIR/skills" "$CLAUDE_DIR/skills"
 fi
 
 # ── 2. Rules -> global CLAUDE.md ─────────────────────────────────────────────
@@ -50,24 +87,16 @@ if [ -d "$PROJECT_DIR/rules" ] && compgen -G "$PROJECT_DIR/rules/*.md" > /dev/nu
   done
 fi
 
-# ── 3. Slash commands ────────────────────────────────────────────────────────
+# ── 3. Slash commands (MIRROR, per-file, README excluded) ────────────────────
 # Each commands/*.md becomes /<name>; README.md is docs, so skip it.
 if [ -d "$PROJECT_DIR/commands" ] && compgen -G "$PROJECT_DIR/commands/*.md" > /dev/null; then
-  mkdir -p "$CLAUDE_DIR/commands"
-  for cmd in "$PROJECT_DIR"/commands/*.md; do
-    [ "$(basename "$cmd")" = "README.md" ] && continue
-    cp "$cmd" "$CLAUDE_DIR/commands/"
-  done
+  mirror_md_files "$PROJECT_DIR/commands" "$CLAUDE_DIR/commands"
 fi
 
-# ── 4. Subagents ─────────────────────────────────────────────────────────────
+# ── 4. Subagents (MIRROR, per-file, README excluded) ─────────────────────────
 # Each agents/*.md becomes a callable subagent; README.md is docs, so skip it.
 if [ -d "$PROJECT_DIR/agents" ] && compgen -G "$PROJECT_DIR/agents/*.md" > /dev/null; then
-  mkdir -p "$CLAUDE_DIR/agents"
-  for agent in "$PROJECT_DIR"/agents/*.md; do
-    [ "$(basename "$agent")" = "README.md" ] && continue
-    cp "$agent" "$CLAUDE_DIR/agents/"
-  done
+  mirror_md_files "$PROJECT_DIR/agents" "$CLAUDE_DIR/agents"
 fi
 
 # ── 5. Hooks (global) ────────────────────────────────────────────────────────
