@@ -63,6 +63,16 @@ your PATH (Git for Windows provides it with the default install options).
 | `.claude/` | — | This repo's own config: the sync hook + settings. Not synced out. |
 | `global-skills-guide.pdf` | — | Plain-English guide to the imported ECC + ponytail batch. |
 
+> **Sync is a mirror — this repo is the source of truth.** The SessionStart hook
+> mirrors `skills/`, `commands/`, and `agents/` into `~/.claude/`: anything you
+> delete or rename here is removed there on the next sync (deletions used to
+> linger forever). **First sync on a new machine:** any skill/command/agent that
+> lives only in `~/.claude/` and was never committed here will be deleted — the
+> hook prints every entry it removes (`[session-start] mirror <dir>: removing …`)
+> so you can rescue anything worth keeping by committing it to the repo first.
+> `rules/` was already a from-zero rebuild, so it always had correct delete
+> semantics.
+
 ---
 
 ## 🜲 apex — the supreme guardrail layer
