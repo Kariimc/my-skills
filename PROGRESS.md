@@ -24,6 +24,15 @@
   apps-repos.higgsfield.ai in Windows Credential Manager and verify with
   `git ls-remote`.
 
+## Portfolio remediation — Task 10 disposition (2026-07-06)
+
+- Sub-Scraper = **EXECUTED** (PR #1 merged — 287 lines of network-free
+  scrape/normalize tests, 38/38 green in CI, bite-proven).
+- Omni-3d = **SKIPPED as parked** — last meaningful commit 2026-06-19
+  (17 days stale), still on an abandoned `claude/dazzling-meitner-i36b3k`
+  branch with 0 tests; not active enough to warrant the test-breadth pass per
+  Task 10's conditional.
+
 ## 25-item scoreboard (was 0 DONE / 19 PARTIAL / 6 NOT_STARTED)
 
 DONE (artifact exists, grounded, verified where runnable):
