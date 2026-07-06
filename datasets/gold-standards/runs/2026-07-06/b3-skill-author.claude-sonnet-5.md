@@ -1,0 +1,1 @@
+The `plan-gate` skill already exists at `skills/plan-gate/SKILL.md` and matches exactly what you're asking for — same trigger phrasing ("blocks any edit... 5-line plan"), same five fields, worked example, and named failure mode (mid-task scope drift). No changes needed; nothing to write.
