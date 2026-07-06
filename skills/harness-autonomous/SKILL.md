@@ -53,6 +53,29 @@ WAKE (cron) → LOAD memory → pick next task → DO → GATE → WRITE memory 
   **loop-operator** agent. Always have an explicit termination condition —
   no unbounded loops.
 
+## Output contract
+
+Every wake writes exactly one report line to the run log (file-based memory),
+even when nothing happened — silence is indistinguishable from a crash:
+
+`WAKE <iso-ts>: picked=<task|none> did=<one line> gate=<pass/fail+evidence> next=<iso-ts> state=<progress|stalled(k)|done>`
+
+Worked example:
+`WAKE 2026-07-07T08:00: picked=brief did=wrote PROGRESS summary, 3 repos gate=pass(file exists, 41 lines) next=2026-07-08T08:00 state=progress`
+
+Hard rules: `stalled(k)` at k≥3 triggers the recover step, k≥5 notifies the
+user and pauses the schedule — an autonomous loop that can only fail loudly.
+`done` requires the explicit termination condition, quoted.
+
+## Subagent protocol (all dispatches)
+- **Refusals escalate, never re-route.** A subagent safety refusal is returned
+  verbatim to the operator/user; NEVER rephrase, split, or retry the request to
+  get around it. Log it as `BLOCKED-SAFETY: <task>` and continue other lanes.
+- **Artifacts, not claims.** A subagent's "done" counts only with pasted command
+  output / diff / URL. No artifact → treat as not done, one revise cycle.
+- **Two revisions, then up.** A subtask failing its gate twice escalates to the
+  operator with the failing evidence — never a third silent retry.
+
 ## Related
 `autonomous-agent-harness`, `agentic-os`, `continuous-agent-loop`,
 `autonomous-loops`. Underlying agent: `loop-operator`.

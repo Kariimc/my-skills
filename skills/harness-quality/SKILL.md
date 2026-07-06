@@ -86,6 +86,15 @@ Worked example verdict line:
 The evaluator's score is the only one that counts. A generator claiming
 quality without an evaluator round is a contract violation — re-run the loop.
 
+## Subagent protocol (all dispatches)
+- **Refusals escalate, never re-route.** A subagent safety refusal is returned
+  verbatim to the operator/user; NEVER rephrase, split, or retry the request to
+  get around it. Log it as `BLOCKED-SAFETY: <task>` and continue other lanes.
+- **Artifacts, not claims.** A subagent's "done" counts only with pasted command
+  output / diff / URL. No artifact → treat as not done, one revise cycle.
+- **Two revisions, then up.** A subtask failing its gate twice escalates to the
+  operator with the failing evidence — never a third silent retry.
+
 ## Related
 `gan-style-harness` (full reference), `eval-harness`,
 `agent-self-evaluation`, `benchmark-optimization-loop`. Underlying agents:

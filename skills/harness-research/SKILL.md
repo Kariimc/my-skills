@@ -78,6 +78,15 @@ Hard rules for a mid-tier executor: never cite a source you didn't fetch;
 a claim with no source goes under UNVERIFIED, never in ANSWER; when two
 sources conflict, show both with dates instead of picking silently.
 
+## Subagent protocol (all dispatches)
+- **Refusals escalate, never re-route.** A subagent safety refusal is returned
+  verbatim to the operator/user; NEVER rephrase, split, or retry the request to
+  get around it. Log it as `BLOCKED-SAFETY: <task>` and continue other lanes.
+- **Artifacts, not claims.** A subagent's "done" counts only with pasted command
+  output / diff / URL. No artifact → treat as not done, one revise cycle.
+- **Two revisions, then up.** A subtask failing its gate twice escalates to the
+  operator with the failing evidence — never a third silent retry.
+
 ## Related
 `deep-research` (full harness), `exa-search`, `iterative-retrieval`,
 `research-ops`.
