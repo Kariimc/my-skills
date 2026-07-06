@@ -34,6 +34,17 @@ with a "prefer X" pointer.
 | **Frontend / UI** | `ui-ux-design`, `web-implementation` | `frontend-design` → aesthetic direction only · `web-artifacts-builder` → claude.ai artifacts only · `theme-factory` → theming existing artifacts only | ✅ narrowed |
 | **Docs writing** | — (disambiguated) | `coding-notes` → code README/changelog · `doc-coauthoring` → interactive prose co-authoring | ✅ cross-referenced |
 
+## fable-parity-pack (added 2026-07-06)
+- **Session wrap-up** — `session-reflect` (new) collided with `project-context-loader`
+  on the "wrap up a session" trigger and the PROGRESS.md write target. Narrowed
+  `session-reflect`'s description to fire only on an explicit reflect/debrief
+  request or a repeated correction, and to state it complements
+  `project-context-loader`'s routine handoff rather than replacing it.
+  `project-context-loader` untouched. ✅ narrowed
+- `plan-gate`, `scope-fence`, `tests-bite` checked against `writing-plans`,
+  `executing-plans`, `verification-before-completion`, `test-driven-development`,
+  `tdd-workflow` — distinct altitude/scope in each case, no collision.
+
 ## Left as-is (intentional, not collisions)
 - **Code review** — `code-review` / `requesting-code-review` / `receiving-code-review` are
   complementary (do / request / receive), not competing.

@@ -15,6 +15,7 @@ orchestration only where a simple loop genuinely can't do the job.
 | `03-apex.md` | Gates are law: never bypass, fix the gate instead; ratchet each escaped mistake into a permanent check. |
 | `04-response-mode.md` | Output style: learning mode in my-coding-journey only; everywhere else write like a good commit message — outcome first, show the diff, evidence over vibes. |
 | `05-github-workflow.md` | Autonomous git/GitHub; small single-purpose commits; the one gate is merging to master. |
+| `06-fable-parity.md` | Execution discipline: plan before edit, spec is the fence, tests must bite, artifacts not claims, reflect on exit, model routing. |
 | `07-progress-file.md` | Read/maintain PROGRESS.md as the session handoff in any repo. |
 | `08-relay.md` | Read/write the Kariimc/relay cross-surface handoff system every session: global HANDOFF.md state, per-surface inboxes, append-only log. |
 
