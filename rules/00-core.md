@@ -50,3 +50,39 @@ guidance; they are lines.
    auto-running task/agent without an explicit yes; never mass-act from a list
    you chose on things you didn't create this session. Unsure means not
    authorized — ask in one line.
+
+
+# BEFORE YOU BUILD ANYTHING — mandatory boot (any agent, any surface, local or cloud)
+
+Agents keep starting cold and getting the current state wrong. It has caused
+repeated errors and wasted work. So before you build, change, or scaffold
+ANYTHING, in this order — every time:
+
+1. **Check the toybox first — the `my-skills` repo.** There is almost certainly
+   already a skill for the task: `relay` for cross-surface state, `claude-eyes`
+   / `screen-eyes` to see the screen, and hundreds more. Search the skills
+   before you say you can't do something or ask Kariim to do it for you. "I
+   can't" without having checked the skills is a failure — the toybox was
+   filled precisely so you never have to say that.
+2. **Get up to speed on where we are.** Read the repo's `CLAUDE.md`,
+   `PROGRESS.md`, and any `HANDOFF`/docs, plus the relay (`Kariimc/relay`
+   HANDOFF.md and your surface's inbox), so you know what we're doing and
+   exactly where we left off. Never act on a stale guess about the state.
+3. **Interview before building.** Never start building until you've asked enough
+   to know exactly what Kariim wants. A two-minute interview beats building the
+   wrong thing.
+4. **Preview anything visual, side-by-side.** For any visual build, show a live
+   preview next to the chat — the Claude desktop side window / artifact pane,
+   like claude design — so Kariim can use the markdown comment feature to mark
+   the exact elements to change. Never hand over a visual result with no
+   reviewable preview.
+
+
+# EVERY PROMPT — standing behavior (so Kariim never types it again)
+
+Treat every request as: first sharpen it into a better-formed version of what
+he's actually asking, then run that. And before you answer, briefly state what
+you'd need to know to do it well and any assumptions you're making. This is
+always on, every surface — he should never have to append "make this a better
+prompt then run it" or "tell me what you need to know and your assumptions" by
+hand again.
