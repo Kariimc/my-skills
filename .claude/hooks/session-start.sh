@@ -71,9 +71,38 @@ mirror_md_files() {  # $2 := the non-README *.md files of $1 (per-file mirror)
   done
 }
 
-# ── 1. Skills (MIRROR) ───────────────────────────────────────────────────────
+# ── 1. Skills (TIERED MIRROR) ────────────────────────────────────────────────
+# If always-load.txt lists a core set, only those skills load into ~/.claude/
+# (the rest stay in the repo, one `pull-skill <name>` away). Built in a temp dir
+# and atomically swapped so a mid-build failure never touches the live dir.
+# Hard FLOOR: absent/empty/malformed list, or fewer than 5 resolved skills, or a
+# missing `relay` sentinel => fall back to mirroring ALL skills. The live skills
+# dir is NEVER emptied — a bad list can't wipe the guardrails fleet-wide.
 if [ -d "$PROJECT_DIR/skills" ]; then
-  mirror_tree "$PROJECT_DIR/skills" "$CLAUDE_DIR/skills"
+  CORE_LIST="$PROJECT_DIR/always-load.txt"
+  if [ -f "$CORE_LIST" ]; then
+    tmp="$CLAUDE_DIR/skills.tmp.$$"
+    rm -rf "$tmp"; mkdir -p "$tmp"
+    n=0
+    while IFS= read -r name || [ -n "$name" ]; do
+      name="$(printf '%s' "$name" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+      case "$name" in ''|\#*) continue ;; esac
+      if [ -d "$PROJECT_DIR/skills/$name" ] && cp -r "$PROJECT_DIR/skills/$name" "$tmp/" 2>/dev/null; then
+        n=$((n+1))
+      fi
+    done < "$CORE_LIST"
+    if [ "$n" -ge 5 ] && [ -d "$tmp/relay" ]; then
+      rm -rf "$CLAUDE_DIR/skills"
+      mv "$tmp" "$CLAUDE_DIR/skills"
+      echo "[session-start] skills: tiered core loaded ($n); full library in repo — /pull-skill <name> to add one"
+    else
+      rm -rf "$tmp"
+      mirror_tree "$PROJECT_DIR/skills" "$CLAUDE_DIR/skills"
+      echo "[session-start] skills: core list empty/invalid ($n resolved) — mirrored ALL as safe fallback"
+    fi
+  else
+    mirror_tree "$PROJECT_DIR/skills" "$CLAUDE_DIR/skills"
+  fi
 fi
 
 # ── 2. Rules -> global CLAUDE.md ─────────────────────────────────────────────

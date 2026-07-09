@@ -1,0 +1,45 @@
+# always-load.txt — the skills that load into ~/.claude/skills every session.
+# Everything else stays in this repo's skills/ ("just in case") and is one
+# `pull-skill <name>` away. Derived from the standing rules (the workflow's
+# always-on skills) + the failure-map guards, not hand-picked.
+# Blank lines and #comments are ignored. Empty/invalid list => ALL skills load
+# (safe fallback). Add a name here to make an on-demand skill permanent.
+
+# --- keep an agent in check / stop drift ---
+plan-gate
+scope-fence
+tests-bite
+session-reflect
+verification-before-completion
+rules-distill
+when-stuck
+requesting-code-review
+receiving-code-review
+
+# --- efficiency / control-plane ---
+relay
+apex
+skill-ship
+project-context-loader
+config-gc
+workspace-surface-audit
+using-skills
+token-saver
+context-budget
+
+# --- your actual workflow ---
+visual-prototype
+screen-eyes
+plain-language
+stop-slop
+git-workflow
+github-ops
+debugger
+
+# --- harnesses (scale deliberately) ---
+harness-build
+harness-quality
+harness-research
+harness-audit
+harness-refactor
+harness-autonomous
