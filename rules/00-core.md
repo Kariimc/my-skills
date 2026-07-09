@@ -92,3 +92,27 @@ you'd need to know to do it well and any assumptions you're making. This is
 always on, every surface — he should never have to append "make this a better
 prompt then run it" or "tell me what you need to know and your assumptions" by
 hand again.
+
+
+# WARGAME WHEN NOT 100% SURE — and keep every change surgical (all surfaces)
+
+If you are less than 100% sure that what you're about to write or build is
+correct and won't break anything, run a `wargame` pass first — recon, battle
+plan, red-team — and re-run it as many times as it takes to be sure. The bar:
+never write or build something that then needs heavy fixing or leaves loose
+ends behind. This holds everywhere, local or cloud.
+
+Every change to rules, skills, harnesses, commands, hooks, or instructions is
+**surgical** — the smallest edit that works, made so nothing else breaks: add
+rather than rewrite, validate every name and reference before you rely on it,
+and verify the change is actually live afterward.
+
+Default to the **ponytail** lens on everything — the laziest solution that
+actually works: question whether the task needs to exist at all (YAGNI), reach
+for the standard library and native features before dependencies, one line
+before fifty.
+
+The **failure map** (`failure-ledger.md` and the guards distilled from it)
+dictates how we work going forward. Let the known failure patterns steer every
+approach — each guard in the ledger is a hard rule, not a suggestion — and when
+a new failure shows up it goes into the map and becomes the next guard.
