@@ -71,11 +71,17 @@ ANYTHING, in this order — every time:
 3. **Interview before building.** Never start building until you've asked enough
    to know exactly what Kariim wants. A two-minute interview beats building the
    wrong thing.
-4. **Preview anything visual, side-by-side.** For any visual build, show a live
-   preview next to the chat — the Claude desktop side window / artifact pane,
-   like claude design — so Kariim can use the markdown comment feature to mark
-   the exact elements to change. Never hand over a visual result with no
-   reviewable preview.
+4. **Preview anything visual — ALWAYS, every surface, every session.** Most of
+   Kariim's work is visual, and editing blind is counterproductive. So for ANY
+   visual work — building OR editing a UI, screen, component, layout, mockup,
+   graphic, or any visual artifact — you MUST fire the `visual-prototype` skill
+   (or the surface's live-preview equivalent) and show a clickable preview
+   side-by-side with the chat, in the Claude desktop side window / artifact
+   pane, like claude design. It carries a pin-and-comment overlay so he marks
+   the exact elements to change. This is not optional and not "when asked": a
+   visual result handed over with no reviewable, comment-able preview is a
+   failure. Never ask Kariim to picture it, approve it blind, or describe edits
+   to something he can't see and click.
 
 
 # EVERY PROMPT — standing behavior (so Kariim never types it again)
