@@ -1,0 +1,16 @@
+{"query":"build an angular component using signals and reactive forms","expect":["angular-developer"]}
+{"query":"read and fill in a pdf form and merge two pdfs","expect":["pdf"]}
+{"query":"create a word document report with headings and a table of contents","expect":["docx"]}
+{"query":"clean up a messy spreadsheet and add formulas and a chart","expect":["xlsx"]}
+{"query":"check this page for wcag color contrast and keyboard access","expect":["accessibility"]}
+{"query":"scrape product listings from a website into structured json","expect":["web-scraper"]}
+{"query":"ocr a scanned document and redact sensitive fields","expect":["nutrient-document-processing"]}
+{"query":"write a failing test first then make it pass then refactor","expect":["test-driven-development"]}
+{"query":"turn a ruleset blueprint into a standardized skill file","expect":["skill-builder"]}
+{"query":"search our previous claude conversations for a past decision","expect":["remembering-conversations"]}
+{"query":"orchestrate multiple agents with handoffs and shared memory","expect":["agent-swarm"]}
+{"query":"design a single ai agent with json tool schemas and a rag pipeline","expect":["ai-agent-developer"]}
+{"query":"load shared cross-surface state and message another claude surface","expect":["relay"]}
+{"query":"prepare a model for 3d printing and slice it","expect":["3d-printing"]}
+{"query":"solve a hard symbolic calculus and linear algebra problem","expect":["advanced-math"]}
+{"query":"extract ui structure and architecture from a screenshot","expect":["ai-vision"]}
