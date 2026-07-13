@@ -243,6 +243,29 @@ export const AngelcoreMV: React.FC = () => (
 Render: `npx remotion render src/index.ts AngelcoreMV out.mp4`. See `remotion-video-creation`
 for project setup, audio track binding, and render flags.
 
+## The Taste Scorecard
+
+Guidance above tells you what to make. This tells you whether you made it. Score a
+**finished cut** (not a plan, not selects) against these eight axes. Each is 1–5; multiply
+by its weight; a cut ships at **≥ 80 / 100**. Any axis at **1–2 is a hard block** regardless
+of total — fix it before the total means anything.
+
+| # | Axis | 1 (reject) | 3 (passable) | 5 (ships) | Weight |
+|---|------|-----------|-------------|-----------|:---:|
+| 1 | **Coherence** — one look across all shots | reads as a pile of unrelated generations | mostly one look, 2–3 stragglers | 30 shots, one direction, zero stragglers | ×5 |
+| 2 | **Beat lock** — every hard cut on a beat/transient | cuts float free of the music | most cuts land, a few drift | you can feel the BPM in the edit | ×5 |
+| 3 | **Palette discipline** — one accent per shot | accents collide; muddy grade | mostly clean, one bleed | gold-in-dark / iridescence-in-light held everywhere; red used ≤ twice | ×4 |
+| 4 | **Signature move** — hero-on-black macro carries the verses | absent | present but soft | rhythmic macro-on-black montage is the spine of the verse | ×3 |
+| 5 | **Arrangement mapping** — sections match the shot plan | edit ignores the song's structure | drop reads as drop, rest is loose | intro/verse/drop/bridge/outro each land their assigned mood | ×3 |
+| 6 | **Rejection rigor** — generate 10, keep 2 | filler shots padding the runtime | one or two weak holds | every shot earns its place; nothing held past its phrase | ×3 |
+| 7 | **Cleanliness** — no chrome, one aspect ratio | UI/status bars/captions visible; mixed ratios | one stray frame | frame-clean throughout, single 9:16 timeline | ×2 |
+| 8 | **Intentionality** — reads as authored, not AI-slop | generic vibe soup | competent but forgettable | a stranger would call it *a piece*, not *a reel* | ×5 |
+
+Weights sum to ×30 → max raw 150, normalized to /100. Score fast and honestly; the point is
+to catch the flat cut *before* export, not to produce a pretty number. When an axis blocks,
+the fix is in the section it points back to — Coherence → Aesthetic Vocabulary, Beat lock →
+Beat Math, Palette → Mood System, and so on.
+
 ## Key Principles
 
 1. **Decide the genre before the first generation.** Pick one primary family + one accent.
@@ -251,7 +274,8 @@ for project setup, audio track binding, and render flags.
 4. **Hero-on-black macro is the signature move.** Master it; it carries the verses.
 5. **Generate 10, keep 2.** Coherence comes from rejection, not from prompting harder.
 6. **Crop the chrome.** No status bars, captions, or UI in the final frame.
-7. **Taste is decided first and judged last.** Set the direction, then defend it on every cut.
+7. **Taste is decided first and judged last.** Set the direction, then defend it on every cut —
+   and before export, run the finished cut through **The Taste Scorecard** (≥ 80/100, no axis at 1–2).
 
 ## Related Skills
 
