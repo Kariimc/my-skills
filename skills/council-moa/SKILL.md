@@ -22,6 +22,19 @@ Pipeline: **triage → propose → debate → synthesize → verify → refine.*
 - Routine or low-stakes questions, simple lookups, formatting, or anything with one obvious answer.
 - Latency- or cost-sensitive paths (a full run is many model calls). Default to `quick` when embedding; `deep`/`max` for deliberate decisions.
 
+## Pick the agents first (each run — ask before dispatching)
+
+Before running the council (engine or inline), ask the user which agents to use —
+one question for the advisors/proposers (workers), one for the Arbiter + Adversary
+(judge). Dispatch nothing until they answer. Offer as the recommended (first) pick:
+
+- **Workers (advisors / proposers):** Sonnet 5 (high)
+- **Judge (Arbiter + Adversary):** Opus 4.8 (high) or Fable 5 (low)
+
+For the bundled engine, pass the pick through the `models` map (`proposer` = workers,
+`aggregator` + `verifier` = judge); defaults already reflect the recommendation.
+Same behaviour on every surface — Claude chat (incl. Windows) and Claude CLI.
+
 ## How to run it (preferred): the bundled engine
 
 Run from this skill's directory. It auto-detects `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`.

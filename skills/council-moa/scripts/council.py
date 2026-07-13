@@ -18,9 +18,9 @@ As a library (any provider via dependency injection):
 Mixed-tier models (the big quality lever — cheap proposers, strong arbiter):
     call = anthropic_call(models={
         "triage":     "claude-haiku-4-5-20251001",
-        "proposer":   "claude-sonnet-4-6",
-        "aggregator": "claude-opus-4-8",
-        "verifier":   "claude-opus-4-8",
+        "proposer":   "claude-sonnet-5",    # workers
+        "aggregator": "claude-opus-4-8",    # judge (or "claude-fable-5")
+        "verifier":   "claude-opus-4-8",    # judge (or "claude-fable-5")
     })
 
 Zero hard dependencies for the core. The built-in callers need the matching
@@ -328,7 +328,7 @@ def anthropic_call(models: Optional[dict] = None, web_search: bool = True,
     defaults you can override per role."""
     import anthropic
     client = anthropic.Anthropic()
-    m = {"triage": "claude-haiku-4-5-20251001", "proposer": "claude-sonnet-4-6",
+    m = {"triage": "claude-haiku-4-5-20251001", "proposer": "claude-sonnet-5",
          "aggregator": "claude-opus-4-8", "verifier": "claude-opus-4-8"}
     m.update(models or {})
 

@@ -82,7 +82,7 @@ PROVIDERS = {
     "openrouter": {"base": "https://openrouter.ai/api/v1", "env": ("OPENROUTER_API_KEY",), "default": "meta-llama/llama-3.3-70b-instruct:free"},
     "gemini":     {"base": "https://generativelanguage.googleapis.com/v1beta/openai/", "env": ("GEMINI_API_KEY", "GOOGLE_API_KEY"), "default": "gemini-2.5-flash"},
     "openai":     {"base": "https://api.openai.com/v1", "env": ("OPENAI_API_KEY",), "default": "gpt-4o-mini"},
-    "anthropic":  {"base": None, "env": ("ANTHROPIC_API_KEY",), "default": "claude-sonnet-4-6"},
+    "anthropic":  {"base": None, "env": ("ANTHROPIC_API_KEY",), "default": "claude-sonnet-5"},
 }
 
 

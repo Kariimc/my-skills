@@ -39,6 +39,12 @@ PLAN → ┌─ GENERATOR ──build──▶ artifact ─┐
    repeat until score ≥ threshold for N consecutive rounds
 ```
 
+### 0. Pick the agents (each run — ask first, dispatch nothing until answered)
+Before any generate/evaluate round, ask the user which agents to use — one
+question for the generator (worker), one for the evaluator (judge). Recommended
+(first) pick: generator = Sonnet 5 (high); evaluator = Opus 4.8 (high) or Fable 5
+(low). Same on every surface — Claude chat (incl. Windows) and Claude CLI.
+
 ### 1. Plan
 - Use the **gan-planner** agent (or `brainstorming`) to expand the one-line
   prompt into a spec: features, sprints, **explicit evaluation criteria**, and
