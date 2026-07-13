@@ -16,6 +16,13 @@ the implementation, so a gate listed here that loses its code is itself a failur
 
 Severity: **HARD** failures block the action; **soft** issues warn only.
 
+**Doc-only fast path:** `gate_doctor` re-scans the whole skill library (slow). A
+commit or push whose change set touches no `skills/` or `agents/` files cannot
+move that metadata, so doctor is **skipped** for it (the run prints
+`doctor … skipped`). This is not a bypass — doctor runs the instant a skill or
+agent is touched, and every other gate always runs. It exists so doc-only
+commits don't wait minutes for a check that can't fail.
+
 ## Enforcement points
 - **pre-commit** (`.githooks/pre-commit`) — auto-heals safe drift, then runs the
   gate suite scoped to staged files. Blocks on HARD.

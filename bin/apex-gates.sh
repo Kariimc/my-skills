@@ -45,6 +45,24 @@ scan_files() {
   fi
 }
 
+# Files changed by the action in flight: the staged set for a commit, or the
+# not-yet-pushed commits for a push. Empty when it can't be determined (e.g. no
+# upstream / CI) — callers treat empty as "don't take the fast path, run fully".
+changed_paths() {
+  if [ "$STAGED" = "1" ]; then
+    git diff --cached --name-only --diff-filter=ACM 2>/dev/null
+  elif git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
+    git diff --name-only '@{u}..HEAD' --diff-filter=ACM 2>/dev/null
+  fi
+}
+
+# The doctor gate re-validates skill/agent metadata across the whole library
+# (419 skills — the slow gate). If a change set touches no skills/ or agents/
+# files, that metadata cannot have moved, so doctor would pass unchanged. This
+# lets doc-only commits/pushes skip it. Not a bypass: the check still runs the
+# moment a skill or agent is touched, and every other gate always runs.
+skills_touched() { changed_paths | grep -qE '^(skills|agents)/'; }
+
 # ── GATE: doctor (skill/metadata integrity) ──────────────────────────────────
 gate_doctor() {
   echo "› doctor"
@@ -144,7 +162,13 @@ run() { case "$1" in
 
 echo "═══ apex-gates ($GATE${STAGED:+ , staged=$STAGED}) ═══"
 if [ "$GATE" = "all" ]; then
-  for g in doctor hooklint secrets selfintegrity extra live; do run "$g"; done
+  for g in doctor hooklint secrets selfintegrity extra live; do
+    if [ "$g" = "doctor" ] && [ -n "$(changed_paths)" ] && ! skills_touched; then
+      echo "› doctor"; echo "    skipped — no skills/ or agents/ changes in this change set"
+      continue
+    fi
+    run "$g"
+  done
 else
   run "$GATE"
 fi
