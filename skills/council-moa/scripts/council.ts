@@ -11,7 +11,7 @@
  *
  * Mixed-tier models (the big quality lever):
  *   const call = anthropicCall({ models: {
- *     triage: "claude-haiku-4-5-20251001", proposer: "claude-sonnet-4-6",
+ *     triage: "claude-haiku-4-5-20251001", proposer: "claude-sonnet-5",
  *     aggregator: "claude-opus-4-8", verifier: "claude-opus-4-8",
  *   }});
  *
@@ -237,7 +237,7 @@ export function toMarkdown(rec: any): string {
 }
 
 /* ----------------------------- Provider callers ----------------------------- */
-const A_MODELS = { triage: "claude-haiku-4-5-20251001", proposer: "claude-sonnet-4-6", aggregator: "claude-opus-4-8", verifier: "claude-opus-4-8" };
+const A_MODELS = { triage: "claude-haiku-4-5-20251001", proposer: "claude-sonnet-5", aggregator: "claude-opus-4-8", verifier: "claude-opus-4-8" };
 
 export function anthropicCall(cfg: { models?: Partial<Record<Role, string>>; webSearch?: boolean; maxTokens?: number; apiKey?: string } = {}): CallFn {
   const models = { ...A_MODELS, ...(cfg.models || {}) };

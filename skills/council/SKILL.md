@@ -82,6 +82,17 @@ Before reading other voices, write down:
 
 Do this first so the synthesis does not simply mirror the external voices.
 
+### 3b. Pick the agents (each run — ask first, dispatch nothing until answered)
+
+Before launching any voice, ask the user which agents to use — one question for
+the three worker voices, one for the synthesizer/judge. Do not dispatch until
+they answer. Offer as the recommended (first) pick:
+
+- **Workers (Skeptic / Pragmatist / Critic):** Sonnet 5 (high)
+- **Judge (the synthesizing Architect voice):** Opus 4.8 (high) or Fable 5 (low)
+
+Same on every surface — Claude chat (incl. Windows) and Claude CLI.
+
 ### 4. Launch three independent voices in parallel
 
 Each subagent gets:

@@ -81,6 +81,11 @@ A finding without a file:line or reproducible command is NOT a finding — drop
 it or mark it explicitly as `UNVERIFIED-HYPOTHESIS`.
 
 ## Subagent protocol (all dispatches)
+- **Pick agents first (each run).** Before dispatching, ask the user which agents
+  to use — one question for the workers, one for the judge/verifier — and
+  dispatch nothing until they answer. Recommended (first) pick: workers =
+  Sonnet 5 (high); judge/verify = Opus 4.8 (high) or Fable 5 (low). Same on
+  every surface — Claude chat (incl. Windows) and Claude CLI.
 - **Refusals escalate, never re-route.** A subagent safety refusal is returned
   verbatim to the operator/user; NEVER rephrase, split, or retry the request to
   get around it. Log it as `BLOCKED-SAFETY: <task>` and continue other lanes.

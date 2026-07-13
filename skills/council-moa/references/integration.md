@@ -178,7 +178,7 @@ reasoning actually concentrates. Configure per role:
 ```python
 call = anthropic_call(models={
     "triage":     "claude-haiku-4-5-20251001",   # cheap
-    "proposer":   "claude-sonnet-4-6",            # fast, ×4–8 calls
+    "proposer":   "claude-sonnet-5",            # fast, ×4–8 calls
     "aggregator": "claude-opus-4-8",              # strongest — synthesis + refine
     "verifier":   "claude-opus-4-8",              # strongest — the adversary
 })
@@ -186,7 +186,7 @@ call = anthropic_call(models={
 
 ```ts
 const call = anthropicCall({ models: {
-  triage: "claude-haiku-4-5-20251001", proposer: "claude-sonnet-4-6",
+  triage: "claude-haiku-4-5-20251001", proposer: "claude-sonnet-5",
   aggregator: "claude-opus-4-8", verifier: "claude-opus-4-8",
 }});
 ```

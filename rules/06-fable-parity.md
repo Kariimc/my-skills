@@ -15,3 +15,10 @@ Quality comes from harness, not model size. On every non-trivial task:
    security-adjacent work, and runs >10-step autonomy; a Fable-class model, when
    available, is reserved for architecture/audit artifacts. A safety refusal is
    escalated verbatim — never rephrased around.
+7. **Pick agents each run for council / multi-agent skills** (council,
+   council-moa, harness-*, and any skill that dispatches worker + judge
+   subagents). Before dispatching anything, ASK the user which agents to use —
+   one question for the workers, one for the judge — and dispatch nothing until
+   they answer. Offer as the recommended (first) pick: **workers = Sonnet 5
+   (high)**, **judge = Opus 4.8 (high) or Fable 5 (low)**. Same behaviour on
+   every surface — Claude chat (incl. Windows) and Claude CLI.
