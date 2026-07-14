@@ -247,8 +247,12 @@ for project setup, audio track binding, and render flags.
 
 Guidance above tells you what to make. This tells you whether you made it. Score a
 **finished cut** (not a plan, not selects) against these eight axes. Each is 1–5; multiply
-by its weight; a cut ships at **≥ 80 / 100**. Any axis at **1–2 is a hard block** regardless
+by its weight; a cut ships at **≥ 90 / 100**. Any axis at **1–2 is a hard block** regardless
 of total — fix it before the total means anything.
+
+This is a deliberately high bar: 90/100 means averaging 4.5 across the weighted axes, so a
+cut only ships when it's near-perfect, not merely competent. A strong-but-flawed cut lands in
+the low 80s — that gap is the work still to do, not a passing grade.
 
 | # | Axis | 1 (reject) | 3 (passable) | 5 (ships) | Weight |
 |---|------|-----------|-------------|-----------|:---:|
@@ -275,7 +279,7 @@ Beat Math, Palette → Mood System, and so on.
 5. **Generate 10, keep 2.** Coherence comes from rejection, not from prompting harder.
 6. **Crop the chrome.** No status bars, captions, or UI in the final frame.
 7. **Taste is decided first and judged last.** Set the direction, then defend it on every cut —
-   and before export, run the finished cut through **The Taste Scorecard** (≥ 80/100, no axis at 1–2).
+   and before export, run the finished cut through **The Taste Scorecard** (≥ 90/100, no axis at 1–2).
 
 ## Related Skills
 
