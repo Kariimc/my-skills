@@ -1,16 +1,16 @@
 ---
 name: screen-eyes
-description: Lets Claude see the user's screen snips and video files without any pasting. Use whenever the user says "look", "look at my screen", "look at this", "see what I snipped", "check my screen", "the thing I just copied", or asks to watch/see/look at a video file or "the video I copied".
+description: Lets Claude Code or Codex see the user's screen snips and video files without any pasting. Use whenever the user says "look", "look at my screen", "look at this", "see what I snipped", "check my screen", "the thing I just copied", or asks to watch/see/look at a video file or "the video I copied".
 ---
 
 # Screen Eyes
 
 A background watcher saves every screenshot/snip the user takes into C:\Users\Kariim\Dev\claude-eyes\captures\.
 
-The user's own keys (each: press, a dim overlay appears, drag a box, release; the helper then auto-types into Claude Code even if it isn't focused):
+The user's own keys (each: press, a dim overlay appears, drag a box, release; the helper then auto-types into the last Claude, Claude Code, or Codex task even if another app is focused):
 - **Alt+X** = still snip -> saves to captures\latest.png, auto-types "look".
-- **Alt+C** = video of the boxed screen region (up to 10s; the user can click the REC badge to stop early) -> extracts frames under frames\_clip\, auto-types "look at the video".
-Copying an image/video file in Explorer still works too.
+- **Alt+C** = 10s video of the boxed screen region -> extracts frames under frames\_clip\, auto-types "look at the video".
+Copying an image/video file in Explorer works too; copied videos auto-extract and auto-type "look at the video".
 
 ## "look" / "look at my screen" / "see this"
 1. Read the image at C:\Users\Kariim\Dev\claude-eyes\captures\latest.png.
