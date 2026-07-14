@@ -22,7 +22,7 @@ esac
 
 # Cheap pre-filter 2: none of the guarded keywords present -> allow instantly.
 case "$input" in
-  *rm\ *|*'git push'*|*'git reset'*|*DROP\ *|*drop\ *|*TRUNCATE*|*truncate*) ;;
+  *rm\ *|*'git push'*|*'git reset'*|*'git clean'*|*'git checkout'*|*'git restore'*|*DROP\ *|*drop\ *|*TRUNCATE*|*truncate*) ;;
   *) exit 0 ;;
 esac
 
@@ -65,11 +65,21 @@ HARD = [
     # force push (--force or -f but NOT --force-with-lease which is safer)
     (r'git\s+push\b(?!.*--force-with-lease).*\s(--force|-f)(\s|$)',
      "Force push blocked. Use --force-with-lease, or ask the user before forcing."),
+    # commands that throw away uncommitted work irreversibly. The leading
+    # (?:^|[;&|]) anchor requires the git command to sit at a real statement
+    # boundary (start, or after ; & | && ||), so the same words quoted inside a
+    # commit message or echo do NOT trip the guard.
+    (r'(?:^|[;&|])\s*git\s+reset\s+--hard',
+     "git reset --hard discards all uncommitted changes - blocked. Commit or stash first, or run it yourself if you truly mean to."),
+    (r'(?:^|[;&|])\s*git\s+clean\s+-[a-zA-Z]*f',
+     "git clean -f deletes untracked files irreversibly - blocked. Preview with 'git clean -n' first."),
+    (r'(?:^|[;&|])\s*git\s+checkout\s+(--\s+)?\.(\s|$)',
+     "git checkout . discards all uncommitted changes - blocked. Stash first if you might want them back."),
+    (r'(?:^|[;&|])\s*git\s+restore\s+(--\s+)?\.(\s|$)',
+     "git restore . discards all uncommitted changes - blocked. Stash first if you might want them back."),
 ]
 
 WARN = [
-    (r'git\s+reset\s+--hard',
-     "git reset --hard discards all uncommitted changes. Confirm this is intentional."),
     (r'\b(DROP\s+TABLE|DROP\s+DATABASE|TRUNCATE\s+TABLE)\b',
      "Destructive SQL detected — confirm data loss is intentional and a backup exists."),
 ]
