@@ -21,8 +21,13 @@ ROUTER_PY=""
 for cand in \
   "${LOCALAPPDATA:-}/Python/pythoncore-3.14-64/python.exe" \
   "${LOCALAPPDATA:-}/Programs/Python/Python313/python.exe" \
-  "${LOCALAPPDATA:-}/Programs/Python/Python312/python.exe"; do
-  [ -x "$cand" ] && ROUTER_PY="$cand" && break
+  "${LOCALAPPDATA:-}/Programs/Python/Python312/python.exe" \
+  "${USERPROFILE:-}/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe"; do
+  cand_path="$cand"
+  if command -v cygpath >/dev/null 2>&1 && [[ "$cand_path" == *:* ]]; then
+    cand_path="$(cygpath -u "$cand_path" 2>/dev/null || printf '%s' "$cand_path")"
+  fi
+  [ -f "$cand_path" ] && [ -x "$cand_path" ] && ROUTER_PY="$cand_path" && break
 done
 if [ -z "$ROUTER_PY" ]; then
   if command -v python3 >/dev/null 2>&1; then ROUTER_PY=python3

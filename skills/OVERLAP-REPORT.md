@@ -6,8 +6,8 @@ below were resolved across the original imported set; the structural-health
 numbers are kept current by `bin/skill-doctor.sh`.
 
 ## Structural health (whole library)
-- **Skills:** 399 — **Name/dir match:** ✅ 399/399 — **Frontmatter valid:** ✅ 399/399 — **HARD failures:** 0
-- **Trigger reliability:** ✅ 399/399 descriptions carry an explicit trigger
+- **Skills:** 419 — **Name/dir match:** ✅ 419/419 — **Frontmatter valid:** ✅ 419/419 — **HARD failures:** 0
+- **Trigger reliability:** ✅ 419/419 descriptions carry an explicit trigger
   clause (the only text loaded for auto-invocation). A library-wide pass added a
   `Use when the user wants to …` clause to 71 descriptions whose trigger lived
   only in the body's "When to Activate" section, where Claude never sees it.
@@ -44,6 +44,16 @@ with a "prefer X" pointer.
 - `plan-gate`, `scope-fence`, `tests-bite` checked against `writing-plans`,
   `executing-plans`, `verification-before-completion`, `test-driven-development`,
   `tdd-workflow` — distinct altitude/scope in each case, no collision.
+
+## 2026-07-14 refresh
+- Library-wide structural scan found 419 skills, 0 HARD issues, and 0 SOFT
+  issues: all `SKILL.md` files have matching `name:` frontmatter, descriptions,
+  trigger clauses, and descriptions under the 1024-character loader ceiling.
+- The main overlap zones remain intentional and documented: agent/orchestration
+  skills are split by action (`audit`, `build`, `refactor`, `run`, `choose`);
+  testing skills are split by altitude (strategy, TDD ritual, bite proof,
+  language-specific verification); web/UI skills are split by deliverable
+  (production web app, artifact, prototype, design system).
 
 ## Left as-is (intentional, not collisions)
 - **Code review** — `code-review` / `requesting-code-review` / `receiving-code-review` are

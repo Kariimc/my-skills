@@ -1,7 +1,7 @@
 # nano-plane — the control plane you can read in one sitting
 
 One file, ~150 lines, zero dependencies: [nano_plane.py](nano_plane.py).
-It reimplements the three ideas the whole 411-skill system stands on —
+It reimplements the three ideas the whole 419-skill system stands on —
 **route** (ordered regexes, first match wins, silent by default), **gate**
 (mechanical checks; every past mistake becomes one), **loop** (understand →
 smallest change → prove it → distill).

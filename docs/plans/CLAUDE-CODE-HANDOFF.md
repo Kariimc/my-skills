@@ -1,4 +1,5 @@
 # HANDOFF — Portfolio Remediation (Claude Code)
+> Status note, 2026-07-14: historical July 6 plan/audit. Current live state is 419 skills and 67 agents on origin/master; old 416/68 or 411/67 counts below are preserved as historical evidence, not current truth.
 > Source of truth: the three audits in this session — `PORTFOLIO-AUDIT.md`, `MY-SKILLS-AUDIT.md`, `HOOPCLONE-AUDIT.md`. This handoff is the executable version of every finding in them.
 > Author: Claude Fable 5 · 2026-07-06. Owner: Kariim.
 

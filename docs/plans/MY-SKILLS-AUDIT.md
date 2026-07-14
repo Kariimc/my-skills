@@ -1,4 +1,5 @@
 # my-skills — Control-Plane Audit
+> Status note, 2026-07-14: historical July 6 plan/audit. Current live state is 419 skills and 67 agents on origin/master; old 416/68 or 411/67 counts below are preserved as historical evidence, not current truth.
 **Written by Claude Fable 5 · July 6, 2026 · audited from `Kariimc/my-skills` @ HEAD (tarball, full tree)**
 **This is the account's main repo: 416 skills, 68 agents, 6 rule files, 4 slash commands, the apex gate suite, and the SessionStart sync that every other repo depends on.**
 

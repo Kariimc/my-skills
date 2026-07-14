@@ -1,4 +1,5 @@
 # FLEET HANDOFF — Sonnet 5 Workers · Opus 4.8 Manager
+> Status note, 2026-07-14: historical July 6 plan/audit. Current live state is 419 skills and 67 agents on origin/master; old 416/68 or 411/67 counts below are preserved as historical evidence, not current truth.
 > **Mission:** execute the entire Fable-window plan (the 50-item list) plus the 10-task repo remediation, at Fable-5 output quality — enforced by harness, not hoped for.
 > **Author:** Claude Fable 5 · 2026-07-06 · **Owner:** Kariim
 > **Companion file (REQUIRED in workspace):** `CLAUDE-CODE-HANDOFF.md` — full specs for repo Tasks 1–10. This file orchestrates; that file details.

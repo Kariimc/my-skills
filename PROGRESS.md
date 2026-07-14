@@ -1,7 +1,21 @@
 # PROGRESS — session handoff
 
-> Last updated: 2026-07-12.
+> Last updated: 2026-07-14.
 > Read this first; if it conflicts with the code, the code wins.
+
+## Latest (2026-07-14) - docs/logs reconciled to live skill state
+
+- **Skill library count is 419.** Root `README.md`, `ARCHITECTURE.md`, `skills/README.md`,
+  `skills/TRIGGERLESS-REPORT.md`, `skills/OVERLAP-REPORT.md`, `nano/README.md`,
+  `bin/apex-gates.sh`, and the historical `docs/plans/` handoffs were updated
+  or annotated so stale 399/411/416 counts cannot be mistaken for current state.
+- **Audit state:** a bounded structural scan found 419 skills, 0 HARD issues,
+  and 0 SOFT issues: every skill has `SKILL.md`, matching `name:`,
+  `description:`, an explicit trigger clause, and description length under
+  1024 characters.
+- **Gate repair:** `hooks/harness-router.sh` now converts Windows Python paths through `cygpath` and falls back to the bundled Codex runtime Python, so Git Bash hooklint can route the sample prompt instead of silently no-oping.
+- **Branch reality:** GitHub default branch is `master`, not `main`; landing
+  "on main" for this repo means committing and pushing to `origin/master`.
 
 ## Latest (2026-07-12) — Codex hook synced + gate doc-only fast path
 
