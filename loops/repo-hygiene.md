@@ -3,7 +3,10 @@
 **Outcome:** portfolio rot is surfaced weekly with fixes proposed — counts
 honest, branches pruned, gates green — before it compounds.
 **Trigger:** weekly, manual or scheduled Claude Code session with this prompt.
-**Scope:** all Kariimc repo clones, read-mostly. May auto-fix ONLY: README
+**Scope:** all repo clones across BOTH namespaces - user `Kariimc` AND org
+`shift9-studio` (see `rules/10-repo-topology.md`). Enumerate with
+`gh api '/user/repos?affiliation=owner,collaborator,organization_member'`, never
+`gh repo list Kariimc` alone - that skips shift9-studio silently. Read-mostly. May auto-fix ONLY: README
 count drift in my-skills (the gate's own job) and merged-branch deletion where
 `git branch --merged` proves safety. Everything else is report-only.
 **Act (per cycle):** run `bin/skill-doctor.sh` + apex gates in my-skills; list
