@@ -13,6 +13,10 @@
   (filename match) leaves it untouched.
 - **Project `.claude/settings.json`**: SessionStart bootstrap now invokes the script
   through bash instead of a bare path.
+- **Self-heal + mode bits**: session-start now normalizes any tampered/regressed hook
+  command in `~/.claude/settings.json` back to the Windows-executable form every
+  session start; the five 100644 `hooks/*.sh` were committed 100755, which is what
+  had the CI apex drift gate red since 747466c (pre-existing on master).
 - **Skill library count is 419.** Root `README.md`, `ARCHITECTURE.md`, `skills/README.md`,
   `skills/TRIGGERLESS-REPORT.md`, `skills/OVERLAP-REPORT.md`, `nano/README.md`,
   `bin/apex-gates.sh`, and the historical `docs/plans/` handoffs were updated

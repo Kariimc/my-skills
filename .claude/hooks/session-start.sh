@@ -175,12 +175,14 @@ path = os.environ["SETTINGS_FILE"]
 cmd  = os.environ["ROUTER_CMD"]
 
 try:
-    with open(path) as f:
+    with open(path, encoding="utf-8-sig") as f:
         settings = json.load(f)
     if not isinstance(settings, dict):
-        settings = {}
-except (FileNotFoundError, ValueError):
+        raise SystemExit(0)  # never clobber an unrecognized file
+except FileNotFoundError:
     settings = {}
+except ValueError:
+    raise SystemExit(0)  # unparseable: abort, never replace
 
 hooks = settings.setdefault("hooks", {})
 ups = hooks.setdefault("UserPromptSubmit", [])
@@ -214,12 +216,14 @@ path = os.environ["SETTINGS_FILE"]
 cmd  = os.environ["GUARD_CMD"]
 
 try:
-    with open(path) as f:
+    with open(path, encoding="utf-8-sig") as f:
         settings = json.load(f)
     if not isinstance(settings, dict):
-        settings = {}
-except (FileNotFoundError, ValueError):
+        raise SystemExit(0)  # never clobber an unrecognized file
+except FileNotFoundError:
     settings = {}
+except ValueError:
+    raise SystemExit(0)  # unparseable: abort, never replace
 
 hooks = settings.setdefault("hooks", {})
 ptu = hooks.setdefault("PreToolUse", [])
@@ -238,6 +242,75 @@ if not already:
         f.write("\n")
     os.replace(tmp, path)
     print("[session-start] registered guard-destructive PreToolUse hook")
+PY
+fi
+
+# ── 6c. Self-heal Windows-inert hook commands (tamper protection) ──────────────
+# If any agent or tool rewrites a known hook command back to a form that is
+# silently inert under the Windows cmd hook wrapper (a bare .sh path, or
+# "bash <script>" when bash is not on PATH), normalize it back to the
+# executable "<bash.exe> <script>" form. Runs every session start, so the
+# enforcement layer restores itself. No-op on unix and on healthy files.
+HOOK_WRAP_TPL="$(reg_hook_cmd __HOOK__)"
+if [ "$HOOK_WRAP_TPL" != "__HOOK__" ] && command -v python3 >/dev/null 2>&1 \
+   && [ -f "$CLAUDE_DIR/settings.json" ]; then
+  SETTINGS_FILE="$CLAUDE_DIR/settings.json" WRAP_TPL="$HOOK_WRAP_TPL" python3 - <<'PY' || true
+import json, os, re
+
+path = os.environ["SETTINGS_FILE"]
+tpl  = os.environ["WRAP_TPL"]
+KNOWN = {"harness-router.sh", "guard-destructive.sh", "guard-junk-files.sh",
+         "guard-handoff.sh", "plain-words-guard.sh", "loose-ends-guard.sh",
+         "selftest-guards.sh", "session-start.sh"}
+
+try:
+    with open(path, encoding="utf-8-sig") as f:
+        settings = json.load(f)
+except (FileNotFoundError, ValueError):
+    raise SystemExit(0)
+if not isinstance(settings, dict):
+    raise SystemExit(0)
+
+def winpath(p):
+    p = p.replace(chr(92), "/")
+    m = re.match(r"^/([A-Za-z])/(.*)$", p)
+    if m:
+        p = m.group(1).upper() + ":/" + m.group(2)
+    return p
+
+def heal(cmd):
+    m = re.match(r'^\s*(\S+\.sh)\s*(.*)$', cmd) \
+        or re.match(r'^\s*bash\s+"?([^"]+\.sh)"?\s*(.*)$', cmd)
+    if not m:
+        return cmd
+    script, rest = m.group(1), m.group(2).strip()
+    if script.rsplit("/", 1)[-1].rsplit(chr(92), 1)[-1] not in KNOWN:
+        return cmd
+    new = tpl.replace("__HOOK__", winpath(script))
+    if rest:
+        new += " " + rest
+    return new
+
+changed = 0
+for groups in (settings.get("hooks") or {}).values():
+    if not isinstance(groups, list):
+        continue
+    for group in groups:
+        if not isinstance(group, dict):
+            continue
+        for h in group.get("hooks", []):
+            if isinstance(h, dict) and isinstance(h.get("command"), str):
+                new = heal(h["command"])
+                if new != h["command"]:
+                    h["command"] = new
+                    changed += 1
+if changed:
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(settings, f, indent=2)
+        f.write(chr(10))
+    os.replace(tmp, path)
+    print("[session-start] healed %d Windows-inert hook command(s)" % changed)
 PY
 fi
 
