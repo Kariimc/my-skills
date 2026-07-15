@@ -143,21 +143,46 @@ fi
 # ── 6. Register the harness router in global settings (idempotent) ────────────
 # Adds a UserPromptSubmit hook pointing at the synced router. Additive merge:
 # never removes or overwrites existing hooks, and skips if already registered.
+# Claude Code's Windows hook wrapper (cmd) cannot execute a bare .sh path:
+# the .sh file association opens a detached git-bash window, so the hook's
+# stdin/stdout never reach Claude Code and the hook is silently inert.
+# Register "<bash.exe> <script>" using space-free 8.3 Windows paths instead;
+# on unix the bare executable script is already correct.
+reg_hook_cmd() {
+  case "$(uname -s 2>/dev/null)" in
+    MINGW*|MSYS*|CYGWIN*)
+      # Must be the Git-for-Windows bin/ wrapper: bare usr/bin/bash.exe exits
+      # 127 under cmd because the msys environment is never bootstrapped.
+      _rt="$(cygpath -d / 2>/dev/null || cygpath -w / 2>/dev/null)"
+      _rt="${_rt//\\//}"; _rt="${_rt%/}"
+      _rs="$(cygpath -m "$1" 2>/dev/null || printf '%s' "$1")"
+      if [ -n "$_rt" ] && [ -x "$_rt/bin/bash.exe" ]; then
+        printf '%s "%s"' "$_rt/bin/bash.exe" "$_rs"
+      else
+        printf '%s' "$1"
+      fi
+      ;;
+    *) printf '%s' "$1" ;;
+  esac
+}
+
 ROUTER_PATH="$CLAUDE_DIR/hooks/harness-router.sh"
 if command -v python3 >/dev/null 2>&1 && [ -f "$ROUTER_PATH" ]; then
-  SETTINGS_FILE="$CLAUDE_DIR/settings.json" ROUTER_CMD="$ROUTER_PATH" python3 - <<'PY' || true
+  SETTINGS_FILE="$CLAUDE_DIR/settings.json" ROUTER_CMD="$(reg_hook_cmd "$ROUTER_PATH")" python3 - <<'PY' || true
 import json, os
 
 path = os.environ["SETTINGS_FILE"]
 cmd  = os.environ["ROUTER_CMD"]
 
 try:
-    with open(path) as f:
+    with open(path, encoding="utf-8-sig") as f:
         settings = json.load(f)
     if not isinstance(settings, dict):
-        settings = {}
-except (FileNotFoundError, ValueError):
+        raise SystemExit(0)  # never clobber an unrecognized file
+except FileNotFoundError:
     settings = {}
+except ValueError:
+    raise SystemExit(0)  # unparseable: abort, never replace
 
 hooks = settings.setdefault("hooks", {})
 ups = hooks.setdefault("UserPromptSubmit", [])
@@ -184,19 +209,21 @@ fi
 GUARD_PATH="$CLAUDE_DIR/hooks/guard-destructive.sh"
 if command -v python3 >/dev/null 2>&1 && [ -f "$GUARD_PATH" ]; then
   chmod +x "$GUARD_PATH"
-  SETTINGS_FILE="$CLAUDE_DIR/settings.json" GUARD_CMD="$GUARD_PATH" python3 - <<'PY' || true
+  SETTINGS_FILE="$CLAUDE_DIR/settings.json" GUARD_CMD="$(reg_hook_cmd "$GUARD_PATH")" python3 - <<'PY' || true
 import json, os
 
 path = os.environ["SETTINGS_FILE"]
 cmd  = os.environ["GUARD_CMD"]
 
 try:
-    with open(path) as f:
+    with open(path, encoding="utf-8-sig") as f:
         settings = json.load(f)
     if not isinstance(settings, dict):
-        settings = {}
-except (FileNotFoundError, ValueError):
+        raise SystemExit(0)  # never clobber an unrecognized file
+except FileNotFoundError:
     settings = {}
+except ValueError:
+    raise SystemExit(0)  # unparseable: abort, never replace
 
 hooks = settings.setdefault("hooks", {})
 ptu = hooks.setdefault("PreToolUse", [])
@@ -215,6 +242,75 @@ if not already:
         f.write("\n")
     os.replace(tmp, path)
     print("[session-start] registered guard-destructive PreToolUse hook")
+PY
+fi
+
+# ── 6c. Self-heal Windows-inert hook commands (tamper protection) ──────────────
+# If any agent or tool rewrites a known hook command back to a form that is
+# silently inert under the Windows cmd hook wrapper (a bare .sh path, or
+# "bash <script>" when bash is not on PATH), normalize it back to the
+# executable "<bash.exe> <script>" form. Runs every session start, so the
+# enforcement layer restores itself. No-op on unix and on healthy files.
+HOOK_WRAP_TPL="$(reg_hook_cmd __HOOK__)"
+if [ "$HOOK_WRAP_TPL" != "__HOOK__" ] && command -v python3 >/dev/null 2>&1 \
+   && [ -f "$CLAUDE_DIR/settings.json" ]; then
+  SETTINGS_FILE="$CLAUDE_DIR/settings.json" WRAP_TPL="$HOOK_WRAP_TPL" python3 - <<'PY' || true
+import json, os, re
+
+path = os.environ["SETTINGS_FILE"]
+tpl  = os.environ["WRAP_TPL"]
+KNOWN = {"harness-router.sh", "guard-destructive.sh", "guard-junk-files.sh",
+         "guard-handoff.sh", "plain-words-guard.sh", "loose-ends-guard.sh",
+         "selftest-guards.sh", "session-start.sh"}
+
+try:
+    with open(path, encoding="utf-8-sig") as f:
+        settings = json.load(f)
+except (FileNotFoundError, ValueError):
+    raise SystemExit(0)
+if not isinstance(settings, dict):
+    raise SystemExit(0)
+
+def winpath(p):
+    p = p.replace(chr(92), "/")
+    m = re.match(r"^/([A-Za-z])/(.*)$", p)
+    if m:
+        p = m.group(1).upper() + ":/" + m.group(2)
+    return p
+
+def heal(cmd):
+    m = re.match(r'^\s*(\S+\.sh)\s*(.*)$', cmd) \
+        or re.match(r'^\s*bash\s+"?([^"]+\.sh)"?\s*(.*)$', cmd)
+    if not m:
+        return cmd
+    script, rest = m.group(1), m.group(2).strip()
+    if script.rsplit("/", 1)[-1].rsplit(chr(92), 1)[-1] not in KNOWN:
+        return cmd
+    new = tpl.replace("__HOOK__", winpath(script))
+    if rest:
+        new += " " + rest
+    return new
+
+changed = 0
+for groups in (settings.get("hooks") or {}).values():
+    if not isinstance(groups, list):
+        continue
+    for group in groups:
+        if not isinstance(group, dict):
+            continue
+        for h in group.get("hooks", []):
+            if isinstance(h, dict) and isinstance(h.get("command"), str):
+                new = heal(h["command"])
+                if new != h["command"]:
+                    h["command"] = new
+                    changed += 1
+if changed:
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(settings, f, indent=2)
+        f.write(chr(10))
+    os.replace(tmp, path)
+    print("[session-start] healed %d Windows-inert hook command(s)" % changed)
 PY
 fi
 

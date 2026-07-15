@@ -5,6 +5,18 @@
 
 ## Latest (2026-07-14) - docs/logs reconciled to live skill state
 
+- **Windows hook registration fixed** (`.claude/hooks/session-start.sh`): registered
+  hook commands were bare `.sh` paths, which the Windows cmd hook wrapper routes to a
+  detached git-bash window - every registered hook was silently inert. Registration now
+  emits `<bash.exe> <script>` with space-free 8.3 paths on Windows; unix unchanged.
+  The live `~/.claude/settings.json` was hand-fixed the same way; the idempotence check
+  (filename match) leaves it untouched.
+- **Project `.claude/settings.json`**: SessionStart bootstrap now invokes the script
+  through bash instead of a bare path.
+- **Self-heal + mode bits**: session-start now normalizes any tampered/regressed hook
+  command in `~/.claude/settings.json` back to the Windows-executable form every
+  session start; the five 100644 `hooks/*.sh` were committed 100755, which is what
+  had the CI apex drift gate red since 747466c (pre-existing on master).
 - **Skill library count is 419.** Root `README.md`, `ARCHITECTURE.md`, `skills/README.md`,
   `skills/TRIGGERLESS-REPORT.md`, `skills/OVERLAP-REPORT.md`, `nano/README.md`,
   `bin/apex-gates.sh`, and the historical `docs/plans/` handoffs were updated
