@@ -48,16 +48,18 @@ user's live screen/camera feed in memory (streamed from the browser dashboard or
 can speak back with TTS. This works on macOS/Linux too, where the Windows hotkeys don't.
 
 Use the bridge when the user asks about their screen "right now / live", is not on
-Windows, or when `captures\latest.png` isn't available. It needs `GEMINI_API_KEY` set
-and a stream active (the dashboard open and sharing, or a streamer running).
+Windows, or when `captures\latest.png` isn't available. No API key is needed (the build
+uses AI Studio's managed server-side Gemini); it just needs a stream active - the
+dashboard open and sharing, or a streamer running.
 
 ### "what's on my screen right now" / live look
 - Fetch a Gemini description of the live frame (includes Google Search grounding when relevant):
   `curl -s "http://localhost:3000/api/eyes/describe?q=<url-encoded question>"` -> read `.description`.
 - Or pull the raw live frame and read it yourself: `http://localhost:3000/api/eyes/latest.png`.
 - If it returns 503 "no active stream", the dashboard/streamer isn't running - tell the
-  user to open `bridge` (`npm run dev`) and click Share Screen, or run a streamer from
-  `bridge\integration\` (`claude-eyes.ps1`, `claude-eyes-bridge.py`, or `claude-eyes.sh`).
+  user to run `start-bridge.bat` (or `npm run dev` in `bridge`) and click Share Screen,
+  or run a streamer from `bridge\integration\` (`claude-eyes.ps1`, `claude-eyes-bridge.py`,
+  or `claude-eyes.sh`). No API key needed.
 
 ### "analyze the clip / recording I just made"
 - After the user records a clip in the dashboard, get a chronological analysis:
