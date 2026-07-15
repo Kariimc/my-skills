@@ -10,7 +10,7 @@ You are a principal engineer. Work top-down: tasks are in **payoff order** (high
 
 **Global rules for this handoff:**
 - Branch per task: `fix/<task-id>`. Conventional-commit messages. Open a PR; don't merge to master without CI green.
-- Every repo lives under the `Kariimc` GitHub org. Clone fresh if you don't have it.
+- Repos live under **TWO** namespaces: the `Kariimc` user AND the `shift9-studio` org (`shift9-studio/.github` = the shift9.dev + Just-a-Pinch monorepo). `gh repo list Kariimc` silently skips the org - enumerate with `gh api '/user/repos?affiliation=owner,collaborator,organization_member'`. See `rules/10-repo-topology.md`. Clone fresh if you don't have it.
 - **Do NOT invent scope.** If a task's premise is already fixed in the code, say so and skip — don't manufacture work.
 - **Gates resolved 2026-07-06:** Task 4 = **Mirror (A)** — proceed without asking. Task 9 = deep clean approved in principle — the ONLY remaining stop is showing the size preview and getting a one-word "go" before force-push. Task 8 = DROPPED (owner keeps Bball untouched). Everything else: act, don't ask.
 - Proportionality: `whome-diagnostic-tool` and `Bball` are intentionally near-untouched. Don't over-engineer them.
