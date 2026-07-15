@@ -22,7 +22,7 @@
 - Prefill is a 400; use structured outputs / system-prompt instructions.
 
 **Workspace prerequisites (Manager verifies before Wave 1):**
-- Fresh clones of all Kariimc repos, one directory each.
+- Fresh clones of all repos across BOTH namespaces - user `Kariimc` AND org `shift9-studio` - one directory each. Enumerate with `gh api '/user/repos?affiliation=owner,collaborator,organization_member'`; `gh repo list Kariimc` silently omits shift9-studio. See `rules/10-repo-topology.md`.
 - `my-skills` synced (`bash install-global.sh` already run on the host) — the six harnesses, apex gates, and `bin/eval-router.sh` are the quality infrastructure this fleet reuses. **Do not invent new process where a harness exists.**
 - Both handoff files present. `PROGRESS.md` convention live (my-skills `rules/07-progress-file.md`).
 
