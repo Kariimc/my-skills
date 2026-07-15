@@ -143,9 +143,32 @@ fi
 # ── 6. Register the harness router in global settings (idempotent) ────────────
 # Adds a UserPromptSubmit hook pointing at the synced router. Additive merge:
 # never removes or overwrites existing hooks, and skips if already registered.
+# Claude Code's Windows hook wrapper (cmd) cannot execute a bare .sh path:
+# the .sh file association opens a detached git-bash window, so the hook's
+# stdin/stdout never reach Claude Code and the hook is silently inert.
+# Register "<bash.exe> <script>" using space-free 8.3 Windows paths instead;
+# on unix the bare executable script is already correct.
+reg_hook_cmd() {
+  case "$(uname -s 2>/dev/null)" in
+    MINGW*|MSYS*|CYGWIN*)
+      # Must be the Git-for-Windows bin/ wrapper: bare usr/bin/bash.exe exits
+      # 127 under cmd because the msys environment is never bootstrapped.
+      _rt="$(cygpath -d / 2>/dev/null || cygpath -w / 2>/dev/null)"
+      _rt="${_rt//\\//}"; _rt="${_rt%/}"
+      _rs="$(cygpath -m "$1" 2>/dev/null || printf '%s' "$1")"
+      if [ -n "$_rt" ] && [ -x "$_rt/bin/bash.exe" ]; then
+        printf '%s "%s"' "$_rt/bin/bash.exe" "$_rs"
+      else
+        printf '%s' "$1"
+      fi
+      ;;
+    *) printf '%s' "$1" ;;
+  esac
+}
+
 ROUTER_PATH="$CLAUDE_DIR/hooks/harness-router.sh"
 if command -v python3 >/dev/null 2>&1 && [ -f "$ROUTER_PATH" ]; then
-  SETTINGS_FILE="$CLAUDE_DIR/settings.json" ROUTER_CMD="$ROUTER_PATH" python3 - <<'PY' || true
+  SETTINGS_FILE="$CLAUDE_DIR/settings.json" ROUTER_CMD="$(reg_hook_cmd "$ROUTER_PATH")" python3 - <<'PY' || true
 import json, os
 
 path = os.environ["SETTINGS_FILE"]
@@ -184,7 +207,7 @@ fi
 GUARD_PATH="$CLAUDE_DIR/hooks/guard-destructive.sh"
 if command -v python3 >/dev/null 2>&1 && [ -f "$GUARD_PATH" ]; then
   chmod +x "$GUARD_PATH"
-  SETTINGS_FILE="$CLAUDE_DIR/settings.json" GUARD_CMD="$GUARD_PATH" python3 - <<'PY' || true
+  SETTINGS_FILE="$CLAUDE_DIR/settings.json" GUARD_CMD="$(reg_hook_cmd "$GUARD_PATH")" python3 - <<'PY' || true
 import json, os
 
 path = os.environ["SETTINGS_FILE"]
