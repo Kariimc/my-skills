@@ -196,3 +196,8 @@ WORKS: pythonw for the interpreter; wscript on a .vbs launcher for the entry poi
 SYMPTOM: A hook/gate takes minutes on every run (my-skills pre-commit was 3m26s scanning all 416 skills).
 BANNED: Eating the cost every commit; bypassing or weakening the gate.
 WORKS: Scope the gate to staged changes (--staged from git diff --cached) while a heavier pre-push/CI pass keeps full coverage — surgical, coverage-neutral, verified live (3m26s → 4s).
+
+## F-40 ~/.claude/CLAUDE.md is GENERATED — direct writes get wiped
+SYMPTOM: Instructions pasted/appended into ~/.claude/CLAUDE.md (the IDP law itself) vanish; the file reads as concatenated rules.
+BANNED: Writing anything directly to ~/.claude/CLAUDE.md — the my-skills SessionStart hook mirrors rules/*.md over it on EVERY session start; direct edits are deleted silently.
+WORKS: Global instructions live in my-skills/rules/*.md (the source of truth); the sync then installs them everywhere permanently. The IDP law is rules/00-idp-operating-law.md; this ledger's binding rule is rules/11-failure-ledger.md.
