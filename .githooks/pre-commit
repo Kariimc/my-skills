@@ -24,7 +24,7 @@ GATES="$ROOT/bin/apex-gates.sh"
 #    nonzero on HARD findings even in --fix mode, so this run both heals and
 #    enforces — the full doctor takes minutes on Windows, so it must not run
 #    twice per commit.
-if ! "$DOCTOR" --fix; then
+if ! "$DOCTOR" --fix --staged; then
   echo "✗ pre-commit blocked: skill-doctor found HARD failures." >&2
   exit 1
 fi

@@ -17,7 +17,13 @@ set -euo pipefail
 # ─────────────────────────────────────────────────────────────────────────────
 
 FIX=0
-[ "${1:-}" = "--fix" ] && FIX=1
+STAGED=0
+for a in "$@"; do
+  case "$a" in
+    --fix)    FIX=1 ;;
+    --staged) STAGED=1 ;;
+  esac
+done
 
 # Locate repo root: the dir that has both skills/ and rules/.
 ROOT="${SKILL_DOCTOR_ROOT:-}"
@@ -58,7 +64,18 @@ soft=0
 triageless=()
 
 # ── 1 & 2: per-skill frontmatter validation ─────────────────────────────────
-for dir in skills/*/; do
+# --staged scopes this scan to skill folders with staged changes (pre-commit
+# speed: ~2000 process spawns → a handful). Untouched skills were validated when
+# last committed, and the pre-push `doctor` gate re-runs the FULL scan — so
+# coverage at push time is unchanged. Windows process spawns cost ~100ms each;
+# this is the difference between 3 minutes and 2 seconds per commit.
+if [ "$STAGED" = "1" ]; then
+  mapfile -t scan_dirs < <(git diff --cached --name-only -- skills/ | awk -F/ 'NF>=2 && $2!="" {print "skills/" $2 "/"}' | sort -u)
+else
+  scan_dirs=(skills/*/)
+fi
+for dir in ${scan_dirs[@]+"${scan_dirs[@]}"}; do
+  [ -d "$dir" ] || continue
   folder="$(basename "$dir")"
   f="${dir}SKILL.md"
   if [ ! -f "$f" ]; then
@@ -110,7 +127,9 @@ if [ -f README.md ]; then
 fi
 
 # ── 4: triage report for trigger-less skills ────────────────────────────────
-if [ "$FIX" = "1" ]; then
+# Never regenerate from a --staged (partial) scan - it would clobber the full
+# list with only the staged subset. Full runs (pre-push doctor gate, apex.sh, manual) keep it fresh.
+if [ "$FIX" = "1" ] && [ "$STAGED" = "0" ]; then
   report="skills/TRIGGERLESS-REPORT.md"
   {
     echo "# Trigger-less skills — triage"
