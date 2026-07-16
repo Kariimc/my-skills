@@ -27,7 +27,7 @@ auto-type "look at the video".
 1. Read the image at `C:\Users\Kariim\Dev\claude-eyes\captures\latest.png`.
 2. "the last few" -> read the newest timestamped PNGs in that folder (names sort by time).
 3. Self-heal: if `latest.png` is missing or clearly stale for a fresh snip, run
-   `C:\Users\Kariim\Dev\claude-eyes\start-eyes.bat` yourself, wait 3 seconds, then
+   `wscript C:\Users\Kariim\Dev\claude-eyes\start-eyes.vbs` yourself, wait 3 seconds, then
    remind the user the snip key is Alt+X. Never tell the user to start anything manually.
 
 ### Watch a video (disk)
