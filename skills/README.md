@@ -8,7 +8,7 @@ matches its `description` — you can also force one with `/<skill-name>`.
 Counts: 52 original · 6 authored (engineering/game gaps) · 49 imported &
 adapted from upstream repos (see [Imported skills](#imported-skills)) · 276
 imported in the ECC + ponytail batch (see [Imported batch](#-imported-batch--ecc--ponytail))
-· plus later one-off additions (advisor, codebase-memory, neon-forge-ui, windows-env-repair, …).
+· plus later one-off additions (advisor, codebase-memory, neon-forge-ui, windows-env-repair, loopy, …).
 
 ---
 

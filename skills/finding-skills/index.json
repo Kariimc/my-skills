@@ -1095,6 +1095,11 @@
   "path": "skills/logistics-exception-management/SKILL.md"
  },
  {
+  "name": "loopy",
+  "description": "Discover, find, compare, audit, repair, adapt, craft, run, debrief, save, and prepare repeatable AI-agent loops for publication. Use when a user asks to analyze code or coding threads for recurring work, find a published loop, interview them to turn a goal into a bounded loop, review a loop for weak checks or unsafe authority, execute a loop with an evidence receipt, learn from completed runs, save or reuse a project loop, or validate and submit a loop to Loop Library.",
+  "path": "skills/loopy/SKILL.md"
+ },
+ {
   "name": "make-interfaces-feel-better",
   "description": "Apply concrete design-engineering details that make interfaces feel polished. Use when reviewing or improving UI spacing, typography, borders, shadows, motion, hit areas, icons, text wrapping, and interaction states.",
   "path": "skills/make-interfaces-feel-better/SKILL.md"
@@ -1656,7 +1661,7 @@
  },
  {
   "name": "screen-eyes",
-  "description": "Lets Claude see the user's screen snips and video files without any pasting. Use whenever the user says \"look\", \"look at my screen\", \"look at this\", \"see what I snipped\", \"check my screen\", \"the thing I just copied\", or asks to watch/see/look at a video file or \"the video I copied\".",
+  "description": "Lets Claude Code or Codex see the user's screen, camera, snips, and video files without any pasting. Two paths - local snips saved to disk (Windows hotkeys) and a live cross-platform vision bridge (Gemini). Use whenever the user says \"look\", \"look at my screen\", \"look at this\", \"see what I snipped\", \"check my screen\", \"what's on my screen (right now / live)\", \"the thing I just copied\", \"read my screen\", \"watch/see/look at a video\", \"analyze the clip/recording\", or asks Claude to \"say / speak / read aloud\" something back to them.",
   "path": "skills/screen-eyes/SKILL.md"
  },
  {
