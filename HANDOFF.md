@@ -34,17 +34,34 @@ provable from the repo alone - fill them in, do not guess.
 
 ## Current state
 
-**UNVERIFIED.** Percent-complete and working/broken status cannot be derived from
-the repo alone. Do not write a number here you have not proven. Read the code, run
-the build, then record what you observed and how you observed it.
+**2026-07-17 session (branch `claude/failure-ledger`):** Kariim declared a new 10-rule
+"Standing Contract" the governing chat-surface rules. Installed as `rules/00-contract.md`
+(named to sort FIRST in the concatenated `~/.claude/CLAUDE.md`). Removed the two real
+clashes with it in `rules/00-idp-operating-law.md`: clarity-gate "exactly 2 questions"
+→ recon-first, up to 2, zero ideal; two-strike cap → on METHOD CLASSES not attempts.
+Fixed `rules/README.md` index (was missing `00-idp-operating-law.md` and
+`11-failure-ledger.md`; added those + the new contract row). Manually rebuilt the live
+`~/.claude/CLAUDE.md` from `rules/` and verified the contract + both fixes are present.
+Root cause of the "rules keep reverting" symptom: `~/.claude/CLAUDE.md` is regenerated
+from `rules/*.md` on every session start, so direct edits to it are always overwritten —
+the source of truth is `rules/`, and that is where the contract now lives.
 
 ## Exact next steps
 
-**UNVERIFIED.** Fill in on first real session in this repo.
+- **Awaiting Kariim's yes** to merge `claude/failure-ledger` → `master` and push, so the
+  contract propagates to the other surfaces (cloud, cowork, steamdeck). Default branch is
+  `master`; merge-to-master is the one git gate.
+- The save-to-history commit was running through the pre-commit gate in the background —
+  confirm it landed (`git log -1`) before merging.
+- **Offered, awaiting yes:** delete 45 leftover `~/.claude/skills.tmp.*` junk folders from
+  past syncs.
 
 ## Open decisions
 
-**UNVERIFIED.**
+- Whether to also restore the other newer IDP clauses (subagent-binding, preferences-
+  precedence, ROLE precedence line) into `00-idp-operating-law.md`. Not done: they are not
+  clashes, and `00-contract.md` already carries the equivalent behaviour. Left minimal on
+  purpose (surgical).
 
 ## Rules
 
