@@ -1,0 +1,43 @@
+name: fabrication-gate
+
+# Blocks a PR whose new code carries fabrication markers (TODO/FIXME/XXX,
+# "rest of code remains the same", ...). Shares hooks/detect-fabrication.sh
+# verbatim with the local Stop guard, so local and cloud can never disagree.
+#
+# Scope here is base...HEAD: a PR is reviewed whole, unlike a local session.
+
+on:
+  pull_request:
+
+jobs:
+  fabrication:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # The detector fails OPEN by design: locally, a guard that dies on its own
+      # bug must never lock a session. In CI that same property is dangerous —
+      # "found nothing" and "crashed" both exit 0, so a broken detector would
+      # report green forever. Prove it is alive BEFORE trusting a pass.
+      - name: Detector self-check
+        run: |
+          bash -n hooks/detect-fabrication.sh
+          if printf '+++ b/x.js\n+// TODO: x\n' | bash hooks/detect-fabrication.sh; then
+            echo "::error::detector did not flag a known-bad diff — the gate itself is broken"
+            exit 1
+          fi
+          echo "detector alive"
+
+      - name: Scan PR diff
+        run: |
+          git diff --no-color -a "origin/${{ github.base_ref }}...HEAD" \
+            > /tmp/pr.diff || true
+          if bash hooks/detect-fabrication.sh < /tmp/pr.diff > /tmp/hits.txt; then
+            echo "no fabrication markers in new code"
+            exit 0
+          fi
+          echo "::error::new code carries fabrication markers — finish the implementation"
+          cat /tmp/hits.txt
+          exit 1

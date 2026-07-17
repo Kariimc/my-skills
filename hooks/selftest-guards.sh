@@ -69,6 +69,41 @@ printf '%s' '{"stop_hook_active":true}' | bash ~/.claude/hooks/loose-ends-guard.
 [ $? -eq 0 ] && echo "PASS looseends loop-guard" || { echo "FAIL looseends loop-guard"; fails=$((fails+1)); }
 [ -n "$ttw" ] && rm -rf "$ttw"
 
+# ── detect-fabrication: shared by the Stop guard and the CI gate ─────────────
+# Fed a diff on stdin. 1 = hit and ONLY that; 0 = clean or any internal error.
+d() { printf '%b' "$2" | bash ~/.claude/hooks/detect-fabrication.sh >/dev/null 2>&1
+  code=$?
+  if [ "$code" -eq "$3" ]; then echo "PASS $1"; else echo "FAIL $1 exit=$code want=$3"; fails=$((fails+1)); fi; }
+
+d "fab blocks TODO in code"     '+++ b/src/api.js\n+// TODO: finish\n' 1
+d "fab allows clean code"       '+++ b/src/api.js\n+const x = 1;\n' 0
+d "fab allows TODO_LIMIT"       '+++ b/src/api.js\n+const TODO_LIMIT = 5;\n' 0
+d "fab allows bare ellipsis"    '+++ b/src/proto.py\n+    ...\n' 0
+d "fab fails open on garbage"   '\x00\x01binary junk no header\n' 0
+d "fab reads src/hooks (anchor)" '+++ b/src/hooks/useAuth.ts\n+// TODO: wire\n' 1
+d "fab skips own hooks dir"     '+++ b/hooks/guard-x.sh\n+# TODO: fixture\n' 0
+d "fab ignores prose md"        '+++ b/README.md\n+TODO: write docs\n' 0
+d "fab blocks placeholder"      '+++ b/src/api.js\n+// rest of code remains the same\n' 1
+printf '%s' '{"stop_hook_active":true}' | bash ~/.claude/hooks/guard-fabrication.sh >/dev/null 2>&1
+[ $? -eq 0 ] && echo "PASS fabrication loop-guard" || { echo "FAIL fabrication loop-guard"; fails=$((fails+1)); }
+
+# mark-session-head must land a marker; without it the Stop guard silently
+# degrades to uncommitted-only and passes green while reading almost nothing.
+tfr=$(mktemp -d) && cd "$tfr" && git init -q . && git config user.email t@t && git config user.name t
+echo seed > seed.txt && git add -A && git commit -qm seed >/dev/null 2>&1
+bash ~/.claude/hooks/mark-session-head.sh
+MT="${TMPDIR:-${TEMP:-/tmp}}"; [ -d "$MT" ] || MT=/tmp
+mh=$(printf '%s' "$(git rev-parse --show-toplevel)" | cksum | cut -d' ' -f1)
+[ "$(cat "$MT/claude-session-head-$mh" 2>/dev/null)" = "$(git rev-parse HEAD)" ] \
+  && echo "PASS session marker written" \
+  || { echo "FAIL session marker written"; fails=$((fails+1)); }
+# The case a working-tree-only guard misses: TODO already committed.
+mkdir -p src && echo '// TODO: wire' > src/api.js && git add -A && git commit -qm w >/dev/null 2>&1
+printf '%s' '{"stop_hook_active":false}' | bash ~/.claude/hooks/guard-fabrication.sh >/dev/null 2>&1
+[ $? -eq 2 ] && echo "PASS fabrication catches committed TODO" \
+  || { echo "FAIL fabrication catches committed TODO"; fails=$((fails+1)); }
+cd ~ && rm -rf "$tfr"
+
 echo "----"
 [ "$fails" -eq 0 ] && echo "ALL GUARDS VERIFIED" || echo "$fails FAILURE(S)"
 exit "$fails"

@@ -53,19 +53,25 @@ mirror_tree() {  # $2 becomes an exact copy of the tree at $1
   mkdir -p "$dst"
   cp -r "$src/." "$dst/"
 }
-mirror_md_files() {  # $2 := the non-README *.md files of $1 (per-file mirror)
+sync_md_files() {  # $2 gets src's non-README *.md; deletes ONLY on tombstones
   local src="$1" dst="$2" base=""
   mkdir -p "$dst"
-  for existing in "$dst"/*.md; do
-    [ -e "$existing" ] || continue
-    base=$(basename "$existing")
-    [ "$base" = "README.md" ] && continue
-    if [ ! -f "$src/$base" ]; then
-      echo "[session-start] mirror $(basename "$dst"): removing $base (gone from repo)"
-      rm -f "$existing"
+  # TOMBSTONE semantics (NOT mirror). Decided 2026-07-17: a destination file is
+  # removed ONLY when the source explicitly marks it dead with a matching
+  # "<name>.md.tombstone" file. Unknown local-only files (e.g. a hand-dropped
+  # agent) are LEFT ALONE. Rationale: a wrong tombstone loses one named file you
+  # can see in a diff; the old mirror silently wiped EVERY unrecognized local
+  # file (this is what ate agents/tool-orchestrator.md).
+  for tomb in "$src"/*.md.tombstone; do
+    [ -e "$tomb" ] || continue
+    base=$(basename "$tomb" .tombstone)
+    if [ -f "$dst/$base" ]; then
+      echo "[session-start] tombstone $(basename "$dst"): removing $base (marked dead in repo)"
+      rm -f "$dst/$base"
     fi
   done
   for f in "$src"/*.md; do
+    [ -e "$f" ] || continue
     [ "$(basename "$f")" = "README.md" ] && continue
     cp "$f" "$dst/"
   done
@@ -116,16 +122,16 @@ if [ -d "$PROJECT_DIR/rules" ] && compgen -G "$PROJECT_DIR/rules/*.md" > /dev/nu
   done
 fi
 
-# ── 3. Slash commands (MIRROR, per-file, README excluded) ────────────────────
+# ── 3. Slash commands (TOMBSTONE, per-file, README excluded) ─────────────────
 # Each commands/*.md becomes /<name>; README.md is docs, so skip it.
 if [ -d "$PROJECT_DIR/commands" ] && compgen -G "$PROJECT_DIR/commands/*.md" > /dev/null; then
-  mirror_md_files "$PROJECT_DIR/commands" "$CLAUDE_DIR/commands"
+  sync_md_files "$PROJECT_DIR/commands" "$CLAUDE_DIR/commands"
 fi
 
-# ── 4. Subagents (MIRROR, per-file, README excluded) ─────────────────────────
+# ── 4. Subagents (TOMBSTONE, per-file, README excluded) ──────────────────────
 # Each agents/*.md becomes a callable subagent; README.md is docs, so skip it.
 if [ -d "$PROJECT_DIR/agents" ] && compgen -G "$PROJECT_DIR/agents/*.md" > /dev/null; then
-  mirror_md_files "$PROJECT_DIR/agents" "$CLAUDE_DIR/agents"
+  sync_md_files "$PROJECT_DIR/agents" "$CLAUDE_DIR/agents"
 fi
 
 # ── 5. Hooks (global) ────────────────────────────────────────────────────────
@@ -261,6 +267,7 @@ path = os.environ["SETTINGS_FILE"]
 tpl  = os.environ["WRAP_TPL"]
 KNOWN = {"harness-router.sh", "guard-destructive.sh", "guard-junk-files.sh",
          "guard-handoff.sh", "plain-words-guard.sh", "loose-ends-guard.sh",
+         "guard-fabrication.sh", "mark-session-head.sh",
          "selftest-guards.sh", "session-start.sh"}
 
 try:
