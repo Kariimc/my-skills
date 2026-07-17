@@ -228,3 +228,125 @@ wide: feed it `src/hooks/useAuth.ts` containing a marker and require a hit.
 **GENERAL FORM.** Any checker run against its own source needs its fixture and
 config files enumerated up front. Ask "which files legitimately contain the
 thing I'm banning?" before writing the exclusion, not after CI goes red.
+
+## F-13 — Writing prompts for another surface while holding working tools
+
+**SYMPTOM.** Five turns of drafting, wargaming and re-tightening a prompt for
+Kariim to paste into VS Code Claude. Four wargame passes on the prompt. Every
+defect found in those passes would have surfaced in seconds by running the
+thing. Cost: hours of Kariim's day for work that took ~20 minutes once started.
+
+**BANNED ROAD.** Deciding the deliverable is "a prompt", then optimising the
+prompt. The first two handoffs were correct — the MCP channel had timed out
+twice, and one timeout means the channel is down (F-01). But when the user said
+"I restarted" and the channel came back, the frame was never re-checked. The
+artifact outlived the reason it existed. Polishing a handoff is not progress;
+it is legwork wearing a deliverable's clothes.
+
+**THE ROAD THAT WORKS.** When a channel returns, the FIRST act is to re-ask
+what the task needs now — not to resume the fallback. A dead channel changes
+the method, not the goal. Concretely: if a prompt is being written for another
+agent, and the tools that prompt describes are callable from here, the prompt
+is a rule violation (zero legwork). Build it here.
+
+**TELL.** More than one wargame pass on a document that is not itself the
+deliverable. Also: the user asking "why are we testing and not finding the
+actual fix", or "why are you handing me things you can do". By then it is late.
+
+## F-14 — Editing a generated file and calling it done
+
+**SYMPTOM.** ~/.claude/CLAUDE.md edited three times across the chat. Line count
+went 523 -> 454 "unexpectedly". Blamed on another agent deleting blocks.
+
+**BANNED ROAD.** Treating ~/.claude as a source tree. It is BUILD OUTPUT.
+session-start.sh concatenates my-skills/rules/*.md into ~/.claude/CLAUDE.md on
+every session start. Every edit made there is erased at next launch. The
+"missing blocks" were never deleted by anyone — the file was regenerated from a
+source that never had them. An hour of the chat rested on that wrong diagnosis.
+
+**THE ROAD THAT WORKS.** Before editing ANY config, find what writes it. Here:
+`grep -r "CLAUDE.md" my-skills/.claude/hooks/session-start.sh` answers it in
+one call. Sources: rules/ -> CLAUDE.md, hooks/*.sh -> ~/.claude/hooks/ (flat
+glob, no subfolders), agents/ + commands/ -> tombstone sync. If a file is
+generated, edit the generator.
+
+**GENERAL FORM.** "My edit vanished" is almost never sabotage. It is a build
+step. Find the writer before blaming a reader.
+
+## F-15 — Serialising detached waits instead of taking the offered approval
+
+**SYMPTOM.** my-skills gates run 90s+, so commits must be detached (F-02).
+Correct. But each wait was then polled in 20-30s sleeps, one call at a time,
+narrating "still running" while the user sat watching. Then a wedge, a server
+switch, more polling. The user: "I give you approval you were just going to sit
+there stuck and not say anything."
+
+**BANNED ROAD.** Treating a known-slow gate as something to babysit in the
+foreground. Also: holding a gate open for approval the user is visibly present
+and ready to give — asking, then waiting for a turn, when a single "here is the
+diff, say go" earlier would have collapsed three turns into one.
+
+**THE ROAD THAT WORKS.** Fire the detached job, then do other real work in the
+same turn and check the output file ONCE at the end. Never poll as the sole
+content of a turn. When the user is live in the conversation, front-load every
+approval into one ask rather than serialising them.
+
+## F-16 — Walls of text after being told, in writing, not to
+
+**SYMPTOM.** Full prompt bodies pasted into chat repeatedly. User: "That wall
+of text and writing the entire prompt out in the context window is a no no."
+Acknowledged, then done again two turns later in a slightly shorter form.
+
+**BANNED ROAD.** Treating "be concise" as a formatting note to apply next time.
+The rule is: code and long artifacts go in FILES, never in chat (IDP Rule 5).
+Shortening a wall is not complying; not putting it in chat is.
+
+**THE ROAD THAT WORKS.** If the output is longer than a short answer and is
+meant to be USED rather than read, it is a file. Write it, name it in one line.
+The only things that belong in chat are the answer and the proof.
+
+## F-17 — Banned shell method used again, twice, after it is already in this ledger
+
+**SYMPTOM.** `python -c "..."` and `cmd /c ... & ...` passed as quoted strings
+through PowerShell. Both mangled: "Missing expression after ','", "The
+ampersand (&) character is not allowed". Two wasted calls.
+
+**BANNED ROAD.** Multi-statement scripts as quoted arguments through layered
+shells. This ledger ALREADY bans it. It was used anyway, mid-chat, while the
+ledger sat open in context. Reading the ledger is not the duty — obeying it is.
+
+**THE ROAD THAT WORKS.** Write the script to a file with a file-write tool,
+execute it as two plain tokens: `bash C:/path/to/script.sh`. No exceptions, not
+even for a "quick one-liner". The one-liner is where it always starts.
+
+## F-18 — Claiming a diagnosis without checking the writer
+
+**SYMPTOM.** A pre-commit hook fired in a throwaway test repo. Reported to the
+user as an "unexpected finding" and a possible leak worth a separate cleanup
+chat. It was neither: ~/.gitconfig sets core.hooksPath globally on purpose, and
+the hook enforces HANDOFF.md everywhere by design. Working as built.
+
+**BANNED ROAD.** Escalating something surprising into a "finding" before
+running the one command that explains it (`git config --show-origin --get-all
+core.hooksPath`). Manufacturing work is the same sin as leaving work undone —
+it spends the user's attention on nothing.
+
+**THE ROAD THAT WORKS.** Surprise is a prompt to look, not to report. Explain
+it first, then decide whether it is worth the user's time at all. Most
+surprises are the user's own deliberate config.
+
+## F-19 — Shipping a gate without asking which files legitimately break it
+
+**SYMPTOM.** Covered technically in F-12. The process failure is separate and
+worse: four wargame passes were run on the PROMPT describing the gate, and not
+one asked "which files in this repo legitimately contain the words I am about
+to ban?" The selftest fixtures were caught by luck of prior knowledge. The
+workflow file was not. CI went red on the gate's own PR.
+
+**BANNED ROAD.** Adversarial review of a description instead of the artifact.
+Wargaming prose finds prose defects. It cannot find what only exists when the
+thing runs against real files.
+
+**THE ROAD THAT WORKS.** Build the smallest runnable version FIRST, point it at
+the real repo, and read what it says. Thirty seconds of that beats four passes
+of imagination. Review the artifact, never the description of the artifact.
