@@ -10,7 +10,9 @@ orchestration only where a simple loop genuinely can't do the job.
 
 | File | Purpose |
 |---|---|
+| `00-contract.md` | The Standing Contract: the always-on chat-surface version of the operating law — recon before questions, answer first, zero legwork, decided = authorized, proof not reassurance, two strikes kills the method. Sorts first; the full law below outranks it. |
 | `00-core.md` | The core loop: understand first, smallest change, prove it, distill. Short leash; autonomy scales with verification. Preview gate for brand-new builds. |
+| `00-idp-operating-law.md` | The full operating law: router, clarity/prototype gates, the 19 numbered rules, violation protocol. |
 | `01-plain-talk.md` | Plain everyday language by default; explain every technical term in the same breath. |
 | `02-harnesses.md` | Orchestration inverted: default simple; six harness skills only when a task exceeds one context. Complexity must pay rent. |
 | `03-apex.md` | Gates are law: never bypass, fix the gate instead; ratchet each escaped mistake into a permanent check. |
@@ -21,6 +23,7 @@ orchestration only where a simple loop genuinely can't do the job.
 | `08-relay.md` | Read/write the Kariimc/relay cross-surface handoff system every session: global HANDOFF.md state, per-surface inboxes, append-only log. |
 | `09-consult-skills.md` | Check the skills library before saying "can't" — search first, then name exactly what is missing. |
 | `10-repo-topology.md` | Repos span TWO namespaces (user `Kariimc` + org `shift9-studio`) and are not all public. Never assert an absence, status, or completion without proving scope was exhaustive. |
+| `11-failure-ledger.md` | Read `FAILURES.md` before any work; feed it a new entry whenever an approach fails twice or burns 15+ minutes. |
 
 Learning-mode teaching rules (explain-like-I'm-five, step-by-step, 🎓 recaps)
 live in `C:\Dev\my-coding-journey\CLAUDE.md` — they load only there.
