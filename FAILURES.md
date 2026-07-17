@@ -201,3 +201,30 @@ WORKS: Scope the gate to staged changes (--staged from git diff --cached) while 
 SYMPTOM: Instructions pasted/appended into ~/.claude/CLAUDE.md (the IDP law itself) vanish; the file reads as concatenated rules.
 BANNED: Writing anything directly to ~/.claude/CLAUDE.md — the my-skills SessionStart hook mirrors rules/*.md over it on EVERY session start; direct edits are deleted silently.
 WORKS: Global instructions live in my-skills/rules/*.md (the source of truth); the sync then installs them everywhere permanently. The IDP law is rules/00-idp-operating-law.md; this ledger's binding rule is rules/11-failure-ledger.md.
+
+## F-41 SessionStart sync ate a local-only agent/command file
+SYMPTOM: A file written straight into ~/.claude/agents/ (or commands/) is read back fine, then vanishes minutes later; sibling files are untouched. (tool-orchestrator.md disappeared this way.)
+BANNED: Mirror semantics in the my-skills SessionStart sync (mirror_md_files rm-f any local *.md absent from the repo) — one unrecognized local file gets silently wiped fleet-wide, no diff, no log line in daemon.log (the removal only prints to the hook stdout).
+WORKS: Tombstone semantics (sync_md_files, decided 2026-07-17): copy repo *.md in, but delete a destination file ONLY when the repo carries an explicit "<name>.md.tombstone" marker. Unknown local-only files are left alone. A wrong tombstone loses one named file you can see in a diff; a wrong mirror wipes everything it does not recognize. Same class as F-40 (rules/*.md mirroring over ~/.claude/CLAUDE.md).
+
+## F-12 — A gate that quotes its own trigger words blocks itself
+
+**SYMPTOM.** New CI gate failed on the very PR that introduced it. Log:
+`.github/workflows/fabrication-gate.yml: # ... markers (TODO/FIXME/XXX,`
+
+**BANNED ROAD.** Writing a scanner and then scanning the repo that contains
+it. Any file that *names* the forbidden pattern — the workflow, the selftest
+fixtures, the docs describing it — is itself a hit. The scanner eats its own
+tail. Excluding by a loose substring (`hooks/`) is the opposite failure: it
+silently swallows real code (`src/hooks/useAuth.ts` in any React repo) and the
+gate reports clean while reading almost nothing.
+
+**THE ROAD THAT WORKS.** Enumerate the self-referential files BEFORE the first
+run and exclude them by exact, repo-root-anchored path. Never blanket-exclude a
+directory (`.github/`) to fix one file — that opens a hole an agent can park
+work in. Then prove the anchor with a test that FAILS when the exclusion is too
+wide: feed it `src/hooks/useAuth.ts` containing a marker and require a hit.
+
+**GENERAL FORM.** Any checker run against its own source needs its fixture and
+config files enumerated up front. Ask "which files legitimately contain the
+thing I'm banning?" before writing the exclusion, not after CI goes red.
