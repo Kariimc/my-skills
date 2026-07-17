@@ -65,6 +65,15 @@ Skills adapted from upstream open-source repos. Frontmatter was normalized (name
 > A plain-English walkthrough of the full ECC + ponytail batch lives in the
 > repo-root `global-skills-guide.pdf`.
 
+## Forward-Future/loopy
+- Source: https://github.com/Forward-Future/loopy
+- Author: Forward Future (Matthew Berman) — https://signals.forwardfuture.com/loop-library/
+- License: MIT (c) 2026 Forward Future (see `skills/loopy/LICENSE.txt`)
+- Imported (1): `loopy` — discover, find, audit, adapt, craft, run, debrief, save, and
+  publish repeatable AI-agent loops so the right bounded loop can be picked per project.
+  Skill body and `references/` (`discover.md`, `audit.md`, `run.md`, `debrief.md`,
+  `publish.md`) imported verbatim.
+
 ## Intentionally not imported
 These are superpowers-plugin maintenance skills that only function inside that plugin's repo, so they were skipped:
 - `sharing-skills` (obra/superpowers-skills)
