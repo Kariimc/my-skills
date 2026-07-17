@@ -62,6 +62,11 @@ def skipped(path):
         return True
     if base == "selftest-guards.sh":
         return True
+    # The CI gate's own workflow quotes these markers in its self-check and its
+    # comments. Exactly this one path — NOT all of .github/, or an agent could
+    # park TODOs in CI config and the gate would wave them through.
+    if low == ".github/workflows/fabrication-gate.yml":
+        return True
     return False
 
 def main():
