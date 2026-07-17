@@ -62,10 +62,10 @@ ti = data.get("tool_input", {}) or {}
 
 # ── Generated-path guard (any write-ish tool, incl. MCP file writers) ────────
 # ~/.claude is BUILD OUTPUT. session-start.sh regenerates CLAUDE.md from
-# my-skills/rules/*.md and mirrors skills/commands/agents/hooks over it on
-# EVERY session start. A direct write there is silently erased at next launch,
-# and worse, it reads back fine right after — so it gets reported as "done".
-# Rules are remembered or forgotten; this is a wall. (Ledger F-40, F-41, F-14.)
+# my-skills/rules/*.md, copies FAILURES.md from the repo, and mirrors
+# skills/commands/agents/hooks over it on EVERY session start. A direct write
+# there is silently erased at next launch, and worse, it reads back fine right
+# after — so it gets reported as "done". (Ledger F-40, F-41, F-46.)
 if tool != "Bash":
     path = ti.get("file_path") or ti.get("path") or ti.get("notebook_path") or ""
     norm = str(path).replace("\\", "/")
@@ -74,6 +74,10 @@ if tool != "Bash":
          "~/.claude/CLAUDE.md is GENERATED from my-skills/rules/*.md on every "
          "session start. Your edit would be erased at next launch. "
          "Edit the source: my-skills/rules/<nn>-<name>.md"),
+        (r'/\.claude/FAILURES\.md$',
+         "~/.claude/FAILURES.md is GENERATED from my-skills/FAILURES.md on every "
+         "session start. Your edit would be erased at next launch, and it is not "
+         "versioned there. Edit the source: my-skills/FAILURES.md"),
         (r'/\.claude/skills/',
          "~/.claude/skills/ is a MIRROR of my-skills/skills/. Files here are "
          "deleted if absent from the repo. Edit my-skills/skills/<name>/ instead."),
@@ -125,14 +129,14 @@ HARD = [
      "structured files (ledger F-05, F-30). Use: "
      "[IO.File]::WriteAllText($path, $text, [Text.UTF8Encoding]::new($false))"),
 
-    # ── F-35 / F-17: multi-statement scripts through layered shells ─────────
+    # ── F-35 / F-49: multi-statement scripts through layered shells ─────────
     # Proven dead 4x. Quoting gets mangled crossing PowerShell -> bash/python;
     # commands silently no-op or half-run. A single statement is fine; two or
     # more separated by ; or && is the failure mode. Write the script to a file
     # and execute the FILE as two plain tokens.
     (r'''(?:bash(?:\.exe)?|python3?|node)\s+-(?:c|e)\s+(?P<q>['"]).*?[;&]{1,2}.*?(?P=q)''',
      "Multi-statement script passed as a quoted argument through a layered shell "
-     "- proven dead 4x (ledger F-35, F-17). Quoting gets mangled and the command "
+     "- proven dead 4x (ledger F-35, F-49). Quoting gets mangled and the command "
      "silently half-runs. Write the script to a file, then run it as two plain "
      "tokens: bash /c/path/to/script.sh"),
 ]

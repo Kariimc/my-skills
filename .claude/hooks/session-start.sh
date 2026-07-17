@@ -116,6 +116,17 @@ if [ -d "$PROJECT_DIR/rules" ] && compgen -G "$PROJECT_DIR/rules/*.md" > /dev/nu
   done
 fi
 
+# ── 2b. Failure ledger -> ~/.claude/FAILURES.md ──────────────────────────────
+# The ledger was local-only and unversioned: one disk from gone, invisible to
+# the cloud surface, and open to two agents appending to it at once with no
+# history. The repo copy is now the source of truth and this makes ~/.claude a
+# generated mirror of it (guard-destructive.sh blocks direct writes there and
+# names this path instead). Kept OUT of rules/ on purpose — it is ~28KB and does
+# not belong concatenated into CLAUDE.md on every session.
+if [ -f "$PROJECT_DIR/FAILURES.md" ]; then
+  cp "$PROJECT_DIR/FAILURES.md" "$CLAUDE_DIR/FAILURES.md"
+fi
+
 # ── 3. Slash commands (MIRROR, per-file, README excluded) ────────────────────
 # Each commands/*.md becomes /<name>; README.md is docs, so skip it.
 if [ -d "$PROJECT_DIR/commands" ] && compgen -G "$PROJECT_DIR/commands/*.md" > /dev/null; then
