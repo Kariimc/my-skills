@@ -13,18 +13,22 @@
 
 input="$(cat)"
 
-# Cheap pre-filter 1: only Bash tool calls are guarded. The JSON field check is
-# a substring test — no interpreter needed for the overwhelmingly common case.
+# Cheap pre-filter 1: route by tool. Bash -> destructive-command checks.
+# Anything else -> only worth inspecting if the payload names a generated path.
+GUARD_MODE=""
 case "$input" in
-  *'"tool_name":"Bash"'*|*'"tool_name": "Bash"'*) ;;
+  *'"tool_name":"Bash"'*|*'"tool_name": "Bash"'*) GUARD_MODE=bash ;;
+  *CLAUDE.md*|*.claude*) GUARD_MODE=write ;;
   *) exit 0 ;;
 esac
 
-# Cheap pre-filter 2: none of the guarded keywords present -> allow instantly.
-case "$input" in
-  *rm\ *|*'git push'*|*'git reset'*|*'git clean'*|*'git checkout'*|*'git restore'*|*DROP\ *|*drop\ *|*TRUNCATE*|*truncate*) ;;
-  *) exit 0 ;;
-esac
+# Cheap pre-filter 2 (bash only): no guarded keywords -> allow instantly.
+if [ "$GUARD_MODE" = bash ]; then
+  case "$input" in
+    *rm\ *|*'git push'*|*'git reset'*|*'git clean'*|*'git checkout'*|*'git restore'*|*DROP\ *|*drop\ *|*TRUNCATE*|*truncate*) ;;
+    *) exit 0 ;;
+  esac
+fi
 
 # Resolve the fastest available python once. The Windows Store alias shim
 # (WindowsApps\python3) adds ~1s per spawn and can be a non-functional App
@@ -53,10 +57,44 @@ try:
 except (ValueError, IndexError):
     sys.exit(0)
 
-if data.get("tool_name") != "Bash":
+tool = data.get("tool_name", "")
+ti = data.get("tool_input", {}) or {}
+
+# ── Generated-path guard (any write-ish tool, incl. MCP file writers) ────────
+# ~/.claude is BUILD OUTPUT. session-start.sh regenerates CLAUDE.md from
+# my-skills/rules/*.md and mirrors skills/commands/agents/hooks over it on
+# EVERY session start. A direct write there is silently erased at next launch,
+# and worse, it reads back fine right after — so it gets reported as "done".
+# Rules are remembered or forgotten; this is a wall. (Ledger F-40, F-41, F-14.)
+if tool != "Bash":
+    path = ti.get("file_path") or ti.get("path") or ti.get("notebook_path") or ""
+    norm = str(path).replace("\\", "/")
+    GENERATED = [
+        (r'/\.claude/CLAUDE\.md$',
+         "~/.claude/CLAUDE.md is GENERATED from my-skills/rules/*.md on every "
+         "session start. Your edit would be erased at next launch. "
+         "Edit the source: my-skills/rules/<nn>-<name>.md"),
+        (r'/\.claude/skills/',
+         "~/.claude/skills/ is a MIRROR of my-skills/skills/. Files here are "
+         "deleted if absent from the repo. Edit my-skills/skills/<name>/ instead."),
+        (r'/\.claude/commands/',
+         "~/.claude/commands/ is synced from my-skills/commands/. "
+         "Edit my-skills/commands/<name>.md instead."),
+        (r'/\.claude/agents/',
+         "~/.claude/agents/ is synced from my-skills/agents/. "
+         "Edit my-skills/agents/<name>.md instead."),
+        (r'/\.claude/hooks/',
+         "~/.claude/hooks/ is synced from my-skills/hooks/. "
+         "Edit my-skills/hooks/<name>.sh instead."),
+    ]
+    for pattern, msg in GENERATED:
+        if re.search(pattern, norm, re.IGNORECASE):
+            print(f"GUARDRAIL BLOCKED: {msg}", file=sys.stderr)
+            print(f"GUARDRAIL BLOCKED: {msg}")
+            sys.exit(2)
     sys.exit(0)
 
-cmd = data.get("tool_input", {}).get("command", "")
+cmd = ti.get("command", "")
 
 HARD = [
     # rm -rf of filesystem root or home
