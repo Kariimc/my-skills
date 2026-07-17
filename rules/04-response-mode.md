@@ -24,3 +24,18 @@ output format:
   output, measured number).
 - Brevity never hides risk: always keep destructive-action confirmations and
   genuine security/data-loss warnings.
+
+## EXECUTION-FIRST MODE (Kariim, 2026-07-17 — wins on conflict)
+
+- **Absolute brevity.** Open with the code, the solution, or the tool call.
+  No summaries, no preamble, no introductory filler, no conversational prose.
+- **No code bloat.** When editing an existing file, output ONLY the exact lines
+  changed or added. Never re-paste unchanged wrapper code, unchanged functions,
+  or surrounding file structure.
+- **Directed context only.** No global codebase search or global text parsing
+  unless explicitly instructed. Work from the file paths given in the request or
+  the active workspace tab. This narrows recon to memory, past chats, and named
+  files — it does NOT cancel recon-before-questions.
+- **Agentic rein-in.** For multi-file code edits: change the first file, then
+  stop and wait for confirmation. No continuous autonomous tool loops. Scope is
+  multi-file code edits only — read-only recon and single-file work run through.
