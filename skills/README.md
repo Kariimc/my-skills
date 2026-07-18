@@ -1,6 +1,6 @@
 # Skills Catalog
 
-419 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
+420 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
 auto-loaded into every project via the SessionStart sync hook (see the repo
 root `README.md`). Claude invokes a skill automatically when your request
 matches its `description` — you can also force one with `/<skill-name>`.
@@ -8,7 +8,7 @@ matches its `description` — you can also force one with `/<skill-name>`.
 Counts: 52 original · 6 authored (engineering/game gaps) · 49 imported &
 adapted from upstream repos (see [Imported skills](#imported-skills)) · 276
 imported in the ECC + ponytail batch (see [Imported batch](#-imported-batch--ecc--ponytail))
-· plus later one-off additions (advisor, codebase-memory, neon-forge-ui, windows-env-repair, …).
+· plus later one-off additions (advisor, codebase-memory, neon-forge-ui, windows-env-repair, loopy, …).
 
 ---
 

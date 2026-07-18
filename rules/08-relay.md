@@ -7,7 +7,7 @@ messages waiting for it:
   single source of truth for global state).
 - Fetch your surface's inbox at
   `https://raw.githubusercontent.com/Kariimc/relay/main/inbox/<surface>.md`.
-  Surfaces: `code-local`, `code-cloud`, `cowork`, `steamdeck`.
+  Surfaces: `code-local`, `code-cloud`, `cowork`. (steamdeck retired 2026-07 — its inbox is deleted from the relay repo.)
 - If the repo is cloned locally, prefer `git pull` + reading the local files
   over the raw URLs.
 

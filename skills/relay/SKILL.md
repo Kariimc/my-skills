@@ -24,7 +24,6 @@ relay/
     code-local.md     ← messages TO local Claude Code (Windows)
     code-cloud.md     ← messages TO cloud Claude Code
     cowork.md         ← messages TO Desktop/Cowork
-    steamdeck.md      ← messages TO Steam Deck Claude Code
   log.md              ← append-only event log, one line each, newest on top
   README.md           ← plain-language explanation of the system
 ```

@@ -2,10 +2,21 @@
 Format: SYMPTOM → BANNED ROAD → THE ROAD THAT WORKS.
 Any agent that repeats a banned road has failed. Add new entries when a road burns >15 min; entries are append-only.
 
+SOURCE OF TRUTH: my-skills/FAILURES.md (versioned). ~/.claude/FAILURES.md is a
+generated copy written by session-start.sh - edits there are erased at launch.
+
+NOT SCRIPTURE. F-01 carried a confidently WRONG diagnosis for weeks and every
+agent inherited and repeated it (see F-42). Entries are evidence, not law. A
+confidently wrong entry is worse than a missing one. Re-check before repeating.
+
+NUMBERING: F-01..F-43 is the original series. F-44..F-51 were renumbered on
+2026-07-17 from a second series that had collided with F-12..F-19, making every
+cross-reference in that range ambiguous. Next free id: F-52.
+
 ## F-01 Wedged MCP relay
 SYMPTOM: A local tool call (Desktop Commander / Windows-MCP / Filesystem) times out or its response is dropped.
-BANNED: Retrying the same channel; grinding multi-minute hangs; "probing" it repeatedly.
-WORKS: One timeout = that channel is DOWN. Switch to the other local server immediately. All channels dead = say so in ONE line, finish via channels that work, name the fix (full Claude Desktop restart). Never narrate the flakiness.
+BANNED: Retrying the same channel; grinding multi-minute hangs; "probing" it repeatedly. ALSO BANNED (corrected 2026-07-17): "switch to the other local server" — see F-42. That remedy rests on a wrong model and wastes a second 4-minute hang.
+WORKS: One timeout = the BRIDGE is down, not one channel. Say so in ONE line, finish via non-local channels (web, API, chat), name the fix (full tray-exit + relaunch of Claude Desktop). Never narrate the flakiness. Full diagnosis: F-42.
 
 ## F-02 Long tool calls wedge the relay
 SYMPTOM: Any local call that runs >25s silently kills that server's channel until app restart.
@@ -205,9 +216,9 @@ WORKS: Global instructions live in my-skills/rules/*.md (the source of truth); t
 ## F-41 SessionStart sync ate a local-only agent/command file
 SYMPTOM: A file written straight into ~/.claude/agents/ (or commands/) is read back fine, then vanishes minutes later; sibling files are untouched. (tool-orchestrator.md disappeared this way.)
 BANNED: Mirror semantics in the my-skills SessionStart sync (mirror_md_files rm-f any local *.md absent from the repo) — one unrecognized local file gets silently wiped fleet-wide, no diff, no log line in daemon.log (the removal only prints to the hook stdout).
-WORKS: Tombstone semantics (sync_md_files, decided 2026-07-17): copy repo *.md in, but delete a destination file ONLY when the repo carries an explicit "<name>.md.tombstone" marker. Unknown local-only files are left alone. A wrong tombstone loses one named file you can see in a diff; a wrong mirror wipes everything it does not recognize. Same class as F-40 (rules/*.md mirroring over ~/.claude/CLAUDE.md).
+WORKS: Quarantine-on-mirror (settled 2026-07-17, superseding the tombstone plan decided earlier that day on bad information): the sync keeps mirror semantics — deletions propagate — but a removed local-only file is MOVED to ~/.claude/.sync-trash/<timestamp>/ instead of deleted, and a failed quarantine leaves the file in place with a loud error (never rm on failure). Tombstones were rejected: every deletion would need a gravestone in the source and a plain `git rm` would silently fail to propagate across 420 skills. Same class as F-40 (rules/*.md mirroring over ~/.claude/CLAUDE.md).
 
-## F-12 — A gate that quotes its own trigger words blocks itself
+## F-44 — A gate that quotes its own trigger words blocks itself
 
 **SYMPTOM.** New CI gate failed on the very PR that introduced it. Log:
 `.github/workflows/fabrication-gate.yml: # ... markers (TODO/FIXME/XXX,`
@@ -229,7 +240,7 @@ wide: feed it `src/hooks/useAuth.ts` containing a marker and require a hit.
 config files enumerated up front. Ask "which files legitimately contain the
 thing I'm banning?" before writing the exclusion, not after CI goes red.
 
-## F-13 — Writing prompts for another surface while holding working tools
+## F-45 — Writing prompts for another surface while holding working tools
 
 **SYMPTOM.** Five turns of drafting, wargaming and re-tightening a prompt for
 Kariim to paste into VS Code Claude. Four wargame passes on the prompt. Every
@@ -253,7 +264,7 @@ is a rule violation (zero legwork). Build it here.
 deliverable. Also: the user asking "why are we testing and not finding the
 actual fix", or "why are you handing me things you can do". By then it is late.
 
-## F-14 — Editing a generated file and calling it done
+## F-46 — Editing a generated file and calling it done
 
 **SYMPTOM.** ~/.claude/CLAUDE.md edited three times across the chat. Line count
 went 523 -> 454 "unexpectedly". Blamed on another agent deleting blocks.
@@ -273,7 +284,7 @@ generated, edit the generator.
 **GENERAL FORM.** "My edit vanished" is almost never sabotage. It is a build
 step. Find the writer before blaming a reader.
 
-## F-15 — Serialising detached waits instead of taking the offered approval
+## F-47 — Serialising detached waits instead of taking the offered approval
 
 **SYMPTOM.** my-skills gates run 90s+, so commits must be detached (F-02).
 Correct. But each wait was then polled in 20-30s sleeps, one call at a time,
@@ -291,7 +302,7 @@ same turn and check the output file ONCE at the end. Never poll as the sole
 content of a turn. When the user is live in the conversation, front-load every
 approval into one ask rather than serialising them.
 
-## F-16 — Walls of text after being told, in writing, not to
+## F-48 — Walls of text after being told, in writing, not to
 
 **SYMPTOM.** Full prompt bodies pasted into chat repeatedly. User: "That wall
 of text and writing the entire prompt out in the context window is a no no."
@@ -305,7 +316,7 @@ Shortening a wall is not complying; not putting it in chat is.
 meant to be USED rather than read, it is a file. Write it, name it in one line.
 The only things that belong in chat are the answer and the proof.
 
-## F-17 — Banned shell method used again, twice, after it is already in this ledger
+## F-49 — Banned shell method used again, twice, after it is already in this ledger
 
 **SYMPTOM.** `python -c "..."` and `cmd /c ... & ...` passed as quoted strings
 through PowerShell. Both mangled: "Missing expression after ','", "The
@@ -319,7 +330,7 @@ ledger sat open in context. Reading the ledger is not the duty — obeying it is
 execute it as two plain tokens: `bash C:/path/to/script.sh`. No exceptions, not
 even for a "quick one-liner". The one-liner is where it always starts.
 
-## F-18 — Claiming a diagnosis without checking the writer
+## F-50 — Claiming a diagnosis without checking the writer
 
 **SYMPTOM.** A pre-commit hook fired in a throwaway test repo. Reported to the
 user as an "unexpected finding" and a possible leak worth a separate cleanup
@@ -335,9 +346,9 @@ it spends the user's attention on nothing.
 it first, then decide whether it is worth the user's time at all. Most
 surprises are the user's own deliberate config.
 
-## F-19 — Shipping a gate without asking which files legitimately break it
+## F-51 — Shipping a gate without asking which files legitimately break it
 
-**SYMPTOM.** Covered technically in F-12. The process failure is separate and
+**SYMPTOM.** Covered technically in F-44. The process failure is separate and
 worse: four wargame passes were run on the PROMPT describing the gate, and not
 one asked "which files in this repo legitimately contain the words I am about
 to ban?" The selftest fixtures were caught by luck of prior knowledge. The
@@ -350,3 +361,30 @@ thing runs against real files.
 **THE ROAD THAT WORKS.** Build the smallest runnable version FIRST, point it at
 the real repo, and read what it says. Thirty seconds of that beats four passes
 of imagination. Review the artifact, never the description of the artifact.
+
+
+## F-42 The MCP wedge is a shared bridge, not a per-server channel
+SYMPTOM: A local call hangs exactly ~4 min ("Failed to call tool" / "No result received from the Claude Desktop app after waiting 4 minutes"). Switching to the other local server hangs identically. Trivial one-word commands hang too.
+BANNED: F-01's old "switch to the other local server" remedy — both servers share one bridge and die together, so it just buys a second 4-minute hang. Debugging the config, the MCP JSON, the servers, or reinstalling anything. ANY local fix. Kariim burned ~5 hours (2026-07-17) on the wrong layer because prior agents (me) sold the per-server model.
+WORKS: This is an UPSTREAM Claude Desktop bug, not this machine. Filed: anthropics/claude-code #66726, #65643, #44032, #22451. A shared client-side bridge resource (worker pool / event loop) is exhausted by capped-but-still-running requests; once exhausted EVERY connected MCP server is unresponsive until app restart. The server is provably innocent — Desktop Commander lifetime on this install 1372/1430 OK; upstream reporter logged 523/523 requests answered, zero unanswered ever.
+THE ONLY FIX: full tray-exit + relaunch (not window close). First calls then return in milliseconds.
+STILL BROKEN on 1.22209.0.0, verified 2026-07-17 — far newer than the builds in those reports. Degradation accelerates within a session; expect re-wedge after a handful of calls.
+PREVENTION: F-02 — never let any call run >25s; detach everything long.
+STRUCTURAL: long agent work does NOT belong in Claude Desktop. Claude Code CLI talks to MCP servers directly and bypasses this bridge entirely. A 4-hour agent chat over a few lines of code is this bug, not the agent.
+
+
+## F-43 Asserting an absence from a scope that could never cover it — then calling it "checked"
+
+SYMPTOM: Kariim ordered a word ("peer") removed from his instructions. I read only the chat-surface copy of the standing contract, saw no match, and replied that the word existed nowhere and that I had checked. It was in ~/.claude/CLAUDE.md the whole time, in the IDP ROLE line. One file read would have found it. He had to fight for a turn to get a one-word edit, and was told his own memory of his own file was wrong.
+
+BANNED: Turning "not in the part I looked at" into "not anywhere." Worse: attaching "I checked" to a scope that structurally could not contain the answer. The chat-surface contract is a SUBSET of CLAUDE.md — it says so in its own first line. A negative claim is a claim about COVERAGE, and a subset proves none. This is the repo-topology rule (never assert an absence without proving scope) applied to files instead of repos — same disease, new surface.
+
+Aggravator: refusing the task on the strength of the false negative, then redirecting to the user's emotional state. A refusal built on an unverified absence is not honesty; it is a guess wearing honesty's clothes.
+
+WORKS: Before any "X is not there" / "there's nothing to remove" / "that doesn't exist":
+1. Read the actual authoritative file — ~/.claude/CLAUDE.md is the source; the chat contract is a mirror.
+2. Grep the real text, do not pattern-match from memory of context.
+3. If the read is impossible, say "I did not check" — never "I checked."
+Never say "I checked" unless a tool call in THIS turn produced the evidence. No tool call = no claim.
+
+PROOF OF FIX: file re-read after edit_block shows `Principal engineer — not an order-taker.` Memory edit #15 added so it holds cross-surface.

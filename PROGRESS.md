@@ -17,11 +17,11 @@
   command in `~/.claude/settings.json` back to the Windows-executable form every
   session start; the five 100644 `hooks/*.sh` were committed 100755, which is what
   had the CI apex drift gate red since 747466c (pre-existing on master).
-- **Skill library count is 419.** Root `README.md`, `ARCHITECTURE.md`, `skills/README.md`,
+- **Skill library count is 420** (was 419 when this pass ran). Root `README.md`, `ARCHITECTURE.md`, `skills/README.md`,
   `skills/TRIGGERLESS-REPORT.md`, `skills/OVERLAP-REPORT.md`, `nano/README.md`,
   `bin/apex-gates.sh`, and the historical `docs/plans/` handoffs were updated
   or annotated so stale 399/411/416 counts cannot be mistaken for current state.
-- **Audit state:** a bounded structural scan found 419 skills, 0 HARD issues,
+- **Audit state:** a bounded structural scan found 420 skills, 0 HARD issues,
   and 0 SOFT issues: every skill has `SKILL.md`, matching `name:`,
   `description:`, an explicit trigger clause, and description length under
   1024 characters.

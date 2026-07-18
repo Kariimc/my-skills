@@ -39,39 +39,62 @@ mkdir -p "$CLAUDE_DIR"
 # destination to the repo — deletions propagate. rsync isn't available on the
 # Windows/git-bash host, so this is delete-then-copy. Both print what they remove
 # so the first sync per machine (which may drop hand-dropped local-only entries)
-# is auditable. WARNING: a skill/command/agent that exists ONLY in ~/.claude and
-# not in the repo will be removed — put it in the repo to keep it.
+# is auditable. A skill/command/agent that exists ONLY in ~/.claude and not in
+# the repo is QUARANTINED to ~/.claude/.sync-trash/<timestamp>/ (never silently
+# destroyed — F-41) — put it in the repo to keep it live.
+SYNC_TRASH="$CLAUDE_DIR/.sync-trash/$(date +%Y%m%d-%H%M%S)"
+quarantine() {  # move a doomed file into the dated trash dir. NEVER deletes on
+                # failure: mv, then copy+remove fallback, then leave the file in
+                # place with a loud error and rc 1 (F-41: no silent destruction).
+  local f="$1" rel="$2"
+  if mkdir -p "$SYNC_TRASH/$(dirname "$rel")" 2>/dev/null \
+     && { mv -f "$f" "$SYNC_TRASH/$rel" 2>/dev/null \
+          || { cp -p "$f" "$SYNC_TRASH/$rel" 2>/dev/null && rm -f "$f"; }; }; then
+    return 0
+  fi
+  echo "[session-start] QUARANTINE FAILED for $rel — file left in place, NOT deleted" >&2
+  return 1
+}
 mirror_tree() {  # $2 becomes an exact copy of the tree at $1
-  local src="$1" dst="$2" removed=""
+  local src="$1" dst="$2" removed="" qfail=0
   if [ -d "$dst" ]; then
     removed=$(comm -23 \
       <(cd "$dst" && find . -type f 2>/dev/null | sort) \
       <(cd "$src" && find . -type f 2>/dev/null | sort)) || true
-    [ -n "$removed" ] && { echo "[session-start] mirror $(basename "$dst"): removing entries gone from repo:"; echo "$removed" | sed 's|^\./|  - |'; }
+    if [ -n "$removed" ]; then
+      echo "[session-start] mirror $(basename "$dst"): quarantining entries gone from repo (recoverable in ~/.claude/.sync-trash):"
+      echo "$removed" | sed 's|^\./|  - |'
+      while IFS= read -r rel; do
+        rel="${rel#./}"
+        quarantine "$dst/$rel" "$(basename "$dst")/$rel" || qfail=1
+      done <<< "$removed"
+    fi
+    if [ "$qfail" = "1" ]; then
+      # A file could not be quarantined. Deleting the tree now would destroy it,
+      # so fall back to an additive overlay for this session: stale-but-safe.
+      echo "[session-start] mirror $(basename "$dst"): quarantine incomplete — skipping delete step, overlay copy only (a stale entry may linger until the next clean sync)" >&2
+      mkdir -p "$dst"
+      cp -r "$src/." "$dst/"
+      return 0
+    fi
     rm -rf "$dst"
   fi
   mkdir -p "$dst"
   cp -r "$src/." "$dst/"
 }
-sync_md_files() {  # $2 gets src's non-README *.md; deletes ONLY on tombstones
+mirror_md_files() {  # $2 := the non-README *.md files of $1 (per-file mirror)
   local src="$1" dst="$2" base=""
   mkdir -p "$dst"
-  # TOMBSTONE semantics (NOT mirror). Decided 2026-07-17: a destination file is
-  # removed ONLY when the source explicitly marks it dead with a matching
-  # "<name>.md.tombstone" file. Unknown local-only files (e.g. a hand-dropped
-  # agent) are LEFT ALONE. Rationale: a wrong tombstone loses one named file you
-  # can see in a diff; the old mirror silently wiped EVERY unrecognized local
-  # file (this is what ate agents/tool-orchestrator.md).
-  for tomb in "$src"/*.md.tombstone; do
-    [ -e "$tomb" ] || continue
-    base=$(basename "$tomb" .tombstone)
-    if [ -f "$dst/$base" ]; then
-      echo "[session-start] tombstone $(basename "$dst"): removing $base (marked dead in repo)"
-      rm -f "$dst/$base"
+  for existing in "$dst"/*.md; do
+    [ -e "$existing" ] || continue
+    base=$(basename "$existing")
+    [ "$base" = "README.md" ] && continue
+    if [ ! -f "$src/$base" ]; then
+      echo "[session-start] mirror $(basename "$dst"): quarantining $base (gone from repo; recoverable in ~/.claude/.sync-trash)"
+      quarantine "$existing" "$(basename "$dst")/$base" || true  # on failure the file stays; error already printed
     fi
   done
   for f in "$src"/*.md; do
-    [ -e "$f" ] || continue
     [ "$(basename "$f")" = "README.md" ] && continue
     cp "$f" "$dst/"
   done
@@ -122,16 +145,35 @@ if [ -d "$PROJECT_DIR/rules" ] && compgen -G "$PROJECT_DIR/rules/*.md" > /dev/nu
   done
 fi
 
-# ── 3. Slash commands (TOMBSTONE, per-file, README excluded) ─────────────────
-# Each commands/*.md becomes /<name>; README.md is docs, so skip it.
-if [ -d "$PROJECT_DIR/commands" ] && compgen -G "$PROJECT_DIR/commands/*.md" > /dev/null; then
-  sync_md_files "$PROJECT_DIR/commands" "$CLAUDE_DIR/commands"
+# ── 2b. Failure ledger -> ~/.claude/FAILURES.md ──────────────────────────────
+# The ledger was local-only and unversioned: one disk from gone, invisible to
+# the cloud surface, and open to two agents appending to it at once with no
+# history. The repo copy is now the source of truth and this makes ~/.claude a
+# generated mirror of it (guard-destructive.sh blocks direct writes there and
+# names this path instead). Kept OUT of rules/ on purpose — it is ~28KB and does
+# not belong concatenated into CLAUDE.md on every session.
+if [ -f "$PROJECT_DIR/FAILURES.md" ]; then
+  cp "$PROJECT_DIR/FAILURES.md" "$CLAUDE_DIR/FAILURES.md"
 fi
 
-# ── 4. Subagents (TOMBSTONE, per-file, README excluded) ──────────────────────
+# ── 2c. Playbook -> ~/.claude/PLAYBOOK.md ────────────────────────────────────
+# Same reasoning as the failure ledger: the two copies drifted (a wrong P-05
+# lived on in ~/.claude after the repo copy was corrected). Repo copy is the
+# source of truth; ~/.claude is a generated mirror of it.
+if [ -f "$PROJECT_DIR/PLAYBOOK.md" ]; then
+  cp "$PROJECT_DIR/PLAYBOOK.md" "$CLAUDE_DIR/PLAYBOOK.md"
+fi
+
+# ── 3. Slash commands (MIRROR, per-file, README excluded) ────────────────────
+# Each commands/*.md becomes /<name>; README.md is docs, so skip it.
+if [ -d "$PROJECT_DIR/commands" ] && compgen -G "$PROJECT_DIR/commands/*.md" > /dev/null; then
+  mirror_md_files "$PROJECT_DIR/commands" "$CLAUDE_DIR/commands"
+fi
+
+# ── 4. Subagents (MIRROR, per-file, README excluded) ─────────────────────────
 # Each agents/*.md becomes a callable subagent; README.md is docs, so skip it.
 if [ -d "$PROJECT_DIR/agents" ] && compgen -G "$PROJECT_DIR/agents/*.md" > /dev/null; then
-  sync_md_files "$PROJECT_DIR/agents" "$CLAUDE_DIR/agents"
+  mirror_md_files "$PROJECT_DIR/agents" "$CLAUDE_DIR/agents"
 fi
 
 # ── 5. Hooks (global) ────────────────────────────────────────────────────────
