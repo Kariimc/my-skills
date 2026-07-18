@@ -27,7 +27,7 @@ auto-type "look at the video".
 1. Read the image at `C:\Users\Kariim\Dev\claude-eyes\captures\latest.png`.
 2. "the last few" -> read the newest timestamped PNGs in that folder (names sort by time).
 3. Self-heal: if `latest.png` is missing or clearly stale for a fresh snip, run
-   `wscript C:\Users\Kariim\Dev\claude-eyes\start-eyes.vbs` yourself, wait 3 seconds, then
+   `C:\Users\Kariim\Dev\claude-eyes\start-eyes.bat` yourself, wait 3 seconds, then
    remind the user the snip key is Alt+X. Never tell the user to start anything manually.
 
 ### Watch a video (disk)
@@ -56,10 +56,11 @@ dashboard open and sharing, or a streamer running.
 - Fetch a Gemini description of the live frame (includes Google Search grounding when relevant):
   `curl -s "http://localhost:3000/api/eyes/describe?q=<url-encoded question>"` -> read `.description`.
 - Or pull the raw live frame and read it yourself: `http://localhost:3000/api/eyes/latest.png`.
-- If it returns 503 "no active stream", the dashboard/streamer isn't running - tell the
-  user to run `start-bridge.bat` (or `npm run dev` in `bridge`) and click Share Screen,
-  or run a streamer from `bridge\integration\` (`claude-eyes.ps1`, `claude-eyes-bridge.py`,
-  or `claude-eyes.sh`). No API key needed.
+- If it returns 503 "no active stream", nothing is feeding the screen - tell the user to
+  double-click their Claude Eyes desktop icon (runs `open-eyes.bat`), which starts a
+  background streamer of their ACTUAL live screen automatically (no browser, no Share
+  Screen click). The browser dashboard (localhost:3000, Share Screen) is an alternative,
+  and `bridge\integration\` has manual streamers too. No API key needed.
 
 ### "analyze the clip / recording I just made"
 - After the user records a clip in the dashboard, get a chronological analysis:
