@@ -14,12 +14,14 @@ user deliberately captured with a hotkey.
 A background watcher saves every screenshot/snip the user takes into
 `C:\Users\Kariim\Dev\claude-eyes\captures\`.
 
-The user's own keys (each: press, a dim overlay appears, drag a box, release; the
-helper then auto-types into the last Claude, Claude Code, or Codex task even if
-another app is focused):
-- **Alt+X** = still snip -> saves to `captures\latest.png`, auto-types "look".
-- **Alt+C** = 10s video of the boxed screen region -> extracts frames under
-  `frames\_clip\`, auto-types "look at the video".
+The user's own keys. After a capture, a small Anthropic-styled overlay asks whether
+to send it to **Claude** (desktop app) or **Claude Code**, then it auto-types into
+that window even if another app is focused:
+- **Alt+C** = snip a still -> drag a box -> saves to `captures\latest.png`, sends "look".
+- **Alt+X** = record the whole screen -> a live overlay HUD records until the clip hits
+  Claude's size limit (or a second Alt+X stops it) -> extracts frames to `frames\_rec\`
+  and, for Claude Code, uploads the clip to the bridge for Gemini. Sends "look at the
+  video" (chat) or "watch the recording" (Claude Code).
 Copying an image/video file in Explorer works too; copied videos auto-extract and
 auto-type "look at the video".
 
@@ -28,7 +30,13 @@ auto-type "look at the video".
 2. "the last few" -> read the newest timestamped PNGs in that folder (names sort by time).
 3. Self-heal: if `latest.png` is missing or clearly stale for a fresh snip, run
    `C:\Users\Kariim\Dev\claude-eyes\start-eyes.bat` yourself, wait 3 seconds, then
-   remind the user the snip key is Alt+X. Never tell the user to start anything manually.
+   remind the user the snip key is Alt+C. Never tell the user to start anything manually.
+
+### "watch the recording" (Alt+X, Claude Code)
+An Alt+X recording uploads the real clip to the bridge. On "watch the recording" / "watch
+what just happened", call `GET http://localhost:3000/api/eyes/video/describe?q=<question>`
+and read `.description` (Gemini's smooth-motion read). Frames are also on disk under
+`C:\Users\Kariim\Dev\claude-eyes\frames\_rec\sheet.png` as a fallback if the bridge is down.
 
 ### Watch a video (disk)
 1. Given a path, run: `python C:\Users\Kariim\Dev\claude-eyes\eyes_video.py "<path>" --frames 12`
