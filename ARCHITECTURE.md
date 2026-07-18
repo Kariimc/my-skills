@@ -6,7 +6,7 @@
 > Written against the real code (2026-07-03). If it drifts from the code, the
 > code wins; fix this file in the same session.
 
-**Scale (verified live, not claimed):** 420 skills · 67 subagents · 4 slash
+**Scale (verified live, not claimed):** 420 skills · 68 subagents · 4 slash
 commands · 6 rule files · 2 global hooks · 6 apex gates · 4 git hooks.
 Counts are enforced, not decorative — see the doctor gate.
 
@@ -38,7 +38,7 @@ Four ranked layers. Higher layers govern lower ones; nothing overrides apex.
 | 0 (apex) | **apex** — immune system | `skills/apex/`, `bin/apex*.sh`, `apex/`, `.githooks/`, `.github/workflows/apex.yml` | Self-enforcing, self-healing, self-guarding, self-extending guardrail suite. Answers to nothing. | itself (`gate_selfintegrity`) |
 | 1 | **The six harnesses** — how work gets done | `skills/harness-*`, `hooks/harness-router.sh` | Named orchestration loops for substantial work (Build, Quality/GAN, Research, Audit, Autonomous, Refactor). | router hook (advisory) |
 | 2 | **`skill-ship`** — how the repo changes | `skills/skill-ship/`, `bin/skill-doctor.sh` | The pipeline any change to *this* repo goes through. | `gate_doctor` |
-| 3 | **The skill library** — the toys | `skills/`, `agents/`, `commands/`, `rules/` | 420 skills + 67 agents + commands + rules Claude actually uses. | sync + doctor |
+| 3 | **The skill library** — the toys | `skills/`, `agents/`, `commands/`, `rules/` | 420 skills + 68 agents + commands + rules Claude actually uses. | sync + doctor |
 
 Ordering is asserted in `rules/03-apex.md` ("a `selfintegrity` gate failure
 outranks all other work") and in the repo `README.md` hierarchy line.
@@ -47,7 +47,7 @@ outranks all other work") and in the repo `README.md` hierarchy line.
 apex  (immune system — gates on commit/push/CI, ratchet, self-integrity)
   └── six harnesses  (Build · Quality · Research · Audit · Autonomous · Refactor)
         └── skill-ship  (skill-doctor + skill-ship skill = how the repo mutates)
-              └── skill library  (420 skills · 67 agents · commands · rules)
+              └── skill library  (420 skills · 68 agents · commands · rules)
 ```
 
 ---
