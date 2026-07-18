@@ -309,6 +309,7 @@ path = os.environ["SETTINGS_FILE"]
 tpl  = os.environ["WRAP_TPL"]
 KNOWN = {"harness-router.sh", "guard-destructive.sh", "guard-junk-files.sh",
          "guard-handoff.sh", "plain-words-guard.sh", "loose-ends-guard.sh",
+         "guard-fabrication.sh", "mark-session-head.sh",
          "selftest-guards.sh", "session-start.sh"}
 
 try:

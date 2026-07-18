@@ -216,7 +216,7 @@ WORKS: Global instructions live in my-skills/rules/*.md (the source of truth); t
 ## F-41 SessionStart sync ate a local-only agent/command file
 SYMPTOM: A file written straight into ~/.claude/agents/ (or commands/) is read back fine, then vanishes minutes later; sibling files are untouched. (tool-orchestrator.md disappeared this way.)
 BANNED: Mirror semantics in the my-skills SessionStart sync (mirror_md_files rm-f any local *.md absent from the repo) — one unrecognized local file gets silently wiped fleet-wide, no diff, no log line in daemon.log (the removal only prints to the hook stdout).
-WORKS: Tombstone semantics (sync_md_files, decided 2026-07-17): copy repo *.md in, but delete a destination file ONLY when the repo carries an explicit "<name>.md.tombstone" marker. Unknown local-only files are left alone. A wrong tombstone loses one named file you can see in a diff; a wrong mirror wipes everything it does not recognize. Same class as F-40 (rules/*.md mirroring over ~/.claude/CLAUDE.md).
+WORKS: Quarantine-on-mirror (settled 2026-07-17, superseding the tombstone plan decided earlier that day on bad information): the sync keeps mirror semantics — deletions propagate — but a removed local-only file is MOVED to ~/.claude/.sync-trash/<timestamp>/ instead of deleted, and a failed quarantine leaves the file in place with a loud error (never rm on failure). Tombstones were rejected: every deletion would need a gravestone in the source and a plain `git rm` would silently fail to propagate across 420 skills. Same class as F-40 (rules/*.md mirroring over ~/.claude/CLAUDE.md).
 
 ## F-44 — A gate that quotes its own trigger words blocks itself
 
