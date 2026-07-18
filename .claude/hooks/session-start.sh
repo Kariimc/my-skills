@@ -39,15 +39,29 @@ mkdir -p "$CLAUDE_DIR"
 # destination to the repo — deletions propagate. rsync isn't available on the
 # Windows/git-bash host, so this is delete-then-copy. Both print what they remove
 # so the first sync per machine (which may drop hand-dropped local-only entries)
-# is auditable. WARNING: a skill/command/agent that exists ONLY in ~/.claude and
-# not in the repo will be removed — put it in the repo to keep it.
+# is auditable. A skill/command/agent that exists ONLY in ~/.claude and not in
+# the repo is QUARANTINED to ~/.claude/.sync-trash/<timestamp>/ (never silently
+# destroyed — F-41) — put it in the repo to keep it live.
+SYNC_TRASH="$CLAUDE_DIR/.sync-trash/$(date +%Y%m%d-%H%M%S)"
+quarantine() {  # move a doomed file into the dated trash dir instead of deleting
+  local f="$1" rel="$2"
+  mkdir -p "$SYNC_TRASH/$(dirname "$rel")"
+  mv -f "$f" "$SYNC_TRASH/$rel" 2>/dev/null || rm -f "$f"
+}
 mirror_tree() {  # $2 becomes an exact copy of the tree at $1
   local src="$1" dst="$2" removed=""
   if [ -d "$dst" ]; then
     removed=$(comm -23 \
       <(cd "$dst" && find . -type f 2>/dev/null | sort) \
       <(cd "$src" && find . -type f 2>/dev/null | sort)) || true
-    [ -n "$removed" ] && { echo "[session-start] mirror $(basename "$dst"): removing entries gone from repo:"; echo "$removed" | sed 's|^\./|  - |'; }
+    if [ -n "$removed" ]; then
+      echo "[session-start] mirror $(basename "$dst"): quarantining entries gone from repo (recoverable in ~/.claude/.sync-trash):"
+      echo "$removed" | sed 's|^\./|  - |'
+      while IFS= read -r rel; do
+        rel="${rel#./}"
+        quarantine "$dst/$rel" "$(basename "$dst")/$rel"
+      done <<< "$removed"
+    fi
     rm -rf "$dst"
   fi
   mkdir -p "$dst"
@@ -61,8 +75,8 @@ mirror_md_files() {  # $2 := the non-README *.md files of $1 (per-file mirror)
     base=$(basename "$existing")
     [ "$base" = "README.md" ] && continue
     if [ ! -f "$src/$base" ]; then
-      echo "[session-start] mirror $(basename "$dst"): removing $base (gone from repo)"
-      rm -f "$existing"
+      echo "[session-start] mirror $(basename "$dst"): quarantining $base (gone from repo; recoverable in ~/.claude/.sync-trash)"
+      quarantine "$existing" "$(basename "$dst")/$base"
     fi
   done
   for f in "$src"/*.md; do
@@ -125,6 +139,14 @@ fi
 # not belong concatenated into CLAUDE.md on every session.
 if [ -f "$PROJECT_DIR/FAILURES.md" ]; then
   cp "$PROJECT_DIR/FAILURES.md" "$CLAUDE_DIR/FAILURES.md"
+fi
+
+# ── 2c. Playbook -> ~/.claude/PLAYBOOK.md ────────────────────────────────────
+# Same reasoning as the failure ledger: the two copies drifted (a wrong P-05
+# lived on in ~/.claude after the repo copy was corrected). Repo copy is the
+# source of truth; ~/.claude is a generated mirror of it.
+if [ -f "$PROJECT_DIR/PLAYBOOK.md" ]; then
+  cp "$PROJECT_DIR/PLAYBOOK.md" "$CLAUDE_DIR/PLAYBOOK.md"
 fi
 
 # ── 3. Slash commands (MIRROR, per-file, README excluded) ────────────────────

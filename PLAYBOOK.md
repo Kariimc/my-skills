@@ -32,10 +32,13 @@ PROOF: Set-Content/Out-File on PS5 emits a UTF-8 BOM → `Unexpected token '﻿'
 
 ## P-05 One local MCP tool call times out
 WHEN: A Desktop Commander or Windows-MCP call hangs past its timeout once.
-DO: Declare that channel down in ONE line, switch to the other local server, finish the task there.
-Demand a full Claude Desktop restart only when BOTH local channels are dead.
-PROOF: The relay drops a server's responses after a slow call and wedges only that
-server's channel; the sibling server keeps answering (F-01/F-37 inverse).
+DO: The BRIDGE is down — all local servers with it. Do NOT switch to the other
+local server (it is already dead). Say so in ONE line, finish via non-local
+channels (web, API, chat), name the one fix: full tray-exit + relaunch of
+Claude Desktop.
+PROOF: F-42 — shared client-side bridge, upstream bug (anthropics/claude-code
+#66726 et al.). Corrected 2026-07-17; the old "switch servers" road wasted a
+second 4-minute hang every time (see F-01).
 
 ## P-06 Running a multi-statement script on Windows
 WHEN: Anything longer than one statement, or any bash invoked from PowerShell.

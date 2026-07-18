@@ -78,6 +78,10 @@ if tool != "Bash":
          "~/.claude/FAILURES.md is GENERATED from my-skills/FAILURES.md on every "
          "session start. Your edit would be erased at next launch, and it is not "
          "versioned there. Edit the source: my-skills/FAILURES.md"),
+        (r'/\.claude/PLAYBOOK\.md$',
+         "~/.claude/PLAYBOOK.md is GENERATED from my-skills/PLAYBOOK.md on every "
+         "session start. Your edit would be erased at next launch. "
+         "Edit the source: my-skills/PLAYBOOK.md"),
         (r'/\.claude/skills/',
          "~/.claude/skills/ is a MIRROR of my-skills/skills/. Files here are "
          "deleted if absent from the repo. Edit my-skills/skills/<name>/ instead."),

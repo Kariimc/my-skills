@@ -106,25 +106,49 @@ for dir in ${scan_dirs[@]+"${scan_dirs[@]}"}; do
   fi
 done
 
-# ── 3: count reconciliation (root README.md only — catalog has per-category) ──
+# ── 3: count reconciliation across ALL headline-count docs ───────────────────
+# Was root README.md only; ARCHITECTURE.md / PROGRESS.md / skills/README.md
+# drifted independently (419 vs 420) — the "count-drift credibility gap".
+# One actual count, every doc reconciled to it. Catalog per-category counts
+# are out of scope here.
 actual_skills=$(find skills -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
 actual_agents=$(find agents -maxdepth 1 -name '*.md' ! -name 'README.md' | wc -l | tr -d ' ')
 
-count_drift=0
-if [ -f README.md ]; then
-  claimed=$(grep -oE '[0-9]+ skills' README.md | grep -oE '[0-9]+' | sort -u | tr '\n' ' ')
+# Headline docs (README.md, ARCHITECTURE.md): every "N skills" IS the library
+# count — safe to auto-heal with sed. Context docs (PROGRESS.md,
+# skills/README.md) also contain contextual numbers ("276 skills imported",
+# "~400 skills are an ongoing ratchet") that a blanket sed would corrupt —
+# those only get FLAGGED when they carry the previous library count.
+# All greps carry `|| true`: this script runs `set -euo pipefail`, and a doc
+# with zero matches would otherwise kill the whole doctor mid-scan.
+prev_skills=$((actual_skills - 1))
+for doc in README.md ARCHITECTURE.md; do
+  [ -f "$doc" ] || continue
+  count_drift=0
+  claimed=$(grep -oE '[0-9]+ skills' "$doc" | grep -oE '[0-9]+' | sort -u | tr '\n' ' ' || true)
   for c in $claimed; do
     [ "$c" != "$actual_skills" ] && count_drift=1
   done
+  claimed_a=$(grep -oE '[0-9]+ (specialist )?(sub)?agents' "$doc" | grep -oE '^[0-9]+' | sort -u | tr '\n' ' ' || true)
+  for c in $claimed_a; do
+    [ "$c" != "$actual_agents" ] && count_drift=1
+  done
   if [ "$count_drift" = "1" ]; then
-    echo "SOFT  README.md skill count drift — claims [$claimed], actual $actual_skills"
+    echo "SOFT  $doc count drift — claims skills [$claimed] agents [$claimed_a], actual ${actual_skills}/${actual_agents}"
     soft=$((soft+1))
     if [ "$FIX" = "1" ]; then
-      sed -i -E "s/[0-9]+ skills/${actual_skills} skills/g; s/[0-9]+ (specialist )?subagents/${actual_agents} \1subagents/g" README.md
-      echo "FIX   README.md counts -> ${actual_skills} skills, ${actual_agents} subagents"
+      sed -i -E "s/[0-9]+ skills/${actual_skills} skills/g; s/[0-9]+ (specialist )?subagents/${actual_agents} \1subagents/g; s/[0-9]+ (sub)?agents/${actual_agents} \1agents/g" "$doc"
+      echo "FIX   $doc counts -> ${actual_skills} skills, ${actual_agents} agents"
     fi
   fi
-fi
+done
+for doc in PROGRESS.md skills/README.md; do
+  [ -f "$doc" ] || continue
+  if grep -qE "\b(${prev_skills}|$((actual_skills + 1))) skills" "$doc" 2>/dev/null; then
+    echo "SOFT  $doc mentions a stale library count (actual: ${actual_skills} skills) — update the specific line by hand (contextual numbers live here; no auto-sed)"
+    soft=$((soft+1))
+  fi
+done
 
 # ── 4: triage report for trigger-less skills ────────────────────────────────
 # Never regenerate from a --staged (partial) scan - it would clobber the full
