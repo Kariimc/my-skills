@@ -14,9 +14,10 @@ user deliberately captured with a hotkey.
 A background watcher saves every screenshot/snip the user takes into
 `C:\Users\Kariim\Dev\claude-eyes\captures\`.
 
-The user's own keys. After a capture, a small Anthropic-styled overlay asks whether
-to send it to **Claude** (desktop app) or **Claude Code**, then it auto-types into
-that window even if another app is focused:
+The user's own keys. After a capture, a small Anthropic-styled overlay asks whether to
+send it to **Claude** (desktop app), **Claude Code** (local terminal), or **Cloud chat**
+(a cloud Claude session, via the bridge tunnel - see Path C). The two local targets
+auto-type into that window even if another app is focused:
 - **Alt+C** = snip a still -> drag a box -> saves to `captures\latest.png`, sends "look".
 - **Alt+X** = record the whole screen -> a live overlay HUD records until the clip hits
   Claude's size limit (or a second Alt+X stops it) -> extracts frames to `frames\_rec\`
@@ -87,6 +88,36 @@ directly and are the preferred way to use Path B:
 - `get_video_analysis` - chronological analysis of the last recorded clip.
 - `trigger_audio_alert` - speak a message aloud on the dashboard.
 
+## Path C - cloud delivery (when THIS chat is a cloud Claude Code session)
+
+The Windows capture layer delivers to a Claude window on the user's PC. When the user is
+chatting with Claude Code in the CLOUD, that local delivery can't reach this chat - it's
+an architecture gap, not a bug. The bridge + a tunnel close it: picking **Cloud chat** in
+the send-to overlay uploads the capture to the bridge (`/api/eyes/upload`), and a
+Cloudflare quick tunnel (`eyes_tunnel.py`, no account/key) exposes the bridge on a public
+`https://<name>.trycloudflare.com` URL.
+
+Getting the URL (the "cloud link"): the user pastes it to you once per session - it's on
+their clipboard after launch and `open-eyes.bat` prints it (also in
+`captures\tunnel.txt`). Remember it for the rest of the session; you don't need it re-sent
+per capture.
+
+### "look" / "watch the recording" from a cloud session
+1. Use the tunnel base URL the user gave you (call it BRIDGE).
+2. Pull the frame and read it yourself - keyless, you have vision:
+   `curl -s "<BRIDGE>/api/eyes/latest.png" -o /tmp/eye.png`, then read `/tmp/eye.png`.
+   An Alt+X recording arrives the same way: its frame contact-sheet is uploaded as
+   `latest.png`, and the raw clip is uploaded too (for the Gemini path below).
+3. Optional richer read (needs the bridge's Gemini, i.e. a key/managed context):
+   `curl -s "<BRIDGE>/api/eyes/describe?q=<url-encoded question>"` -> read `.description`;
+   `.../video/describe?q=...` for temporal motion on a recording.
+4. If the fetch fails at the proxy (403 / connection refused / TLS block), THIS cloud
+   environment's outbound network policy can't reach the tunnel. Say so plainly - do NOT
+   claim you saw anything. The fix is on the user's side: run the session in a
+   Claude-Code-on-web environment whose network policy allows arbitrary outbound, or use a
+   local Claude Code (which reaches the tunnel directly). Local snips (Path A) still work.
+
 ## Rule
 Never ask the user to paste, upload, or describe a screenshot. Read the disk files or
-query the bridge above instead.
+query the bridge above instead. (The one exception: the cloud link URL in Path C, which
+the user pastes once per session so a cloud session knows where the tunnel is.)
