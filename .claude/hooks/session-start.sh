@@ -43,13 +43,20 @@ mkdir -p "$CLAUDE_DIR"
 # the repo is QUARANTINED to ~/.claude/.sync-trash/<timestamp>/ (never silently
 # destroyed — F-41) — put it in the repo to keep it live.
 SYNC_TRASH="$CLAUDE_DIR/.sync-trash/$(date +%Y%m%d-%H%M%S)"
-quarantine() {  # move a doomed file into the dated trash dir instead of deleting
+quarantine() {  # move a doomed file into the dated trash dir. NEVER deletes on
+                # failure: mv, then copy+remove fallback, then leave the file in
+                # place with a loud error and rc 1 (F-41: no silent destruction).
   local f="$1" rel="$2"
-  mkdir -p "$SYNC_TRASH/$(dirname "$rel")"
-  mv -f "$f" "$SYNC_TRASH/$rel" 2>/dev/null || rm -f "$f"
+  if mkdir -p "$SYNC_TRASH/$(dirname "$rel")" 2>/dev/null \
+     && { mv -f "$f" "$SYNC_TRASH/$rel" 2>/dev/null \
+          || { cp -p "$f" "$SYNC_TRASH/$rel" 2>/dev/null && rm -f "$f"; }; }; then
+    return 0
+  fi
+  echo "[session-start] QUARANTINE FAILED for $rel — file left in place, NOT deleted" >&2
+  return 1
 }
 mirror_tree() {  # $2 becomes an exact copy of the tree at $1
-  local src="$1" dst="$2" removed=""
+  local src="$1" dst="$2" removed="" qfail=0
   if [ -d "$dst" ]; then
     removed=$(comm -23 \
       <(cd "$dst" && find . -type f 2>/dev/null | sort) \
@@ -59,8 +66,16 @@ mirror_tree() {  # $2 becomes an exact copy of the tree at $1
       echo "$removed" | sed 's|^\./|  - |'
       while IFS= read -r rel; do
         rel="${rel#./}"
-        quarantine "$dst/$rel" "$(basename "$dst")/$rel"
+        quarantine "$dst/$rel" "$(basename "$dst")/$rel" || qfail=1
       done <<< "$removed"
+    fi
+    if [ "$qfail" = "1" ]; then
+      # A file could not be quarantined. Deleting the tree now would destroy it,
+      # so fall back to an additive overlay for this session: stale-but-safe.
+      echo "[session-start] mirror $(basename "$dst"): quarantine incomplete — skipping delete step, overlay copy only (a stale entry may linger until the next clean sync)" >&2
+      mkdir -p "$dst"
+      cp -r "$src/." "$dst/"
+      return 0
     fi
     rm -rf "$dst"
   fi
@@ -76,7 +91,7 @@ mirror_md_files() {  # $2 := the non-README *.md files of $1 (per-file mirror)
     [ "$base" = "README.md" ] && continue
     if [ ! -f "$src/$base" ]; then
       echo "[session-start] mirror $(basename "$dst"): quarantining $base (gone from repo; recoverable in ~/.claude/.sync-trash)"
-      quarantine "$existing" "$(basename "$dst")/$base"
+      quarantine "$existing" "$(basename "$dst")/$base" || true  # on failure the file stays; error already printed
     fi
   done
   for f in "$src"/*.md; do
