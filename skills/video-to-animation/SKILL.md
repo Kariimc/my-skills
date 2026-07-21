@@ -1,6 +1,6 @@
 ---
 name: video-to-animation
-description: Video-to-Animation conversion pipeline expert. Converts real video footage into game-ready animations using AI motion capture, frame extraction, sprite sheet generation, and engine integration. Use when the user wants to convert video to animation, extract motion capture from video, create sprite sheets, or integrate video-derived animations into Godot, Unreal Engine 5, Unity, or Blender.
+description: Video-to-Animation conversion pipeline expert. Converts a video of a person's movement into rigged character animation — AI motion capture, skeleton retargeting, foot-sliding cleanup, sprite sheets, and animation-clip import into Godot, Unreal Engine 5, Unity, or Blender. Use when the user wants to turn video into motion-capture data, retarget it onto a game skeleton, or produce a sprite sheet / animation clip from footage. For non-animation game assets (visuals, audio, physics, full scene pipelines) see video-to-game instead.
 ---
 
 # Video-to-Animation Conversion Pipeline

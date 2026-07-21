@@ -1,6 +1,6 @@
 ---
 name: video-to-game
-description: AI Video-to-Game conversion pipeline expert. Converts AI-generated or real video into playable game assets including 3D animations, 2D sprites, audio SFX, shaders, and VFX for Godot and Unreal Engine 5. Use when the user wants to convert video footage into game assets, replicate video visuals in a game engine, extract animations or SFX from video, or set up a continuous game testing loop.
+description: AI Video-to-Game conversion pipeline expert. Converts AI-generated or real video into a full set of playable game assets — background-removed sprites, extracted SFX, physics values (gravity/velocity/bounce), depth-layered parallax backgrounds, color-grading LUTs — plus a continuous in-engine testing loop that compares screenshots against the source video, for Godot and Unreal Engine 5. Use when the user wants to replicate a video's whole scene or asset set in an engine, extract audio or physics from footage, or build a test loop checking in-engine output against video. For character motion-capture and skeletal animation retargeting, see video-to-animation instead.
 ---
 
 # AI Video-to-Game Conversion Pipeline

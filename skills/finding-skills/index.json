@@ -176,13 +176,8 @@
  },
  {
   "name": "autonomous-agent-harness",
-  "description": "Stand up the persistent infrastructure that turns Claude Code into a fully autonomous agent system — persistent memory, scheduled operations (crons), computer use, and task queuing. Replaces standalone frameworks (Hermes, AutoGPT) using Claude Code's native crons, dispatch, MCP tools, and memory. Use when the user wants to BUILD the always-on infrastructure for autonomous operation. To run or orchestrate a loop prefer harness-autonomous; for loop-architecture patterns see autonomous-loops.",
+  "description": "Stand up the persistent infrastructure that turns Claude Code into a fully autonomous agent system — persistent memory, scheduled operations (crons), computer use, and task queuing. Replaces standalone frameworks (Hermes, AutoGPT) using Claude Code's native crons, dispatch, MCP tools, and memory. Use when the user wants to BUILD the always-on infrastructure for autonomous operation. To run or orchestrate a loop prefer harness-autonomous; for loop-architecture patterns see continuous-agent-loop.",
   "path": "skills/autonomous-agent-harness/SKILL.md"
- },
- {
-  "name": "autonomous-loops",
-  "description": "\"Reference catalog of autonomous Claude Code loop architectures — sequential claude -p pipelines, continuous PR loops, infinite agentic generation, and Ralphinho-style RFC-driven DAG orchestration — with their tradeoffs. Use when the user wants to CHOOSE or compare loop architectures. To actually run an autonomous loop prefer harness-autonomous; for quality-gate and eval wiring see continuous-agent-loop.\"",
-  "path": "skills/autonomous-loops/SKILL.md"
  },
  {
   "name": "backend-design",
@@ -406,7 +401,7 @@
  },
  {
   "name": "continuous-agent-loop",
-  "description": "Quality-gate, eval-checkpoint, and recovery-control patterns for autonomous agent loops. Use when the user is wiring guardrails — eval checkpoints, exit conditions, failure recovery — into an autonomous loop. To run a loop prefer harness-autonomous; for the menu of loop architectures see autonomous-loops.",
+  "description": "Quality-gate, eval-checkpoint, and recovery-control patterns for autonomous agent loops. Use when the user is wiring guardrails — eval checkpoints, exit conditions, failure recovery — into an autonomous loop. To run a loop prefer harness-autonomous.",
   "path": "skills/continuous-agent-loop/SKILL.md"
  },
  {
@@ -1991,12 +1986,12 @@
  },
  {
   "name": "video-to-animation",
-  "description": "Video-to-Animation conversion pipeline expert. Converts real video footage into game-ready animations using AI motion capture, frame extraction, sprite sheet generation, and engine integration. Use when the user wants to convert video to animation, extract motion capture from video, create sprite sheets, or integrate video-derived animations into Godot, Unreal Engine 5, Unity, or Blender.",
+  "description": "Video-to-Animation conversion pipeline expert. Converts a video of a person's movement into rigged character animation — AI motion capture, skeleton retargeting, foot-sliding cleanup, sprite sheets, and animation-clip import into Godot, Unreal Engine 5, Unity, or Blender. Use when the user wants to turn video into motion-capture data, retarget it onto a game skeleton, or produce a sprite sheet / animation clip from footage. For non-animation game assets (visuals, audio, physics, full scene pipelines) see video-to-game instead.",
   "path": "skills/video-to-animation/SKILL.md"
  },
  {
   "name": "video-to-game",
-  "description": "AI Video-to-Game conversion pipeline expert. Converts AI-generated or real video into playable game assets including 3D animations, 2D sprites, audio SFX, shaders, and VFX for Godot and Unreal Engine 5. Use when the user wants to convert video footage into game assets, replicate video visuals in a game engine, extract animations or SFX from video, or set up a continuous game testing loop.",
+  "description": "AI Video-to-Game conversion pipeline expert. Converts AI-generated or real video into a full set of playable game assets — background-removed sprites, extracted SFX, physics values (gravity/velocity/bounce), depth-layered parallax backgrounds, color-grading LUTs — plus a continuous in-engine testing loop that compares screenshots against the source video, for Godot and Unreal Engine 5. Use when the user wants to replicate a video's whole scene or asset set in an engine, extract audio or physics from footage, or build a test loop checking in-engine output against video. For character motion-capture and skeletal animation retargeting, see video-to-animation instead.",
   "path": "skills/video-to-game/SKILL.md"
  },
  {
