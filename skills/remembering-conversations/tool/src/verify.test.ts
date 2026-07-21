@@ -1,10 +1,23 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { verifyIndex, repairIndex, VerificationResult } from './verify.js';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { initDatabase, insertExchange } from './db.js';
 import { ConversationExchange } from './types.js';
+
+// repairIndex loads the embedding model (network download on first run) and
+// calls Claude for summaries. Mock both so tests are offline and deterministic.
+vi.mock('./embeddings.js', () => ({
+  initEmbeddings: vi.fn(async () => {}),
+  generateEmbedding: vi.fn(async () => new Array(384).fill(0.1)),
+  generateExchangeEmbedding: vi.fn(async () => new Array(384).fill(0.1))
+}));
+
+vi.mock('./summarizer.js', () => ({
+  summarizeConversation: vi.fn(async () => 'Mock summary'),
+  formatConversationText: vi.fn(() => '')
+}));
 
 describe('verifyIndex', () => {
   const testDir = path.join(os.tmpdir(), 'conversation-search-test-' + Date.now());

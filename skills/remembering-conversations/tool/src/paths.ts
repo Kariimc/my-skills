@@ -45,6 +45,11 @@ export function getIndexDir(): string {
  * Get database path
  */
 export function getDbPath(): string {
+  // Allow test override
+  if (process.env.TEST_DB_PATH) {
+    return process.env.TEST_DB_PATH;
+  }
+
   return path.join(getIndexDir(), 'db.sqlite');
 }
 
