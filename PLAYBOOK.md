@@ -77,3 +77,13 @@ DO: Detach the commit (P-03 pattern) and verify with a short `git log -1 --oneli
 read in a later call, same turn. Branch `claude/...`, PR ready-for-review, never push
 to main, never self-merge without Kariim's explicit approval.
 PROOF: Inline commits here exceed the ~25s relay ceiling and wedge the channel (F-02).
+
+## P-12 Making a new skill findable by the finder
+WHEN: Any new skill lands in skills/ — find-skills.py reads the committed
+skills/finding-skills/index.json, NOT the live tree, so a new skill is
+invisible to it until reindex.
+DO: From repo root: `python skills/finding-skills/tool/build-index.py` then
+`mv index.json skills/finding-skills/index.json` (no out-path arg = it writes
+./index.json junk at cwd). Prove with `find-skills.py "<representative task>"`.
+PROOF: 3d-master-modeler absent from finder results until reindex; ranked #1
+(score 13) for "generate a 3d model in code with blender" after, 2026-07-21.

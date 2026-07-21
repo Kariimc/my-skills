@@ -1,7 +1,34 @@
 # PROGRESS — session handoff
 
-> Last updated: 2026-07-14.
+> Last updated: 2026-07-21.
 > Read this first; if it conflicts with the code, the code wins.
+
+## Latest (2026-07-21) — new skill: 3d-master-modeler (shipped, execution-verified)
+
+- **What:** new skill `skills/3d-master-modeler/SKILL.md` — autonomous 3D asset
+  generator (Blender bpy headless / Three.js / OpenSCAD+CadQuery), 5-phase
+  pipeline (blockout → topology → PBR → lighting/camera → headless-render
+  verify loop), version-safe for Blender 4.x/5.x (socket-name resolver, no
+  `use_auto_smooth`, guarded `use_nodes`, engine fallback to Cycles) and
+  Three.js r171+ (WebGPU note). Kariim explicitly requested it and explicitly
+  authorized landing it straight on master (overrides flagship freeze + branch
+  ritual for this one change). Description disambiguates vs game-assets,
+  omni3d, 3d-printing, blender-motion-state-inspection.
+- **Proof:** bpy template extracted from the SKILL.md fence and run for real on
+  local Blender 5.2 LTS headless — exit 0, zero warnings, AUDIT lines clean
+  (64 quads, 2 cap ngons, 0 non-manifold), 3 renders visually audited, .glb
+  exported. Three.js template served over localhost and screenshotted in the
+  browser pane — renders with shadows, console clean. OpenSCAD template is the
+  one UNVERIFIED-by-execution piece (OpenSCAD not installed on this box); its
+  rounding idiom was corrected to hull-of-circles (offset-pair would dimple the
+  axis) but has not been rendered.
+- **Bookkeeping:** doctor HARD=0; counts 421 everywhere (`--fix` + hand edits);
+  finder index rebuilt (see P-12) — new skill ranks #1 for 3D-modeling queries;
+  live copy in `~/.claude/skills/` confirmed registered this session. Skill is
+  NOT in `always-load.txt` (on-demand via /pull-skill or auto-trigger), by
+  design — say the word to make it always-loaded.
+- **Next step:** none for the skill itself; optional later = install OpenSCAD
+  and execution-verify Template C.
 
 ## Latest (2026-07-14) - docs/logs reconciled to live skill state
 
@@ -17,7 +44,7 @@
   command in `~/.claude/settings.json` back to the Windows-executable form every
   session start; the five 100644 `hooks/*.sh` were committed 100755, which is what
   had the CI apex drift gate red since 747466c (pre-existing on master).
-- **Skill library count is 420** (was 419 when this pass ran). Root `README.md`, `ARCHITECTURE.md`, `skills/README.md`,
+- **Skill library count was 420 at this pass** (421 as of 2026-07-21). Root `README.md`, `ARCHITECTURE.md`, `skills/README.md`,
   `skills/TRIGGERLESS-REPORT.md`, `skills/OVERLAP-REPORT.md`, `nano/README.md`,
   `bin/apex-gates.sh`, and the historical `docs/plans/` handoffs were updated
   or annotated so stale 399/411/416 counts cannot be mistaken for current state.

@@ -1,6 +1,6 @@
 # Skills Catalog
 
-420 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
+421 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
 auto-loaded into every project via the SessionStart sync hook (see the repo
 root `README.md`). Claude invokes a skill automatically when your request
 matches its `description` — you can also force one with `/<skill-name>`.
