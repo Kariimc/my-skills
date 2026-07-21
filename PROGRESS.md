@@ -30,6 +30,30 @@
 - **Next step:** none for the skill itself; optional later = install OpenSCAD
   and execution-verify Template C.
 
+## Latest (2026-07-21, later) — photo-real upgrade (in flight)
+
+- **What:** Kariim asked to make the test asset photo-real and bake the method
+  into the skill. Added SKILL.md section "Phase 3b — Photo-real upgrade: PBR
+  image textures": Poly Haven CC0 API (needs a User-Agent header or 403),
+  Diffuse/Rough/Displacement at 2k JPG, box-projection node recipe (no UVs,
+  Bump not NormalMap), procedural seams layered over photo maps, textures
+  cached locally and never committed. Description updated (695 chars, under
+  the 700 cap); live copy in `~/.claude/skills/` re-synced; finder index
+  rebuilt (P-12).
+- **State:** 9 CC0 maps (wood/rust/floor, ~9.7 MB) downloaded to the session
+  scratchpad `textures/`; `barrel_photo.py` variant renders in background at
+  session end. First live test earlier produced a 3-round procedural barrel
+  (renders published as a claude.ai artifact "Oak Barrel").
+- **Exact next steps:** (1) read the photo render, audit, iterate if plank
+  direction/scale is off (Mapping rot Z / scale in oak_material), (2) update
+  the artifact gallery (same file path -> same URL), (3) commit skill change
+  to master + push via PowerShell (Kariim's standing directive for this skill:
+  land on master; gates will re-run doctor), (4) append relay log line.
+- **Open decisions:** none — master landing for this skill already authorized.
+- **Note:** Skill tool couldn't invoke `3d-master-modeler` mid-session
+  ("Unknown skill") right after install even though the reminder listed it;
+  registry seems to need a fresh session. Executed its pipeline manually.
+
 ## Latest (2026-07-14) - docs/logs reconciled to live skill state
 
 - **Windows hook registration fixed** (`.claude/hooks/session-start.sh`): registered

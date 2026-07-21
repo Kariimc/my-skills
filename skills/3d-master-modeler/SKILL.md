@@ -1,6 +1,6 @@
 ---
 name: 3d-master-modeler
-description: Autonomous 3D asset generator and technical-art engine. Builds 3D models from scratch in code — Blender Python (bpy) headless, Three.js/WebGL, OpenSCAD/CadQuery — with non-destructive modifier stacks, procedural PBR shader node networks, 3-point lighting rigs, and a headless-render verification loop. Use when the user wants to generate, model, or build a 3D asset/model/scene/mesh in code, write a Blender or bpy script, create procedural PBR materials, or render a preview of a generated model. (2D art to game asset → game-assets; AI image-to-3D → omni3d; print slicing → 3d-printing; rig/pose inspection → blender-motion-state-inspection.)
+description: Autonomous 3D asset generator and technical-art engine. Builds 3D models from scratch in code — Blender Python (bpy) headless, Three.js/WebGL, OpenSCAD/CadQuery — with non-destructive modifier stacks, procedural PBR shader networks, photo-real PBR image textures (CC0 pipeline), lighting rigs, and headless render verification. Use when the user wants to generate, model, or build a 3D asset/model/scene/mesh in code, write a Blender or bpy script, create procedural PBR materials, or render a preview of a generated model. (2D art to game asset → game-assets; AI image-to-3D → omni3d; print slicing → 3d-printing; rig/pose inspection → blender-motion-state-inspection.)
 context: fork
 ---
 
@@ -91,6 +91,54 @@ Build shader node networks procedurally — no image textures unless provided.
   Transmission), "Emission Color" + "Emission Strength" (was Emission),
   "Coat Weight" (was Clearcoat), "Sheen Weight" (was Sheen). Always go through
   the `set_input()` resolver in the template so scripts survive both eras.
+
+## Phase 3b — Photo-real upgrade: PBR image textures
+
+Procedural noise reads as high-quality stylized. When the ask is **photo-real /
+hyper-real**, layer real photographed PBR maps under the procedural structure.
+
+**Source — Poly Haven (CC0, no attribution, safe for any use):**
+- List assets: `https://api.polyhaven.com/assets?t=textures` — send a
+  `User-Agent` header or the API returns 403.
+- Map URLs: `https://api.polyhaven.com/files/<asset_id>` →
+  `json[<MapType>]["2k"]["jpg"]["url"]` (on `dl.polyhaven.org`). Download
+  **Diffuse**, **Rough**, **Displacement** at 2k JPG (~1–3 MB each).
+- Alternative: ambientCG — `https://ambientcg.com/get?file=<AssetID>_2K-JPG.zip`.
+- Cache maps in a local `textures/` folder next to the build script; never
+  commit them to git (binaries), re-download on demand.
+
+**Node recipe (no UV unwrapping needed):**
+- Texture Coordinate **Object** → Mapping (scale/rotate to tile; rotate Z 90°
+  when plank/grain direction must run vertically) → Image Texture with
+  `projection='BOX'`, `projection_blend=0.3`. Box projection wraps photos onto
+  any closed mesh cleanly.
+- Diffuse → Base Color (colorspace **sRGB**). Rough → Roughness, Displacement →
+  **Bump node** → Normal (both colorspace **Non-Color**). Use Bump, not a
+  Normal Map node — tangent-space normal maps break under box projection.
+- **Keep structure procedural on top of the photo:** mask-driven seams, panel
+  lines, per-part tint variation still come from the Phase 3 math patterns —
+  mix seam darkening over the photo color and SUBTRACT seam depth from the
+  displacement before the Bump node. Photos supply micro-detail; procedural
+  supplies the object's construction.
+- Photo sets need slightly higher sampling (Cycles 192+) to resolve micro-detail.
+
+**When grain/plank DIRECTION matters (staves, floorboards, brushed metal):**
+box projection cannot orient the image on curved side faces — a Mapping Z
+rotation only affects top-projected faces, so plank joints end up running the
+wrong way. Generate real UVs instead and use Texture Coordinate **UV** →
+Mapping (now rotation works uniformly) → Image Texture (`extension='REPEAT'`):
+- Cylindrical bodies, in the bmesh build: `uv_layer = bm.loops.layers.uv.new("UVMap")`;
+  per wall loop `u = column_index / SEGS * REPEATS` **without modulo** (the
+  wrap face runs u→REPEATS so the tiling texture crosses the seam cleanly),
+  `v = profile arclength × scale`. Flat caps: planar `uv = (x, y) × scale + 0.5`.
+- Prefer a **continuous-grain** photo (table tops, bare wood) over board-joint
+  planks for staves — photographed joints fight the procedural stave seams.
+- Primitives from `bpy.ops.mesh.primitive_*` ship with usable auto-UVs.
+- **Kill visible tiling:** give each stave/plank/panel a random per-part V
+  offset in the UV pass (`voff = (part_id * 2654435761 % 97) / 97 * 0.5`) so
+  photo-texture repeats never line up across parts; make part count divide the
+  segment count so the resulting UV shear lands exactly on the darkened seam
+  where it's invisible. Keep total V span ≤ 1 texture tile when possible.
 
 ## Phase 4 — Lighting & camera
 
