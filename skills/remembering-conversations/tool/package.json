@@ -27,7 +27,7 @@
     "vitest": "^3.2.4"
   },
   "overrides": {
-    "protobufjs": "^7.6.4",
+    "protobufjs": "^7.6.5",
     "esbuild": "^0.28.1"
   }
 }
