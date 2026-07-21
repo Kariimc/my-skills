@@ -30,7 +30,16 @@
 - **Next step:** none for the skill itself; optional later = install OpenSCAD
   and execution-verify Template C.
 
-## Latest (2026-07-21, later) — photo-real upgrade (in flight)
+## Latest (2026-07-21, later) — photo-real upgrade (DONE, verified)
+
+- **Outcome:** photo-real pipeline proven in 3 iterations on Blender 5.2:
+  iter1 box projection (plank joints ran wrong way — box proj can't orient
+  grain on curved sides), iter2 real cylindrical UVs + continuous-grain oak +
+  coarse rust (grid-like tile repeats remained), iter3 per-stave random V
+  offsets (16 staves dividing 64 segments so UV shear hides in the seam) —
+  final renders pass as product photography; artifact gallery updated (same
+  URL). All three lessons written into SKILL.md Phase 3b. Committed to master
+  after gates; see git log.
 
 - **What:** Kariim asked to make the test asset photo-real and bake the method
   into the skill. Added SKILL.md section "Phase 3b — Photo-real upgrade: PBR
