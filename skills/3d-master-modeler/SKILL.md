@@ -226,6 +226,11 @@ bpy.ops.wm.usd_export(filepath=base + ".usdc")
      releases — no portable Windows zip, not in winget.
   Then: `gltf-transform etc1s in.glb out.glb` (small/ETC1S) or `uastc` (higher
   quality). Say plainly KTX2 is a separate step — never claim Blender did it.
+  **Verified end-to-end on this machine** (KTX-Software 4.4.2 installed to
+  `C:\Program Files\KTX-Software\bin`, added to system PATH — a fresh shell picks
+  it up; an existing one needs `export PATH="/c/Program Files/KTX-Software/bin:$PATH"`
+  first): a 20.7 MB textured `.glb` → **5.59 MB** with `etc1s`. Load the result
+  in Three.js with `KTX2Loader` (`.setTranscoderPath(...)`, `.detectSupport(renderer)`).
 - Print/CAD parts: STL (mesh) + STEP (parametric) from build123d, gated by the
   trimesh/manifold3d watertight check in Phase 2 — never ship an unvalidated STL.
 

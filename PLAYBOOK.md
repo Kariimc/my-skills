@@ -87,3 +87,14 @@ DO: From repo root: `python skills/finding-skills/tool/build-index.py` then
 ./index.json junk at cwd). Prove with `find-skills.py "<representative task>"`.
 PROOF: 3d-master-modeler absent from finder results until reindex; ranked #1
 (score 13) for "generate a 3d model in code with blender" after, 2026-07-21.
+
+## P-13 KTX2 / Basis texture compression for glTF (web delivery)
+WHEN: Shrinking a textured .glb for the web and you want GPU-native KTX2 textures
+(Blender's exporter only goes to WebP).
+DO: `npm i -g @gltf-transform/cli` AND install KTX-Software (the `ktx` binary) —
+NOT bundled, only a platform installer at github.com/KhronosGroup/KTX-Software
+(v4.4.2, no portable Windows zip, not in winget). Then
+`gltf-transform etc1s in.glb out.glb` (ETC1S/small) or `uastc` (higher quality).
+On Windows the installer adds `C:\Program Files\KTX-Software\bin` to system PATH;
+a fresh shell has it, an existing one needs it prepended.
+PROOF: barrel photo asset 20.7 MB -> 5.59 MB (3.7x) with etc1s, 2026-07-22.
