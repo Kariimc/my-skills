@@ -68,6 +68,22 @@ outputs and deliverables."* The context-rich version, reusable anywhere:
    having checked the real artifact, regardless of which model produced it.
    Design assumption going forward: **any model, on any day, can drop any
    prose rule — so no prose rule may be load-bearing for quality.**
+6. **Freelancing: agents substitute their own plan for the prompt.** The most
+   time-expensive violation in practice: the agent treats the prompt as a
+   suggestion, silently "improves" on it, makes executive decisions it was
+   never given, and Kariim pays the correction cost afterward. Root cause:
+   models are trained to reward initiative, and ambiguity gets resolved in the
+   agent's favor invisibly — the deviation is only discovered at handover.
+   Rule 16 (fidelity) and the `scope-fence` skill already say this in prose;
+   prose demonstrably doesn't hold. The fix is a **spec-fidelity gate**:
+   - At plan time (Major work): the agent must echo the literal ask and list
+     any intended deviation as its own line — an unflagged deviation is an
+     automatic fail, before any work happens.
+   - At handover: the evaluator's FIRST scored axis is fidelity — "everything
+     asked for present? anything present that was NOT asked for?" A deliverable
+     that does extra, different, or 'better' things than the ask is rejected
+     the same as an incomplete one. Initiative is only legal as a flagged
+     question BEFORE building, never as a silent substitution.
 
 ## Part 3 — The fix: an enforcement pyramid (machinery first, prose last)
 
@@ -133,7 +149,7 @@ nothing depends on an agent remembering a rule mid-task.
 |---|---|---|---|
 | 1 | `handover-check` Stop hook | legwork, proofless "done", jargon replies, missing previews | small — one hook + signature list |
 | 2 | `ledger-sentinel` hook | repeating banned roads (F-49 class) | small — index + inject |
-| 3 | Contract preamble + evaluator gate in the 6 harnesses | cold subagents, unscored output | small — one shared block + one gate step |
+| 3 | Contract preamble + evaluator gate in the 6 harnesses (fidelity is the first scored axis; deviation echo required at plan time) | cold subagents, unscored output, freelancing / silent executive decisions | small — one shared block + one gate step |
 | 4 | `deliverable-verifier` agent | proxy verification (hard rule #3 class) | medium — roadmap #1 |
 | 5 | Rules-distill pass: tag every rule ENFORCED-BY/JUDGMENT, shrink prose | rulebook bloat, silent conflict-dodging | medium, one session |
 | 6 | Behavioral ratchet lane in apex | any future violation recurring | small — extend existing ratchet |
