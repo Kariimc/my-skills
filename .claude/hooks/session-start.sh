@@ -293,6 +293,54 @@ if not already:
 PY
 fi
 
+# ── 6b2. Register the newer global hooks (idempotent, same pattern as 6a/6b) ──
+# ledger-sentinel  → UserPromptSubmit (injects matching FAILURES/PLAYBOOK entries)
+# runcard-guard    → Stop            (3D sessions must ship a completed run-card)
+# env-scout        → SessionStart    (probed environment fact sheet into context)
+for SPEC in "ledger-sentinel.sh:UserPromptSubmit" "runcard-guard.sh:Stop" "env-scout.sh:SessionStart"; do
+  H_NAME="${SPEC%%:*}"; H_EVENT="${SPEC##*:}"
+  H_PATH="$CLAUDE_DIR/hooks/$H_NAME"
+  if command -v python3 >/dev/null 2>&1 && [ -f "$H_PATH" ]; then
+    chmod +x "$H_PATH"
+    SETTINGS_FILE="$CLAUDE_DIR/settings.json" H_CMD="$(reg_hook_cmd "$H_PATH")" H_NAME="$H_NAME" H_EVENT="$H_EVENT" python3 - <<'PY' || true
+import json, os
+
+path  = os.environ["SETTINGS_FILE"]
+cmd   = os.environ["H_CMD"]
+name  = os.environ["H_NAME"]
+event = os.environ["H_EVENT"]
+
+try:
+    with open(path, encoding="utf-8-sig") as f:
+        settings = json.load(f)
+    if not isinstance(settings, dict):
+        raise SystemExit(0)  # never clobber an unrecognized file
+except FileNotFoundError:
+    settings = {}
+except ValueError:
+    raise SystemExit(0)  # unparseable: abort, never replace
+
+hooks = settings.setdefault("hooks", {})
+groups = hooks.setdefault(event, [])
+
+already = any(
+    name in (h.get("command", ""))
+    for group in groups if isinstance(group, dict)
+    for h in group.get("hooks", []) if isinstance(h, dict)
+)
+
+if not already:
+    groups.append({"hooks": [{"type": "command", "command": cmd}]})
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(settings, f, indent=2)
+        f.write("\n")
+    os.replace(tmp, path)
+    print(f"[session-start] registered {name} {event} hook")
+PY
+  fi
+done
+
 # ── 6c. Self-heal Windows-inert hook commands (tamper protection) ──────────────
 # If any agent or tool rewrites a known hook command back to a form that is
 # silently inert under the Windows cmd hook wrapper (a bare .sh path, or
@@ -310,6 +358,7 @@ tpl  = os.environ["WRAP_TPL"]
 KNOWN = {"harness-router.sh", "guard-destructive.sh", "guard-junk-files.sh",
          "guard-handoff.sh", "plain-words-guard.sh", "loose-ends-guard.sh",
          "guard-fabrication.sh", "mark-session-head.sh",
+         "ledger-sentinel.sh", "runcard-guard.sh", "env-scout.sh",
          "selftest-guards.sh", "session-start.sh"}
 
 try:
