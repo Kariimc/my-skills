@@ -56,6 +56,10 @@ global reach, KNOWN heal-set + selftest-guards extended; skills
 `loops/skill-gardener.md`; `rules/14-surface-router.md` (+ rules README rows
 12-14); `docs/RULES-ENFORCEMENT-MAP.md`; apex behavioral ratchet lane in
 GATES.md; 3d-master-modeler `runcard.md` mandatory via operating rule 7.
+Post-landing same session: runcard-guard re-armed on STRUCTURAL skill
+invocation after false-blocking its own authoring session (PR #55, merged);
+env-scout became a full agent (71 agents); cant-guard Stop hook + YOU-HAVE
+capability inventory added so "can't" requires a search first (PR #56).
 Flagged deviations: prose rulebook NOT shrunk (map first, cuts need Kariim's
 review); env-scout shipped as script+hook, not an agent (plan's own smallest
 version). Everything proof-tested pre-commit; landed via PR #54.
