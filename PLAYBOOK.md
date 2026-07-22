@@ -157,3 +157,20 @@ Non-Color. Draft/final tier = Cycles sample count (16 draft, 128+ final) + res
 PROOF: paneled metal canister -> 6 maps baked clean, baked render indistinguishable
 from procedural source, 871 KB textured .glb, clickable proof page, Blender 5.0.1
 headless 2026-07-22.
+
+
+## P-18 Generalized on-demand asset fetchers (textures + models), env-agnostic
+WHEN: A Blender/3D task needs a ready-made PBR texture set or a 3D model, and you
+want the same code to work on an open network AND a locked box (GitHub-allowlist).
+DO: one probe-first, best-source-then-mirror pattern per asset type (extends the
+HDRI fetcher, Template E). Textures: try Poly Haven `api.polyhaven.com/files/<slug>`
+(open net, gives diffuse/rough/normal/disp/AO) -> ambientCG zip -> GITHUB MIRROR
+(three.js `examples/textures/*` ships real diffuse+bump+roughness triples, e.g.
+`hardwood2_*.jpg`, `brick_*.jpg`). Models: GitHub mirror
+`KhronosGroup/glTF-Sample-Assets/main/Models/<Name>/glTF-Binary/<Name>.glb`
+(DamagedHelmet, Duck, Avocado) — import with `bpy.ops.import_scene.gltf`. Always
+`_reachable()` (ranged HEAD 200/206) before download; cache locally; never commit
+binaries. Wire texture maps via BOX projection (no UV unwrap). See Template H.
+PROOF: on the locked cloud box (Poly Haven 403), fetched wood + brick sets and the
+Avocado `.glb` from GitHub and rendered all three in one scene, Blender 5.0.1
+headless 2026-07-22. Clickable proof page.

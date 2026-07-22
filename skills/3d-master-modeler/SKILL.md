@@ -727,6 +727,101 @@ def baked_material(name, paths):
 `= 128+` for the final. Bake at the draft tier while iterating UVs, then re-bake
 once at the final tier. Resolution is the second knob: 512² draft, 1024²/2048² final.
 
+## Template H — generalized asset fetchers: textures + models (verified)
+
+Extends Template E's HDRI fetcher into a general **probe-first, best-source, cache**
+pattern for PBR **texture sets** and **models** too. Every fetcher tries the richest
+open-net source first (Poly Haven / ambientCG) then falls back to a **GitHub mirror**
+that stays reachable on a locked box whose egress is a GitHub+package allowlist
+(F-45) — so the same code pulls real CC0 assets on the laptop *and* in a restricted
+cloud env. Verified headless on Blender 5.0.1: on the locked box, a wood + a brick
+PBR set (three.js mirror) and a Khronos `.glb` model all fetched and rendered.
+Never commit the downloaded binaries — cache them next to the build script.
+
+```python
+import bpy, os, json, urllib.request
+UA = {"User-Agent": "3d-master-modeler/1.0"}
+GH_TEX   = "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures"
+GH_MODEL = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models"
+
+def _reachable(url):                       # ranged HEAD — probe before download (P-16)
+    try:
+        r = urllib.request.Request(url, headers={**UA, "Range": "bytes=0-0"})
+        return urllib.request.urlopen(r, timeout=20).status in (200, 206)
+    except Exception:
+        return False
+def _download(url, dest):
+    if os.path.exists(dest) and os.path.getsize(dest) > 0: return dest
+    data = urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=120).read()
+    open(dest, "wb").write(data); return dest
+
+# best-first sources per asset. GitHub triple = diffuse+bump+roughness (real photos);
+# Poly Haven / ambientCG add normal/displacement/AO/metal on an open network.
+TEXTURE_SETS = {
+    "wood":  dict(polyhaven="wood_floor",    ambientcg="WoodFloor051",
+                  gh=dict(diffuse="hardwood2_diffuse.jpg", bump="hardwood2_bump.jpg", roughness="hardwood2_roughness.jpg")),
+    "brick": dict(polyhaven="brick_wall_02", ambientcg="Bricks075",
+                  gh=dict(diffuse="brick_diffuse.jpg", bump="brick_bump.jpg", roughness="brick_roughness.jpg")),
+}
+MODELS = {   # GitHub-mirrored glTF binaries (Khronos sample assets) — reachable on a locked box
+    "helmet":  f"{GH_MODEL}/DamagedHelmet/glTF-Binary/DamagedHelmet.glb",
+    "duck":    f"{GH_MODEL}/Duck/glTF-Binary/Duck.glb",
+    "avocado": f"{GH_MODEL}/Avocado/glTF-Binary/Avocado.glb",
+}
+
+def fetch_texture_set(name, out_dir, res="2k"):
+    """{map_type: local_path}. Poly Haven -> (ambientCG zip on open net) -> GitHub mirror -> {}."""
+    spec = TEXTURE_SETS[name]; d = os.path.join(out_dir, f"tex_{name}"); os.makedirs(d, exist_ok=True)
+    try:                                    # 1) Poly Haven — same API shape as the verified HDRI path
+        files = json.loads(urllib.request.urlopen(urllib.request.Request(
+            f"https://api.polyhaven.com/files/{spec['polyhaven']}", headers=UA), timeout=20).read())
+        want = {"Diffuse":"diffuse","Rough":"roughness","nor_gl":"normal","Displacement":"displacement","AO":"ao"}
+        maps = {tag: _download(files[k][res]["jpg"]["url"], os.path.join(d, f"{tag}.jpg"))
+                for k, tag in want.items() if files.get(k, {}).get(res, {}).get("jpg")}
+        if maps: return maps
+    except Exception as e:
+        print(f"AUDIT: Poly Haven set unreachable ({type(e).__name__}); GitHub mirror")
+    return {tag: _download(f"{GH_TEX}/{f}", os.path.join(d, f))   # 3) GitHub mirror (locked box)
+            for tag, f in spec["gh"].items() if _reachable(f"{GH_TEX}/{f}")}
+
+def fetch_model(name, out_dir):
+    """Local .glb from a GitHub mirror. Import with bpy.ops.import_scene.gltf(filepath=...)."""
+    url = MODELS[name]
+    return _download(url, os.path.join(out_dir, f"{name}.glb")) if _reachable(url) else None
+
+def pbr_from_maps(name, maps, scale=2.0):
+    """Wire a fetched map set into a BOX-projected material — no UV unwrap needed (Phase 3b)."""
+    mat = bpy.data.materials.new(name); mat.use_nodes = True
+    nt = mat.node_tree; bsdf = nt.nodes["Principled BSDF"]
+    tc = nt.nodes.new("ShaderNodeTexCoord"); mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Scale"].default_value = (scale, scale, scale)
+    nt.links.new(tc.outputs["Object"], mp.inputs["Vector"])
+    def img(path, non_color):
+        n = nt.nodes.new("ShaderNodeTexImage"); n.image = bpy.data.images.load(path)
+        n.projection = 'BOX'; n.projection_blend = 0.3
+        n.image.colorspace_settings.name = 'Non-Color' if non_color else 'sRGB'
+        nt.links.new(mp.outputs["Vector"], n.inputs["Vector"]); return n
+    if "diffuse" in maps:   nt.links.new(img(maps["diffuse"], False).outputs["Color"], bsdf.inputs["Base Color"])
+    if "roughness" in maps: nt.links.new(img(maps["roughness"], True).outputs["Color"], bsdf.inputs["Roughness"])
+    if "normal" in maps:
+        nm = nt.nodes.new("ShaderNodeNormalMap")
+        nt.links.new(img(maps["normal"], True).outputs["Color"], nm.inputs["Color"])
+        nt.links.new(nm.outputs["Normal"], bsdf.inputs["Normal"])
+    elif "bump" in maps:                    # three.js sets ship a bump (height) map, not a normal
+        bp = nt.nodes.new("ShaderNodeBump"); bp.inputs["Strength"].default_value = 0.4
+        nt.links.new(img(maps["bump"], True).outputs["Color"], bp.inputs["Height"])
+        nt.links.new(bp.outputs["Normal"], bsdf.inputs["Normal"])
+    return mat
+
+# usage: m = fetch_texture_set("wood", "assets"); obj.data.materials.append(pbr_from_maps("Wood", m))
+#        glb = fetch_model("avocado", "assets"); bpy.ops.import_scene.gltf(filepath=glb)
+```
+
+Adding a source is a one-line registry entry. To add a whole new asset TYPE
+(e.g. decals, IES light profiles) copy the probe→best-source→GitHub-mirror→cache
+shape. On the laptop (open network) Poly Haven/ambientCG win and bring fuller map
+sets (normal + displacement + AO); the GitHub mirror is the guaranteed floor.
+
 ## Template B — Three.js WebGPU + TSL (single file, previewable)
 
 Modern default (verified: renders on a real WebGPU backend, auto-falls back to

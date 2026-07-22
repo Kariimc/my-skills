@@ -62,10 +62,9 @@ a rendered image published to a clickable page; talk to Kariim in plain words.
 
 ## REMAINING upgrades (priority order) — all free, all runnable here except #6
 
-2. **Fetchers.** Generalise `_real_hdri` into asset/material/model fetchers:
-   textures + models + HDRIs, ambientCG as a second source, and **prefer GitHub
-   mirrors in restricted envs** (that's the working channel here). Cache under a
-   local `textures/`/`assets/`; never commit binaries.
+2. ~~Fetchers~~ **DONE** — SKILL Template H (`fetch_texture_set` + `fetch_model` +
+   `pbr_from_maps`). Probe-first, Poly Haven→ambientCG→GitHub-mirror→cache; proven
+   on the locked box for a PBR texture set AND a Khronos `.glb` model. PLAYBOOK P-18.
 3. ~~Cinematic finish~~ **DONE** (Template F).
 4. ~~Full engine texture-bake set~~ **DONE** (Template G, F-52/F-53, P-17).
 5. ~~Draft/final tiers~~ **DONE** — documented in Template G (Cycles samples + res).

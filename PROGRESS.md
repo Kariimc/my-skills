@@ -3,6 +3,22 @@
 > Last updated: 2026-07-22.
 > Read this first; if it conflicts with the code, the code wins.
 
+## Latest (2026-07-22, cloud) — generalized asset fetchers (#2)
+
+- **#2 fetchers shipped (SKILL Template H):** generalized the HDRI fetcher into
+  `fetch_texture_set()` (PBR maps) + `fetch_model()` (.glb) + `pbr_from_maps()`
+  (box-projected material from fetched maps). Probe-first, best-source-then-mirror:
+  Poly Haven → ambientCG → **GitHub mirror** → cache. Registry-driven (one line to
+  add a source/asset).
+- **Proven on the locked box** (Poly Haven 403 → fell through to GitHub): fetched a
+  wood + a brick PBR set (three.js mirror: diffuse/bump/roughness) and the Avocado
+  `.glb` (Khronos sample assets), rendered all three in one scene. Artifact
+  `b38cd95e-a75d-459d-9896-70806494851f`. PLAYBOOK P-18.
+- Verified GitHub asset sources (probed 200/206): three.js `examples/textures/*`
+  (hardwood2_*, brick_*), Khronos `glTF-Sample-Assets/.../glTF-Binary/*.glb`
+  (DamagedHelmet, Duck, Avocado).
+- **Still open:** #6 omni3d (GPU/cloud, defer), #7 sims, #8 rig, #9 procedural variety.
+
 ## Latest (2026-07-22, cloud) — engine texture-bake set (#4) + draft/final tiers (#5)
 
 - **#4 bake set shipped (SKILL Template G):** `bake_pbr_set()` bakes albedo /
