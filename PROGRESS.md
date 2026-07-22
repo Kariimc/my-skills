@@ -3,6 +3,49 @@
 > Last updated: 2026-07-22.
 > Read this first; if it conflicts with the code, the code wins.
 
+## Session-reflect (2026-07-22, cloud) — 3d upgrades complete + deps auto-install
+
+**Phase 1 — durable facts (don't rediscover):**
+- The cloud container is WIPED between sessions — repo re-cloned, **pip cache gone
+  too**, so `bpy`/pillow/numpy are absent on every fresh box and must reinstall
+  (~1–2 min). Now hands-free: a 2nd `SessionStart` hook in `.claude/settings.json`
+  runs `skills/3d-master-modeler/setup.sh` (idempotent, background). Merged to master.
+- The **screen-eyes bridge (Path C) is vision-IN only** — it delivers the laptop's
+  screen TO a cloud session; it CANNOT run commands or install on the laptop from
+  the cloud. This session's connectors (Gmail/GCal/GDrive/HF/Vercel) likewise don't
+  execute on the laptop. So from a cloud session there is NO channel to install/run
+  on Kariim's laptop — the only fixes are run-on-laptop or the cloud auto-install.
+- **Rigify IS bundled** in the pip `bpy==5.0.1` build; automatic-weight skinning +
+  pose keyframing work headless. Blender 5.0 headless gotchas: `Action.fcurves`
+  removed (F-54); `rigidbody.bake_to_keyframes` poll-fails headless (F-55).
+- Verified GitHub asset mirrors (200/206): three.js `examples/textures/`
+  (hardwood2_*, brick_*), Khronos `glTF-Sample-Assets/.../glTF-Binary/*.glb`
+  (DamagedHelmet/Duck/Avocado).
+- **All free upgrades #1–#5,#7–#9 are MERGED TO MASTER** (PR #49 → merge 02ac00b;
+  deps auto-install PR #50 → merge b21e080). Only #6 (image→3D) deferred (needs GPU).
+
+**Phase 2 — proposed rules (user approval needed):**
+1. On a fresh/ephemeral box, PROVE a dependency's absence (search disk / attempt
+   import with the right interpreter) BEFORE reinstalling or claiming it's missing —
+   and state the finding. (I reinstalled bpy after Kariim said it was installed;
+   should have located the interpreter/module first. It genuinely was wiped, but the
+   proof must precede the action.)
+2. Never commit heavy or OS-specific binary dependencies into a repo (engine wheels,
+   compiled libs) — they bloat clones, are platform-locked, and the gates/GitHub
+   reject big binaries. Pin them (a `requirements.txt`) and auto-install via a
+   setup/SessionStart hook instead. (Correctly pushed back on "just commit the deps".)
+3. Cross-session environment facts Kariim shouldn't have to repeat (what's installed,
+   what can/can't reach the laptop) belong in the relay/PROGRESS the same session
+   they're learned, so the next surface reads them cold.
+
+**Phase 3 — workflow kept (house recipe, recurred 6× this session):**
+Prove-a-3D-upgrade ritual: build an inline demo asset → run headless in the
+BACKGROUND (renders exceed the 120s foreground cap) → Read the PNG/GIF with own eyes
+→ publish a self-contained clickable Artifact (embed images/GIF as data URIs) →
+distill the verified code into a SKILL Template → feed FAILURES/PLAYBOOK same-turn →
+commit through apex gates → fetch/rebase/push. Already covered by the skill's
+operating rules + guardrails; noting as the standing recipe, not a new skill.
+
 ## Latest (2026-07-22, cloud) — physics (#7) + procedural variety (#9)
 
 - **#7 physics shipped (SKILL Template J):** rigid-body sim (14 bodies fall/collide/
