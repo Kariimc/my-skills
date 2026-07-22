@@ -13,12 +13,11 @@
   gives metal its reflections (fixes the flat real-time look). Box-projection materials
   export *something* to glTF but not directional grain — real UVs needed for that.
 
-**Proposed rules (user approval needed — I propose, you promote):**
-1. **[ESCALATED — now explicit + in memory] Ask before downloading or installing anything**
-   — packages or software, not just system installers. Confirmed by Kariim this session.
-2. **Verify the EXPORTED / interactive asset itself, not only the offline render.** A
-   flattering camera angle hid floating handle geometry that only showed in the real-time
-   viewer; the live look also differs from the ray-traced render. Check both.
+**Proposed rules — 1 & 2 PROMOTED by Kariim 2026-07-22 (now live in rules/00-core.md):**
+1. **[PROMOTED] Ask before downloading or installing anything** — packages or software,
+   not just system installers. (Also in memory: ask-before-install.)
+2. **[PROMOTED] Verify the actual deliverable, not a flattering proxy** — the exported
+   asset / interactive view, not just a curated render or a camera angle that hides the flaw.
 3. **[recurring compliance gap, not a new rule] The plain-words pre-send scrub keeps
    failing** — commit hashes / file paths / long blocks leaked into chat repeatedly this
    session despite the existing rule. The rule is right; my self-check isn't sticking.
