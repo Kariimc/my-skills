@@ -297,7 +297,7 @@ fi
 # ledger-sentinel  → UserPromptSubmit (injects matching FAILURES/PLAYBOOK entries)
 # runcard-guard    → Stop            (3D sessions must ship a completed run-card)
 # env-scout        → SessionStart    (probed environment fact sheet into context)
-for SPEC in "ledger-sentinel.sh:UserPromptSubmit" "runcard-guard.sh:Stop" "env-scout.sh:SessionStart"; do
+for SPEC in "ledger-sentinel.sh:UserPromptSubmit" "runcard-guard.sh:Stop" "cant-guard.sh:Stop" "env-scout.sh:SessionStart"; do
   H_NAME="${SPEC%%:*}"; H_EVENT="${SPEC##*:}"
   H_PATH="$CLAUDE_DIR/hooks/$H_NAME"
   if command -v python3 >/dev/null 2>&1 && [ -f "$H_PATH" ]; then
@@ -358,7 +358,7 @@ tpl  = os.environ["WRAP_TPL"]
 KNOWN = {"harness-router.sh", "guard-destructive.sh", "guard-junk-files.sh",
          "guard-handoff.sh", "plain-words-guard.sh", "loose-ends-guard.sh",
          "guard-fabrication.sh", "mark-session-head.sh",
-         "ledger-sentinel.sh", "runcard-guard.sh", "env-scout.sh",
+         "ledger-sentinel.sh", "runcard-guard.sh", "env-scout.sh", "cant-guard.sh",
          "selftest-guards.sh", "session-start.sh"}
 
 try:

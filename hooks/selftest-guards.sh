@@ -139,6 +139,24 @@ if [ -f "$ls_hook" ]; then
   [ $? -eq 0 ] && echo "PASS sentinel fails open on garbage" || { echo "FAIL sentinel fails open on garbage"; fails=$((fails+1)); }
 fi
 
+# cant-guard: helpless reply without a library search blocks; searched or precise passes.
+cg=~/.claude/hooks/cant-guard.sh
+if [ -f "$cg" ]; then
+  printf '%s' '{"stop_hook_active":true}' | bash "$cg" >/dev/null 2>&1
+  [ $? -eq 0 ] && echo "PASS cant loop-guard" || { echo "FAIL cant loop-guard"; fails=$((fails+1)); }
+  tcg=$(mktemp -d)
+  echo '{"type":"assistant","message":{"content":[{"type":"text","text":"Sorry, I cannot do that — I do not have access to that system."}]}}' > "$tcg/t.jsonl"
+  printf '{"stop_hook_active":false,"transcript_path":"%s/t.jsonl"}' "$tcg" | bash "$cg" >/dev/null 2>&1
+  [ $? -eq 2 ] && echo "PASS cant blocks unsearched helplessness" || { echo "FAIL cant blocks unsearched helplessness"; fails=$((fails+1)); }
+  printf '%s\n%s\n' '{"type":"user","message":{"content":[{"type":"text","text":"ran find-skills.py earlier: NO SKILL MATCH"}]}}' '{"type":"assistant","message":{"content":[{"type":"text","text":"I cannot do this: no skill covers it and the GitHub token for that org is missing."}]}}' > "$tcg/t.jsonl"
+  printf '{"stop_hook_active":false,"transcript_path":"%s/t.jsonl"}' "$tcg" | bash "$cg" >/dev/null 2>&1
+  [ $? -eq 0 ] && echo "PASS cant allows searched refusal" || { echo "FAIL cant allows searched refusal"; fails=$((fails+1)); }
+  echo '{"type":"assistant","message":{"content":[{"type":"text","text":"Done — the export is verified and attached."}]}}' > "$tcg/t.jsonl"
+  printf '{"stop_hook_active":false,"transcript_path":"%s/t.jsonl"}' "$tcg" | bash "$cg" >/dev/null 2>&1
+  [ $? -eq 0 ] && echo "PASS cant ignores normal reply" || { echo "FAIL cant ignores normal reply"; fails=$((fails+1)); }
+  rm -rf "$tcg"
+fi
+
 echo "----"
 [ "$fails" -eq 0 ] && echo "ALL GUARDS VERIFIED" || echo "$fails FAILURE(S)"
 exit "$fails"
