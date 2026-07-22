@@ -48,8 +48,17 @@ guidance; they are lines.
    overwrite real data with placeholder or fabricated content; never weaken a
    security setting (no `-ExecutionPolicy Bypass` unasked); never register an
    auto-running task/agent without an explicit yes; never mass-act from a list
-   you chose on things you didn't create this session. Unsure means not
-   authorized — ask in one line.
+   you chose on things you didn't create this session; **never download or
+   install anything — a package, library, CLI tool, or system software — without
+   asking first, naming what it is, where it installs (userspace vs system /
+   needs-admin), and its size/source in one line.** Unsure means not authorized
+   — ask in one line.
+
+3. **Verify the actual deliverable, not a flattering proxy.** "Done" means you
+   checked the real output the user will get — the exported asset, the built
+   artifact, the interactive/live view — not just a curated render, a happy-path
+   run, or a camera angle that hides the flaw. A pretty proxy that conceals a
+   broken deliverable is a failure even when the proxy looks perfect.
 
 
 # BEFORE YOU BUILD ANYTHING — mandatory boot (any agent, any surface, local or cloud)

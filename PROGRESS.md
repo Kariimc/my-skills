@@ -108,6 +108,49 @@ already captured as PLAYBOOK **P-16** — no new skill needed.
 - **Branch:** `claude/3d-modeler-free-upgrades-j6d5q9` (PR opened; not merged to
   master). Remaining free upgrades #2–#9 from the handoff still open.
 
+## Session-reflect (2026-07-22, laptop)
+
+**Machine gotchas — installed this session, don't reinstall (and ask before any new install):**
+- KTX-Software 4.4.2 present at `C:\Program Files\KTX-Software\bin` (ktx on system PATH);
+  `@gltf-transform/cli` installed globally; both needed together for KTX2 (P-13).
+- Python 3.12.10 has `build123d`, `trimesh`, `manifold3d` installed. Node 24 present.
+- Three.js cutting edge pinned: `three@0.184.0`, import `three/webgpu`, `RoomEnvironment`
+  gives metal its reflections (fixes the flat real-time look). Box-projection materials
+  export *something* to glTF but not directional grain — real UVs needed for that.
+
+**Proposed rules — 1 & 2 PROMOTED by Kariim 2026-07-22 (now live in rules/00-core.md):**
+1. **[PROMOTED] Ask before downloading or installing anything** — packages or software,
+   not just system installers. (Also in memory: ask-before-install.)
+2. **[PROMOTED] Verify the actual deliverable, not a flattering proxy** — the exported
+   asset / interactive view, not just a curated render or a camera angle that hides the flaw.
+3. **[recurring compliance gap, not a new rule] The plain-words pre-send scrub keeps
+   failing** — commit hashes / file paths / long blocks leaked into chat repeatedly this
+   session despite the existing rule. The rule is right; my self-check isn't sticking.
+   Flagging honestly rather than proposing a duplicate.
+
+**Workflows worth keeping:** already saved — game-asset LOD + bake pipeline (playbook P-19),
+KTX2 compress (P-13). New habit worth noting (no skill needed): publish advisory/decision
+answers as a designed clickable page, not a chat wall — done 3× this session (engine
+assessment, upgrade menu, next-agent handoff) and it dodged the plain-words wall every time.
+
+## Latest (2026-07-22) — 3d-master-modeler: game-asset LOD + bake lessons saved
+
+- Game-asset-with-LODs pipeline demonstrated end-to-end on a jerry can (single
+  joined mesh, smart-UV, baked albedo/rough/normal, LOD 4532→2266→1132→542 tris,
+  Draco glb per LOD, WebGPU THREE.LOD viewer). Two hard-won gotchas now in the
+  skill + playbook P-19: (1) bake albedo with Metallic=0 (metal diffuse bakes
+  black); (2) overlapping smart-UV islands stamp square blemishes — pack with
+  margin or bake per-object (the jerry-can body still shows this; unfixed).
+- Also this session (already shipped/pushed earlier): KTX2 verified end-to-end
+  (KTX-Software installed), WebP→AUTO glTF export fix, rules promoted (visual
+  preview + plain-words), ask-before-install saved to memory.
+- Test assets (barrel, jerry can, viewers, assessment/upgrade/handoff pages) are
+  in the session scratchpad, NOT the repo — intentional (throwaway).
+- Next: a warm-start handoff prompt exists (given to Kariim as an artifact) to
+  build the free upgrades (HDRI lighting first, asset libraries, cinematic
+  post, full ORM bake, draft mode, AI→mesh, sim, rig, procedural). Cloud-GPU
+  path documented-but-deferred pending Kariim's budget OK.
+
 ## Latest (2026-07-22) — 3d-master-modeler modernized to mid-2026 cutting edge
 
 - **What:** upgraded the skill's stack, all four pieces execution-verified on

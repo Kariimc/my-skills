@@ -174,3 +174,15 @@ binaries. Wire texture maps via BOX projection (no UV unwrap). See Template H.
 PROOF: on the locked cloud box (Poly Haven 403), fetched wood + brick sets and the
 Avocado `.glb` from GitHub and rendered all three in one scene, Blender 5.0.1
 headless 2026-07-22. Clickable proof page.
+## P-19 Game-asset LOD chain + baked textures in Blender (headless)
+WHEN: Turning a code-built model into an engine-ready asset with levels of detail.
+DO: Join parts -> apply mods -> smart-UV unwrap (island_margin>=0.02) -> bake
+albedo/roughness/normal off the source material into images, rebuild a clean
+UV material from them; BAKE ALBEDO WITH METALLIC=0 (a metal's diffuse pass bakes
+near-black), restore metalness on the final material. LODs: Decimate COLLAPSE at
+[1.0,0.5,0.25,0.12] (preserves UVs), export each as its own Draco .glb with
+use_selection=True. Verify with THREE.LOD (addLevel(mesh,dist) + lod.update(cam)).
+PROOF: jerry can, Blender 5.2, LOD tris 4532/2266/1132/542, baked maps, loaded in
+a WebGPU THREE.LOD viewer, 2026-07-22.
+CAUTION: overlapping smart-UV islands stamp square blemishes on the bake (body
+samples another island) — pack with margin or bake per-object.
