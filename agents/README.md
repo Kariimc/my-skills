@@ -1,6 +1,6 @@
 # Agents
 
-70 specialist subagents, one `.md` file each. Synced to `~/.claude/agents/` by the SessionStart hook (see the repo-root `README.md`), so they are callable from every project via the `Agent` tool.
+71 specialist subagents, one `.md` file each. Synced to `~/.claude/agents/` by the SessionStart hook (see the repo-root `README.md`), so they are callable from every project via the `Agent` tool.
 
 Each file is standard Claude Code subagent frontmatter — `name`, `description`, `tools`, `model` — followed by the agent prompt. Imported from [affaan-m/ECC](https://github.com/affaan-m/ECC) (MIT); see [`../skills/ATTRIBUTION.md`](../skills/ATTRIBUTION.md).
 
@@ -28,6 +28,7 @@ Each file is standard Claude Code subagent frontmatter — `name`, `description`
 | `doc-updater` | Documentation and codemap specialist. Use PROACTIVELY for updating codemaps and documentation. Runs /update-codemaps and /updat… |
 | `docs-lookup` | When the user asks how to use a library, framework, or API or needs up-to-date code examples, use Context7 MCP to fetch current… |
 | `e2e-runner` | End-to-end testing specialist using Vercel Agent Browser (preferred) with Playwright fallback. Use PROACTIVELY for generating,… |
+| `env-scout` | Environment scout. PROVES what the current box can and cannot do — installed interpreters/modules, reachable hosts, disk, s… |
 | `fastapi-reviewer` | Reviews FastAPI applications for async correctness, dependency injection, Pydantic schemas, security, OpenAPI quality, testing,… |
 | `flutter-reviewer` | Flutter and Dart code reviewer. Reviews Flutter code for widget best practices, state management patterns, Dart idioms, perform… |
 | `fsharp-reviewer` | Expert F# code reviewer specializing in functional idioms, type safety, pattern matching, computation expressions, and performa… |
