@@ -203,10 +203,13 @@ Pick by destination; compression is free size/latency and the web expects it.
 base = os.path.splitext(OUT)[0]
 bpy.ops.object.select_all(action='SELECT')
 
-# Web / game engine — Draco geometry (≈7x smaller here) + WebP textures
+# Web / game engine — Draco geometry (≈7x smaller here) + textures
+# Use export_image_format='AUTO', NOT 'WEBP': Blender's WebP export throws
+# "webp does not support 1-channel images" on grayscale roughness/displacement
+# maps and aborts the texture. AUTO keeps each map in a format that works.
 bpy.ops.export_scene.gltf(filepath=base + ".glb", export_format='GLB',
     export_apply=True, export_draco_mesh_compression_enable=True,
-    export_draco_mesh_compression_level=6, export_image_format='WEBP')
+    export_draco_mesh_compression_level=6, export_image_format='AUTO')
 
 # Bandwidth-critical streaming — Meshopt (GPU-friendly, ≈3.4x smaller)
 bpy.ops.export_scene.gltf(filepath=base + "_opt.glb", export_format='GLB',
