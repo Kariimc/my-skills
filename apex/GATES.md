@@ -35,3 +35,15 @@ commits don't wait minutes for a check that can't fail.
 New mistake classes are appended to [`MISTAKE-LEDGER.md`](./MISTAKE-LEDGER.md) and
 converted into new gates by `bin/apex-ratchet.sh`. A mistake happens at most once;
 then it is permanently gated here.
+
+### The behavioral lane
+The ratchet covers **behavioral** mistakes, not just repo-state ones. When an
+agent violates an operating rule (ships legwork, skips a skill phase, claims
+done without proof), the ratchet entry's check asserts the *machinery* that
+prevents recurrence: that the relevant guard hook exists, is registered, and
+still blocks its test case (`hooks/selftest-guards.sh` is the assertion
+vehicle — a check can simply run the relevant selftest line). Rule-of-thumb:
+a behavioral mistake ratchets into a hook + a selftest line; a repo-state
+mistake ratchets into an `apex/checks/*.sh` assertion. Both land in the
+mistake ledger either way. The rules→machinery inventory lives in
+[`../docs/RULES-ENFORCEMENT-MAP.md`](../docs/RULES-ENFORCEMENT-MAP.md).
