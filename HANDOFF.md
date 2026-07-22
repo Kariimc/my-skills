@@ -60,6 +60,13 @@ Post-landing same session: runcard-guard re-armed on STRUCTURAL skill
 invocation after false-blocking its own authoring session (PR #55, merged);
 env-scout became a full agent (71 agents); cant-guard Stop hook + YOU-HAVE
 capability inventory added so "can't" requires a search first (PR #56).
+Rulebook-slimming pass (Kariim's explicit yes, 2026-07-22): the five
+machine-carried rule files (01 plain-talk, 07 progress, 09 consult-skills,
+11 failure-ledger, 12 playbook) shrunk 113 -> 64 lines, each ending in an
+ENFORCED-BY pointer to docs/RULES-ENFORCEMENT-MAP.md; every duty preserved,
+JUDGMENT rules untouched (00-contract, 00-core, 00-idp, 10-topology, etc.).
+Generated ~/.claude/CLAUDE.md verified rebuilt: 638 -> 589 lines, slim text
+live, zero old remnants.
 Flagged deviations: prose rulebook NOT shrunk (map first, cuts need Kariim's
 review); env-scout shipped as script+hook, not an agent (plan's own smallest
 version). Everything proof-tested pre-commit; landed via PR #54.
