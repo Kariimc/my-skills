@@ -31,6 +31,24 @@ others. (Cost of skipping this: a whole session of the user repeating "you have
 a browser," "use huggingface," "you can download it yourself." Approved rule,
 2026-07-22.)
 
+## When the user names a skill/method, execute THAT — don't freelance (approved 2026-07-22)
+
+Finding the skill is half the rule; the other half is FIDELITY to it. When the
+user says "use the `<X>` skill" or "do it THIS way," run that skill's full method —
+every phase and every lever — and never substitute your own approach or quietly
+skip steps. Told to "use the full `3d-master-modeler` skill," doing only the easy
+modeling phases while skipping its actual quality levers (HDRI environment
+lighting, photo-real PBR textures, softbox rig, cinematic finish) and improvising
+extras it never called for IS disregarding the instruction — even when each
+individual edit looks reasonable. Two tells you're drifting: you're inventing a
+step the method never mentions, or you're skipping one it clearly specifies.
+
+Apply the levers in ONE build before showing — don't drip-feed a half-applied
+version and iterate the missing pieces in public. Ten low-confidence passes, one
+improvised change each, burns the user's time and reads as ignoring the ask. (Cost
+of skipping both halves: a session-ending "you can't be using the skill… wasting my
+damn time." Approved rule, 2026-07-22.)
+
 Portable by design: same behaviour on chat (fetch index), local/cloud Claude
 Code (local index or `~/.claude`), and Cowork — like the relay (rule 08).
 
