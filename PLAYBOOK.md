@@ -98,3 +98,26 @@ NOT bundled, only a platform installer at github.com/KhronosGroup/KTX-Software
 On Windows the installer adds `C:\Program Files\KTX-Software\bin` to system PATH;
 a fresh shell has it, an existing one needs it prepended.
 PROOF: barrel photo asset 20.7 MB -> 5.59 MB (3.7x) with etc1s, 2026-07-22.
+
+## P-14 Headless Blender on a bare/locked-down box — pip, not blender.org
+WHEN: You need Blender (bpy) on a cloud/CI box and `download.blender.org` is
+blocked by the network policy (403 CONNECT), but PyPI is reachable.
+DO: `pip install bpy==<ver>` — the bpy wheel IS the whole Blender engine
+(headless: mesh build, Cycles/EEVEE render, glTF export). Match your Python to
+the wheel: bpy 5.0.1 needs CPython 3.11. List versions with
+`pip index versions bpy`. Run scripts as plain `python3 script.py` (no `blender
+--background` needed; `import bpy` works directly).
+PROOF: bare Ubuntu cloud box, no Blender — `pip install bpy==5.0.1` then
+`python3` rendered a 768px Cycles frame in ~25 s on 4 CPU cores, 2026-07-22.
+
+## P-15 Real environment lighting that works with no download (Blender)
+WHEN: You want photo-real image-based lighting but the asset CDNs (Poly Haven,
+ambientCG) are blocked, or you want the skill to render anywhere offline.
+DO: Try the Poly Haven `.hdr` first (Background→Environment Texture; send a
+`User-Agent` or it 403s). On failure, fall back IN BLENDER: outdoor looks via
+Sky Texture `sky_type='MULTIPLE_SCATTERING'` (low sun_elevation=warm dusk);
+indoor/soft looks via a gradient dome (Geometry Normal.Z → MULTIPLY_ADD 0.5,0.5
+→ ColorRamp → Background). See 3d-master-modeler Template E.
+PROOF: 5 looks (sunset/overcast/studio/warehouse + 3-point before) rendered on a
+box where Poly Haven 403s — metal reflects the procedural sky, sun casts real
+shadows. Clickable before/after published, 2026-07-22.

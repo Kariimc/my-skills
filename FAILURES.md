@@ -388,3 +388,17 @@ WORKS: Before any "X is not there" / "there's nothing to remove" / "that doesn't
 Never say "I checked" unless a tool call in THIS turn produced the evidence. No tool call = no claim.
 
 PROOF OF FIX: file re-read after edit_block shows `Principal engineer — not an order-taker.` Memory edit #15 added so it holds cross-surface.
+
+
+## F-44 Blender Sky Texture: NISHITA enum removed in 5.x
+SYMPTOM: Setting `sky.sky_type = 'NISHITA'` on a ShaderNodeTexSky raises
+`TypeError: enum "NISHITA" not found in ('SINGLE_SCATTERING',
+'MULTIPLE_SCATTERING', 'PREETHAM', 'HOSEK_WILKIE')`. Any script/template
+carrying the 4.x-era 'NISHITA' name aborts before rendering.
+BANNED: Hardcoding `'NISHITA'` (the 4.0–4.5 physical-sky enum). It is gone in
+Blender 5.x — same class of breakage as the Principled BSDF socket renames.
+WORKS: Use `sky_type='MULTIPLE_SCATTERING'` — the 5.x name for the modern
+atmosphere model (Nishita-family). `sun_elevation`/`sun_rotation` still exist;
+`dust_density` is present too (guard with `hasattr` for cross-version safety).
+PROOF: after the swap, MULTIPLE_SCATTERING rendered a warm low-sun sky headless
+on Blender 5.0.1, 2026-07-22 (3d-master-modeler Template E / F-44).

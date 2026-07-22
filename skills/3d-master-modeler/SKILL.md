@@ -163,11 +163,39 @@ Standard rig (in the template):
   energy, larger + softer.
 - **Rim:** Area/Spot behind and above, white, strong enough to draw an edge
   highlight separating subject from background.
-- **World:** neutral dark gray (0.02–0.05) so the rig does the work; plug an
-  HDRI into an Environment Texture only if the user supplies one.
+- **World:** neutral dark gray (0.02–0.05) so the rig does the work. For
+  realism, prefer **environment (image-based) lighting** instead — see below.
 - **Camera:** 50mm, aimed via Track-To constraint at an Empty on the subject's
   bounding-box center, pulled back so the subject fills ~70% of frame with
   slight top-down angle (~15°).
+
+### Environment (image-based) lighting — the biggest realism jump
+
+A photographed sky in the World lights every surface at once — metal reflects a
+real horizon, shadows fall from a real sun. This reads far more real than the
+3-point rig, especially on metal/glossy surfaces (the rig gives them nothing to
+reflect, so they look flat). Prefer it whenever the ask is "realistic".
+
+Expose one simple choice — `lighting = "studio" | "sunset" | "warehouse" |
+"overcast"` — and resolve it two ways, best-first, so it works everywhere:
+
+1. **Real photo HDRI (best):** fetch the matching Poly Haven `.hdr` (CC0) and
+   plug it into a **Background → Environment Texture** node in the World. Poly
+   Haven needs a `User-Agent` header or it 403s; cache in a local `hdris/`
+   folder, never commit it.
+2. **Procedural fallback (no download):** when Poly Haven is unreachable
+   (locked-down box, offline), don't fail — build the light in Blender itself:
+   - Outdoor looks (`sunset`, noon): the **Sky Texture** node. In Blender 5.x
+     the physical model is `sky_type='MULTIPLE_SCATTERING'` — the old
+     `'NISHITA'` enum was **removed** (it raises `enum "NISHITA" not found`).
+     Low `sun_elevation` = warm dusk; high = clean daylight.
+   - Indoor/soft looks (`studio`, `overcast`, `warehouse`): a **gradient dome**
+     (Geometry→Normal.Z → ColorRamp → Background) — brighter top, darker floor.
+     `warehouse` adds one strong "window" Area light for an industrial rake.
+
+Keep the 3-point rig as an explicit fallback (`lighting="3point"`) and for
+before/after checks. Template E below is the verified implementation; the
+before/after render proving it lives in PROGRESS.md's gotchas.
 
 ## Phase 5 — Verification & self-correction (the loop)
 
@@ -437,6 +465,98 @@ gltf_path = base + ".glb"
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.export_scene.gltf(filepath=gltf_path, export_apply=True)  # applies modifiers on export only
 print(f"AUDIT: exported {gltf_path}")
+```
+
+## Template E — environment lighting (extends Template A, verified)
+
+Drop-in for Phase 4. Call `set_environment(scene, "sunset")` instead of the
+3-point rig. Tries a real Poly Haven HDRI first; falls back to Blender's own
+physical sky / a gradient dome with **zero download** so it renders anywhere.
+Verified headless on Blender 5.0.1 (bpy from PyPI) — five looks, ~25 s/frame on
+a 4-core CPU. Runs on a bare box: `pip install bpy` gives the whole engine when
+`blender.org` downloads are blocked (see PLAYBOOK P-14).
+
+```python
+import bpy, math, os, urllib.request, json
+
+# Named look -> (Poly Haven HDRI slug when online, procedural fallback params).
+ENV_PRESETS = {
+    "sunset":    dict(hdri="venice_sunset",       sky=dict(elev=2,  dust=3.0, strength=1.0)),
+    "studio":    dict(hdri="studio_small_09",     dome=dict(top=(0.85,0.85,0.88), bottom=(0.35,0.35,0.37), strength=1.3)),
+    "overcast":  dict(hdri="kloofendal_overcast", dome=dict(top=(0.62,0.63,0.66), bottom=(0.5,0.5,0.52),  strength=1.0)),
+    "warehouse": dict(hdri="warehouse",           dome=dict(top=(0.10,0.095,0.09), bottom=(0.04,0.04,0.045), strength=1.0),
+                      window=dict(loc=(4.0,-1.0,2.2), energy=1200, color=(0.85,0.9,1.0), size=2.5)),
+}
+
+def _polyhaven_hdri(slug, out_dir, res="2k"):
+    """Download a Poly Haven HDRI if reachable; return local path or None.
+    Any network failure (blocked proxy / offline) -> None -> caller uses fallback."""
+    os.makedirs(out_dir, exist_ok=True)
+    dest = os.path.join(out_dir, f"{slug}_{res}.hdr")
+    if os.path.exists(dest):
+        return dest
+    try:
+        H = {"User-Agent": "3d-master-modeler/1.0"}          # required or Poly Haven 403s
+        files = json.loads(urllib.request.urlopen(
+            urllib.request.Request(f"https://api.polyhaven.com/files/{slug}", headers=H), timeout=20).read())
+        data = urllib.request.urlopen(
+            urllib.request.Request(files["hdri"][res]["hdr"]["url"], headers=H), timeout=90).read()
+        with open(dest, "wb") as fh:
+            fh.write(data)
+        return dest
+    except Exception as e:
+        print(f"AUDIT: Poly Haven unreachable ({type(e).__name__}); using procedural fallback")
+        return None
+
+def set_environment(scene, lighting="sunset", strength=1.0, hdri_dir="hdris", try_download=True):
+    """Image-based World lighting. Returns a short AUDIT description of what was used."""
+    preset = ENV_PRESETS.get(lighting)
+    if preset is None:
+        raise ValueError(f"unknown lighting '{lighting}', pick {list(ENV_PRESETS)}")
+    world = bpy.data.worlds.new("World"); scene.world = world; world.use_nodes = True
+    nt = world.node_tree
+    for n in list(nt.nodes):
+        if n.type != 'OUTPUT_WORLD':
+            nt.nodes.remove(n)
+    out = nt.nodes.get("World Output") or nt.nodes.new("ShaderNodeOutputWorld")
+    bg = nt.nodes.new("ShaderNodeBackground")
+    nt.links.new(bg.outputs["Background"], out.inputs["Surface"])
+
+    hdri = _polyhaven_hdri(preset["hdri"], hdri_dir) if (try_download and "hdri" in preset) else None
+    if hdri:                                              # 1) real photo HDRI
+        env = nt.nodes.new("ShaderNodeTexEnvironment"); env.image = bpy.data.images.load(hdri)
+        nt.links.new(env.outputs["Color"], bg.inputs["Color"])
+        bg.inputs["Strength"].default_value = strength
+        return f"HDRI:{preset['hdri']}"
+
+    if "sky" in preset:                                  # 2a) physical sky (outdoor)
+        s = preset["sky"]
+        sky = nt.nodes.new("ShaderNodeTexSky")
+        sky.sky_type = 'MULTIPLE_SCATTERING'             # Blender 5.x name; 'NISHITA' was removed
+        sky.sun_elevation = math.radians(s["elev"]); sky.sun_rotation = math.radians(-40)
+        if hasattr(sky, "dust_density"): sky.dust_density = s["dust"]
+        nt.links.new(sky.outputs["Color"], bg.inputs["Color"])
+        bg.inputs["Strength"].default_value = s["strength"] * strength
+        return f"sky:{lighting}(elev{s['elev']})"
+
+    d = preset["dome"]                                   # 2b) gradient dome (indoor/soft)
+    geo = nt.nodes.new("ShaderNodeNewGeometry"); sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(geo.outputs["Normal"], sep.inputs["Vector"])
+    mul = nt.nodes.new("ShaderNodeMath"); mul.operation='MULTIPLY_ADD'
+    mul.inputs[1].default_value = 0.5; mul.inputs[2].default_value = 0.5   # map normal.z (-1..1) -> 0..1
+    nt.links.new(sep.outputs["Z"], mul.inputs[0])
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].color = tuple(d["bottom"]) + (1,)
+    ramp.color_ramp.elements[1].color = tuple(d["top"]) + (1,)
+    nt.links.new(mul.outputs["Value"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], bg.inputs["Color"])
+    bg.inputs["Strength"].default_value = d["strength"] * strength
+    if "window" in preset:                               # warehouse: one strong side light
+        w = preset["window"]
+        ld = bpy.data.lights.new("Window", 'AREA'); ld.energy=w["energy"]; ld.color=w["color"]; ld.size=w["size"]
+        lo = bpy.data.objects.new("Window", ld); lo.location=w["loc"]; scene.collection.objects.link(lo)
+        lo.rotation_euler = (math.radians(70), 0, math.radians(50))
+    return f"dome:{lighting}"
 ```
 
 ## Template B — Three.js WebGPU + TSL (single file, previewable)

@@ -3,6 +3,26 @@
 > Last updated: 2026-07-21.
 > Read this first; if it conflicts with the code, the code wins.
 
+## Latest (2026-07-22, cloud) — 3d-master-modeler: environment lighting (free upgrade #1)
+
+- **What:** added real-world **environment (image-based) lighting** — the biggest
+  realism jump. New `set_environment(scene, "studio"|"sunset"|"warehouse"|"overcast")`
+  in SKILL.md (Phase 4 guidance + **Template E**). Tries a Poly Haven photo HDRI,
+  falls back to Blender's own physical sky / gradient dome with **zero download**.
+- **Proven, not claimed:** rendered 5 looks headless (3-point *before* + 4
+  environment presets) on a bare cloud box, ~25 s/frame. Clickable before/after:
+  artifact `c2c287af-24fa-4f3f-b984-93280e6dbbca`. Sunset & warehouse are the
+  strong wins; studio≈overcast in the *procedural* fallback (real HDRIs separate
+  them on the laptop, where Poly Haven is reachable).
+- **Env reality (cloud vs laptop):** this cloud box has **no Blender** and the
+  proxy blocks `download.blender.org` AND Poly Haven (403). Fix: `pip install
+  bpy==5.0.1` — the whole engine from PyPI (PLAYBOOK P-14). So proof here ran on
+  **Blender 5.0.1**, not the laptop's 5.2; the 5.x API is identical for this work.
+- **Gotcha found (F-44):** Blender 5.x removed the `'NISHITA'` sky enum → use
+  `sky_type='MULTIPLE_SCATTERING'`.
+- **Branch:** `claude/3d-modeler-free-upgrades-j6d5q9` (PR opened; not merged to
+  master). Remaining free upgrades #2–#9 from the handoff still open.
+
 ## Latest (2026-07-22) — 3d-master-modeler modernized to mid-2026 cutting edge
 
 - **What:** upgraded the skill's stack, all four pieces execution-verified on
