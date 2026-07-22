@@ -248,20 +248,12 @@ PARTIAL (core done, tail is ongoing habit or user-gated):
 (Resolved: Win10-vs-Win11 contradiction — it IS Win10 today; upgrade path
 found; the wrong Agetnic-OS memory has been corrected.)
 
-## Proposed rules (user approval needed)
+## Proposed rules — both approved, promoted to rules/
 
-1. **Prefer a free/local method over a paid one whenever it can do the job.**
-   Offered to run the paid multi-agent `/code-review ultra` on a PR; the user
-   said not to reach for a billed method when a free one exists. Correct
-   default going forward: review with a local `code-reviewer` subagent first
-   (free, already available) and only mention the paid deep-review option if
-   the user asks for that specific depth.
-2. **Self-check every reply against the plain-language contract before
-   sending it, don't rely on the hook to catch it.** The plain-words guard
-   blocked two separate replies this session for the same category (file
-   paths / dev jargon / wall of text) even after the first correction. One
-   rule appearing twice in one session — escalate: draft, scan for paths/
-   extensions/code terms/jargon, rewrite, then send.
+1. ~~Prefer a free/local method over a paid one whenever it can do the job.~~
+   **APPROVED, promoted** to `rules/02-harnesses.md`.
+2. ~~Self-check every reply against the plain-language contract before
+   sending it.~~ **APPROVED, promoted** to `rules/01-plain-talk.md`.
 
 ## Workflow worth codifying
 

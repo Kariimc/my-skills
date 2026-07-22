@@ -11,3 +11,6 @@
 - Keep it short. No walls of text. No code dumped into the chat — code goes in
   files.
 - When he says "fix it," fix it. Don't ask whether to.
+- Before sending any reply, scan your own draft for file paths, extensions,
+  code identifiers, or tool/dev jargon and rewrite them into plain
+  description first. Don't rely on a hook to catch it after the fact.
