@@ -121,3 +121,18 @@ indoor/soft looks via a gradient dome (Geometry Normal.Z → MULTIPLY_ADD 0.5,0.
 PROOF: 5 looks (sunset/overcast/studio/warehouse + 3-point before) rendered on a
 box where Poly Haven 403s — metal reflects the procedural sky, sun casts real
 shadows. Clickable before/after published, 2026-07-22.
+
+## P-16 Pull CC0 art assets via GitHub when a cloud box blocks the CDNs
+WHEN: A cloud/web Claude Code session needs an HDRI/texture/model but the asset
+CDNs 403 (Poly Haven, ambientCG, blender.org, huggingface.co all blocked) — yet
+the box is NOT offline.
+DO: First PROBE what the egress policy actually allows —
+`for h in example.com github.com raw.githubusercontent.com pypi.org; do
+curl -o /dev/null -w "%{http_code}\n" https://$h; done`. On a GitHub-allowlist
+env, github/raw/pypi = 200 while example.com is blocked. Then pull real CC0
+assets from a GitHub mirror, e.g. three.js ships equirectangular HDRIs:
+`curl -L raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/equirectangular/venice_sunset_1k.hdr`.
+Verify filenames exist first with a ranged HEAD (`curl -r 0-0 -w "%{http_code}"`).
+PROOF: 4 HDRIs (venice_sunset, quarry_01, san_giuseppe_bridge, pedestrian_overpass)
+fetched from GitHub raw and rendered as real image-based lighting on the locked
+cloud box, 2026-07-22. Never conclude "no downloads" from CDN 403s alone (F-45).

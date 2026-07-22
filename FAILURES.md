@@ -402,3 +402,50 @@ atmosphere model (Nishita-family). `sun_elevation`/`sun_rotation` still exist;
 `dust_density` is present too (guard with `hasattr` for cross-version safety).
 PROOF: after the swap, MULTIPLE_SCATTERING rendered a warm low-sun sky headless
 on Blender 5.0.1, 2026-07-22 (3d-master-modeler Template E / F-44).
+
+
+## F-45 Cloud Code egress is a GitHub+package allowlist — pull assets from GitHub, not the CDNs
+SYMPTOM: In a cloud/web Claude Code session, art-asset CDNs return `403` at the
+proxy CONNECT layer — polyhaven.com, dl.polyhaven.org, ambientcg.com,
+download.blender.org, huggingface.co all denied. Easy to wrongly conclude "no
+downloads possible."
+BANNED ROADS (each TESTED dead for the CDN hosts — don't re-try as if new):
+- `curl`/`urllib`, headless **Chromium/Playwright**, **WebFetch**, the **HF MCP
+  connector** (`hf_fs cat` refuses binary), and **`hf download`** — all hit the
+  same 403 for polyhaven/blender/huggingface. The block is a whole-container
+  egress policy, not client-specific, so switching client never helps.
+- Concluding "the only way in is the user handing me the file." FALSE — see below.
+THE ROAD THAT WORKS: the allowlist is NOT packages-only. PROBE it first —
+`for h in example.com github.com raw.githubusercontent.com pypi.org <cdn>; do
+curl -o /dev/null -w "%{http_code}" https://$h; done`. Result on this env:
+example.com BLOCKED, but **github.com / raw.githubusercontent.com / pypi.org all
+200**. So the working channels are (a) `pip install`/`npm i` (Blender itself:
+`pip install bpy`), and (b) **anything on GitHub** — clone a repo, or
+`curl https://raw.githubusercontent.com/<owner>/<repo>/<ref>/<path>`. Real CC0
+assets live on GitHub: e.g. three.js ships equirectangular HDRIs —
+`raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/equirectangular/venice_sunset_1k.hdr`
+pulled a real 1.4 MB HDRI (HTTP 200) that rendered as true image-based lighting.
+So for HDRIs/textures/models: prefer a GitHub-mirrored source in restricted envs;
+fall back to Poly Haven/ambientCG where the network is open (laptop).
+PROOF: host matrix above (example.com=000 blocked, github/raw/pypi=200) +
+venice_sunset_1k.hdr fetched from GitHub raw and rendered, cloud box 2026-07-22.
+LESSON: never assert "no downloads" from CDN 403s alone — PROBE github/raw first
+(this is the repo-topology absence rule applied to network egress).
+
+
+## F-46 Blender 5.0 reworked the compositor — scene.node_tree gone
+SYMPTOM: `scene.node_tree` raises `AttributeError: 'Scene' object has no attribute
+'node_tree'`; `nodes.new("CompositorNodeComposite")` raises `RuntimeError: Node
+type CompositorNodeComposite undefined`.
+BANNED: The Blender 3.x/4.x compositor recipe — `scene.use_nodes=True;
+tree=scene.node_tree; tree.nodes.new("CompositorNodeComposite")`. Dead in 5.0.
+WORKS (two options):
+- Native path: the compositor is now a node-group datablock —
+  `ng=bpy.data.node_groups.new(name,'CompositorNodeTree'); scene.compositing_node_group=ng`,
+  output via a `NodeGroupOutput` with an interface socket (no Composite node);
+  Glare/ColorBalance now take their mode via INPUT sockets ('Type'), not python props.
+- Robust path (preferred for a portable skill): skip the compositor. Keep DOF
+  native on the camera (`camera.data.dof`), and do grade/bloom/vignette as a
+  post-render Pillow+numpy pass on the PNG. Version-proof, no GPU. See
+  3d-master-modeler Template F.
+PROOF: post-pass finish rendered + graded on Blender 5.0.1 headless, 2026-07-22.

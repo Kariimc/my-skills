@@ -470,43 +470,57 @@ print(f"AUDIT: exported {gltf_path}")
 ## Template E — environment lighting (extends Template A, verified)
 
 Drop-in for Phase 4. Call `set_environment(scene, "sunset")` instead of the
-3-point rig. Tries a real Poly Haven HDRI first; falls back to Blender's own
-physical sky / a gradient dome with **zero download** so it renders anywhere.
-Verified headless on Blender 5.0.1 (bpy from PyPI) — five looks, ~25 s/frame on
-a 4-core CPU. Runs on a bare box: `pip install bpy` gives the whole engine when
-`blender.org` downloads are blocked (see PLAYBOOK P-14).
+3-point rig. For a **real photographed sky** it tries Poly Haven first (open
+networks), then a **GitHub-mirrored** three.js HDRI (reachable even on a locked
+cloud box whose egress is a GitHub+package allowlist — see FAILURES F-45); if
+both are unreachable it falls back to Blender's own physical sky / a gradient
+dome with **zero download**, so it always renders. Verified headless on Blender
+5.0.1 (bpy from PyPI): the real GitHub HDRI path and all procedural fallbacks.
+Runs on a bare box — `pip install bpy` is the whole engine (PLAYBOOK P-14).
 
 ```python
 import bpy, math, os, urllib.request, json
 
-# Named look -> (Poly Haven HDRI slug when online, procedural fallback params).
+# Named look -> Poly Haven slug (open networks), a GitHub-mirrored HDRI that's
+# reachable even on a GitHub-allowlist cloud box, and a procedural fallback.
+# GitHub files are real three.js CC0 equirectangular maps (verified to exist).
+GH_HDRI = ("https://raw.githubusercontent.com/mrdoob/three.js/dev/"
+           "examples/textures/equirectangular")
 ENV_PRESETS = {
-    "sunset":    dict(hdri="venice_sunset",       sky=dict(elev=2,  dust=3.0, strength=1.0)),
-    "studio":    dict(hdri="studio_small_09",     dome=dict(top=(0.85,0.85,0.88), bottom=(0.35,0.35,0.37), strength=1.3)),
-    "overcast":  dict(hdri="kloofendal_overcast", dome=dict(top=(0.62,0.63,0.66), bottom=(0.5,0.5,0.52),  strength=1.0)),
-    "warehouse": dict(hdri="warehouse",           dome=dict(top=(0.10,0.095,0.09), bottom=(0.04,0.04,0.045), strength=1.0),
+    "sunset":    dict(hdri="venice_sunset",       gh="venice_sunset_1k.hdr",       sky=dict(elev=2, dust=3.0, strength=1.0)),
+    "studio":    dict(hdri="studio_small_09",     gh="san_giuseppe_bridge_2k.hdr", dome=dict(top=(0.85,0.85,0.88), bottom=(0.35,0.35,0.37), strength=1.3)),
+    "overcast":  dict(hdri="kloofendal_overcast", gh="quarry_01_1k.hdr",           dome=dict(top=(0.62,0.63,0.66), bottom=(0.5,0.5,0.52),  strength=1.0)),
+    "warehouse": dict(hdri="warehouse",           gh="pedestrian_overpass_1k.hdr", dome=dict(top=(0.10,0.095,0.09), bottom=(0.04,0.04,0.045), strength=1.0),
                       window=dict(loc=(4.0,-1.0,2.2), energy=1200, color=(0.85,0.9,1.0), size=2.5)),
 }
 
-def _polyhaven_hdri(slug, out_dir, res="2k"):
-    """Download a Poly Haven HDRI if reachable; return local path or None.
-    Any network failure (blocked proxy / offline) -> None -> caller uses fallback."""
+def _fetch(url, dest, headers):
+    if os.path.exists(dest): return dest
+    data = urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=90).read()
+    with open(dest, "wb") as fh: fh.write(data)
+    return dest
+
+def _real_hdri(preset, out_dir, res="2k"):
+    """Get a real photographed HDRI: Poly Haven first (open net), then a
+    GitHub-mirrored three.js map (reachable on a GitHub-allowlist cloud box).
+    Returns a local path, or None so the caller uses the procedural fallback."""
     os.makedirs(out_dir, exist_ok=True)
-    dest = os.path.join(out_dir, f"{slug}_{res}.hdr")
-    if os.path.exists(dest):
-        return dest
-    try:
-        H = {"User-Agent": "3d-master-modeler/1.0"}          # required or Poly Haven 403s
-        files = json.loads(urllib.request.urlopen(
-            urllib.request.Request(f"https://api.polyhaven.com/files/{slug}", headers=H), timeout=20).read())
-        data = urllib.request.urlopen(
-            urllib.request.Request(files["hdri"][res]["hdr"]["url"], headers=H), timeout=90).read()
-        with open(dest, "wb") as fh:
-            fh.write(data)
-        return dest
-    except Exception as e:
-        print(f"AUDIT: Poly Haven unreachable ({type(e).__name__}); using procedural fallback")
-        return None
+    H = {"User-Agent": "3d-master-modeler/1.0"}              # Poly Haven 403s without a UA
+    slug = preset.get("hdri")
+    if slug:                                                 # 1) Poly Haven (best, open networks)
+        try:
+            files = json.loads(urllib.request.urlopen(
+                urllib.request.Request(f"https://api.polyhaven.com/files/{slug}", headers=H), timeout=20).read())
+            return _fetch(files["hdri"][res]["hdr"]["url"], os.path.join(out_dir, f"{slug}_{res}.hdr"), H)
+        except Exception as e:
+            print(f"AUDIT: Poly Haven unreachable ({type(e).__name__}); trying GitHub mirror")
+    gh = preset.get("gh")
+    if gh:                                                   # 2) GitHub mirror (locked cloud box)
+        try:
+            return _fetch(f"{GH_HDRI}/{gh}", os.path.join(out_dir, gh), H)
+        except Exception as e:
+            print(f"AUDIT: GitHub HDRI unreachable ({type(e).__name__}); using procedural fallback")
+    return None
 
 def set_environment(scene, lighting="sunset", strength=1.0, hdri_dir="hdris", try_download=True):
     """Image-based World lighting. Returns a short AUDIT description of what was used."""
@@ -522,8 +536,8 @@ def set_environment(scene, lighting="sunset", strength=1.0, hdri_dir="hdris", tr
     bg = nt.nodes.new("ShaderNodeBackground")
     nt.links.new(bg.outputs["Background"], out.inputs["Surface"])
 
-    hdri = _polyhaven_hdri(preset["hdri"], hdri_dir) if (try_download and "hdri" in preset) else None
-    if hdri:                                              # 1) real photo HDRI
+    hdri = _real_hdri(preset, hdri_dir) if try_download else None
+    if hdri:                                              # 1) real photo HDRI (Poly Haven or GitHub)
         env = nt.nodes.new("ShaderNodeTexEnvironment"); env.image = bpy.data.images.load(hdri)
         nt.links.new(env.outputs["Color"], bg.inputs["Color"])
         bg.inputs["Strength"].default_value = strength
@@ -557,6 +571,44 @@ def set_environment(scene, lighting="sunset", strength=1.0, hdri_dir="hdris", tr
         lo = bpy.data.objects.new("Window", ld); lo.location=w["loc"]; scene.collection.objects.link(lo)
         lo.rotation_euler = (math.radians(70), 0, math.radians(50))
     return f"dome:{lighting}"
+```
+
+## Template F — cinematic final polish (verified)
+
+The finish pass after Phase 5. Depth-of-field stays **native on the camera** (a
+real 3D effect); grade + bloom + vignette run as a **post-render pass on the PNG**
+(Pillow + numpy). This is deliberately NOT the compositor: Blender 5.0 dropped
+`scene.node_tree` and the `Composite` node (FAILURES F-46), so a post-pass is the
+version-proof, GPU-free way to ship a consistent look. Verified on Blender 5.0.1.
+
+```python
+def enable_dof(camera, focus_obj, fstop=2.8):
+    dof = camera.data.dof
+    dof.use_dof = True; dof.focus_object = focus_obj; dof.aperture_fstop = fstop
+
+def cinematic_finish(in_png, out_png, lift=(0.00,0.01,0.035), gain=(1.06,1.01,0.93),
+                     contrast=1.14, bloom=0.55, bloom_thresh=0.72, bloom_radius=10,
+                     vignette=0.40):
+    """Post-render finish: teal/orange grade, gentle highlight bloom, soft vignette."""
+    from PIL import Image, ImageFilter
+    import numpy as np
+    img = np.asarray(Image.open(in_png).convert("RGB"), np.float32) / 255.0
+    img = img * np.array(gain) + np.array(lift) * (1.0 - img)   # gain=highlights, lift=shadows
+    img = np.clip((img - 0.5) * contrast + 0.5, 0, 1)           # contrast around mid-grey
+    if bloom > 0:                                               # highlights -> blur -> screen back
+        hi = np.clip((img.max(axis=2) - bloom_thresh) / (1 - bloom_thresh), 0, 1)
+        blur = np.asarray(Image.fromarray((np.clip(img*hi[...,None],0,1)*255).astype('uint8'))
+                          .filter(ImageFilter.GaussianBlur(bloom_radius)), np.float32)/255.0
+        img = 1 - (1 - img) * (1 - blur * bloom)
+    if vignette > 0:                                            # soft radial edge darkening
+        h, w = img.shape[:2]; yy, xx = np.mgrid[0:h, 0:w]
+        d = np.sqrt(((xx - w/2)/(w/2))**2 + ((yy - h/2)/(h/2))**2)
+        img = img * (1 - vignette * np.clip((d - 0.55)/0.6, 0, 1)**2)[..., None]
+    Image.fromarray((np.clip(img,0,1)*255).astype('uint8')).save(out_png)
+    return f"finish -> {os.path.basename(out_png)}"
+
+# usage: enable_dof(cam, target, 2.8) BEFORE the final render, then
+#        cinematic_finish("render.png", "final.png") AFTER it.
 ```
 
 ## Template B — Three.js WebGPU + TSL (single file, previewable)

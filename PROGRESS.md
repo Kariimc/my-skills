@@ -3,6 +3,30 @@
 > Last updated: 2026-07-21.
 > Read this first; if it conflicts with the code, the code wins.
 
+## Latest (2026-07-22, cloud) — real HDRIs via GitHub + cinematic finish (#3)
+
+- **Network reality corrected (F-45 rewritten):** this cloud box is NOT
+  packages-only. Probed hosts: example.com BLOCKED, but **github.com /
+  raw.githubusercontent.com / pypi.org = 200**. So the egress is a GitHub+package
+  allowlist. Asset CDNs (Poly Haven, ambientCG, blender.org, huggingface.co) 403,
+  but **GitHub-mirrored assets pull straight in**. (Read `/root/.ccr/README.md` +
+  the proxy status endpoint for the policy — don't assume from a CDN 403.)
+- **Real photo-HDRI path now works on the locked box:** `set_environment` gained
+  a GitHub source (three.js CC0 equirectangular maps). Fetched + rendered all 4
+  presets with REAL skies (venice_sunset, quarry_01, san_giuseppe_bridge,
+  pedestrian_overpass), ~38 s/frame. Names are nearest-match on GitHub; Poly Haven
+  gives exact slugs on an open network.
+- **#3 cinematic finish shipped (Template F):** DOF native on the camera +
+  grade/bloom/vignette as a Pillow post-pass (NOT the compositor — Blender 5.0
+  dropped `scene.node_tree` + the Composite node, F-46). Before/after proven.
+- **Proof:** artifact `daf685ed-4c7c-4b34-a295-30a26d8a8518` (real skies +
+  cinematic before/after). Ledgers: F-45 rewritten, F-46 added, P-16 added.
+- **Skill code re-verified as pasted:** Template E falls Poly Haven→GitHub→
+  procedural and returns `HDRI:venice_sunset`; Template F post-pass runs.
+- **Still open:** #2 (generalize fetchers to textures/models/ambientCG),
+  #4 bake set + blemish fix, #5 draft/final tiers, #6 omni3d (GPU/cloud),
+  #7 sims, #8 rig, #9 procedural variety.
+
 ## Latest (2026-07-22, cloud) — 3d-master-modeler: environment lighting (free upgrade #1)
 
 - **What:** added real-world **environment (image-based) lighting** — the biggest
