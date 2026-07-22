@@ -3,6 +3,32 @@
 > Last updated: 2026-07-22.
 > Read this first; if it conflicts with the code, the code wins.
 
+## Session-reflect (2026-07-22)
+
+**Machine gotchas — installed this session, don't reinstall (and ask before any new install):**
+- KTX-Software 4.4.2 present at `C:\Program Files\KTX-Software\bin` (ktx on system PATH);
+  `@gltf-transform/cli` installed globally; both needed together for KTX2 (P-13).
+- Python 3.12.10 has `build123d`, `trimesh`, `manifold3d` installed. Node 24 present.
+- Three.js cutting edge pinned: `three@0.184.0`, import `three/webgpu`, `RoomEnvironment`
+  gives metal its reflections (fixes the flat real-time look). Box-projection materials
+  export *something* to glTF but not directional grain — real UVs needed for that.
+
+**Proposed rules (user approval needed — I propose, you promote):**
+1. **[ESCALATED — now explicit + in memory] Ask before downloading or installing anything**
+   — packages or software, not just system installers. Confirmed by Kariim this session.
+2. **Verify the EXPORTED / interactive asset itself, not only the offline render.** A
+   flattering camera angle hid floating handle geometry that only showed in the real-time
+   viewer; the live look also differs from the ray-traced render. Check both.
+3. **[recurring compliance gap, not a new rule] The plain-words pre-send scrub keeps
+   failing** — commit hashes / file paths / long blocks leaked into chat repeatedly this
+   session despite the existing rule. The rule is right; my self-check isn't sticking.
+   Flagging honestly rather than proposing a duplicate.
+
+**Workflows worth keeping:** already saved — game-asset LOD + bake pipeline (playbook P-14),
+KTX2 compress (P-13). New habit worth noting (no skill needed): publish advisory/decision
+answers as a designed clickable page, not a chat wall — done 3× this session (engine
+assessment, upgrade menu, next-agent handoff) and it dodged the plain-words wall every time.
+
 ## Latest (2026-07-22) — 3d-master-modeler: game-asset LOD + bake lessons saved
 
 - Game-asset-with-LODs pipeline demonstrated end-to-end on a jerry can (single
