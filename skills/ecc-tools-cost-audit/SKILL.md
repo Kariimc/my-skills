@@ -15,7 +15,7 @@ This is a focused operator workflow for the sibling [ECC-Tools](../../ECC-Tools)
 
 Pull these ECC-native skills into the workflow when relevant:
 
-- `autonomous-loops` for bounded multi-step audits that cross webhooks, queues, billing, and retries
+- `continuous-agent-loop` for bounded multi-step audits that cross webhooks, queues, billing, and retries
 - `agentic-engineering` for tracing the request path into discrete, provable units
 - `customer-billing-ops` when repo behavior and customer-impact math must be separated cleanly
 - `search-first` before inventing helpers or re-implementing repo-local utilities

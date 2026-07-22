@@ -82,5 +82,5 @@ user and pauses the schedule — an autonomous loop that can only fail loudly.
   operator with the failing evidence — never a third silent retry.
 
 ## Related
-`autonomous-agent-harness`, `agentic-os`, `continuous-agent-loop`,
-`autonomous-loops`. Underlying agent: `loop-operator`.
+`autonomous-agent-harness`, `agentic-os`, `continuous-agent-loop`.
+Underlying agent: `loop-operator`.

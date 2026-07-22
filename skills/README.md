@@ -1,6 +1,6 @@
 # Skills Catalog
 
-421 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
+419 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
 auto-loaded into every project via the SessionStart sync hook (see the repo
 root `README.md`). Claude invokes a skill automatically when your request
 matches its `description` — you can also force one with `/<skill-name>`.
@@ -232,7 +232,6 @@ and recommended merges.
 | `article-writing` | Write articles, guides, blog posts, tutorials, newsletter issues, and other long-form content in a distinctive voice derived from supplie… |
 | `automation-audit-ops` | Evidence-first automation inventory and overlap audit workflow for ECC |
 | `autonomous-agent-harness` | Transform Claude Code into a fully autonomous agent system with persistent memory, scheduled operations, computer use, and task queuing.… |
-| `autonomous-loops` | "Patterns and architectures for autonomous Claude Code loops — from simple sequential pipelines to RFC-driven multi-agent DAG systems." |
 | `backend-patterns` | Backend architecture patterns, API design, database optimization, and server-side best practices for Node.js, Express, and Next.js API ro… |
 | `benchmark` |  |
 | `benchmark-methodology` | Use after competitive-platform-analysis has produced a tiered competitor set. Scores each competitor across nine weighted dimensions (pos… |
@@ -379,7 +378,6 @@ and recommended merges.
 | `motion-advanced` | Advanced motion patterns for React / Next.js — drag & drop, gestures, text animations, SVG path drawing, custom hooks, imperative sequenc… |
 | `motion-foundations` | Motion tokens, spring presets, performance rules, device adaptation, accessibility enforcement, and SSR safety for React / Next.js using… |
 | `motion-patterns` | Production-ready animation patterns for React / Next.js — button, modal, toast, stagger, page transitions, exit animations, scroll, and l… |
-| `motion-ui` | "Production-ready UI motion system for React/Next.js |
 | `mysql-patterns` | MySQL and MariaDB schema, query, indexing, transaction, replication, and connection-pool patterns for production backends |
 | `nanoclaw-repl` | Operate and extend NanoClaw v2, ECC's zero-dependency session-aware REPL built on claude -p |
 | `nestjs-patterns` | NestJS architecture patterns for modules, controllers, providers, DTO validation, guards, interceptors, config, and production-grade Type… |

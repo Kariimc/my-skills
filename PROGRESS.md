@@ -3,6 +3,63 @@
 > Last updated: 2026-07-21.
 > Read this first; if it conflicts with the code, the code wins.
 
+## Latest (2026-07-21) — config-gc + skill-audit pass: fixed test-pollution bug, retired autonomous-loops, disambiguated video-to-animation/video-to-game
+
+- **Test-isolation bug fixed:** `skills/remembering-conversations/tool/src/paths.ts`
+  `getDbPath()` did not honor `TEST_DB_PATH`, so every test run of
+  `verify.test.ts` was writing/deleting real rows in the live
+  `~/.config/superpowers/conversation-index/db.sqlite` instead of an isolated
+  temp DB — the orphaned-entry counts grew across runs (2, 4, 5...). Added
+  the same env-override check the other path getters already had, plus
+  mocked the embedding-model download and Claude summarizer calls in
+  `verify.test.ts` (offline, deterministic). Verified 5 consecutive
+  `npm test` runs, 18/18 pass every time. Committed and pushed
+  (174f191, confirmed on `origin/claude/pensive-benz-88e6fc`). Also
+  hand-cleaned the 5 stray test rows that earlier runs had already left in
+  the real database before the fix landed.
+- **Repo-wide audit (config-gc + skill-audit skills):** checked all 420
+  skill write-ups for broken frontmatter, name/folder mismatches,
+  oversized or missing trigger text, and hook/permission-file health.
+  Zero real errors found (doctor: HARD=0). Found and acted on:
+  - **`autonomous-loops` retired** — its own file already said it was
+    superseded by `continuous-agent-loop` and kept only for one release.
+    Deleted the skill folder, fixed all 5 files that referenced it
+    (`continuous-agent-loop`, `ecc-tools-cost-audit`,
+    `harness-autonomous`, `autonomous-agent-harness`,
+    `skills/README.md`), rebuilt `skills/finding-skills/index.json`
+    (420 entries, zero stale references), counts reconciled everywhere
+    via `bash bin/skill-doctor.sh --fix`.
+  - **`video-to-animation` vs `video-to-game` — did NOT merge.** Initial
+    scan flagged these as overlapping (~34% description word-overlap),
+    and the user approved a merge — but reading both files in full showed
+    the actual pipelines are substantively different: `video-to-animation`
+    is skeletal motion-capture/retargeting (Plask.ai/MediaPipe → bone
+    mapping → foot-lock cleanup → engine animation-clip import);
+    `video-to-game` is a whole-scene asset pipeline (background removal,
+    SSIM/perceptual-hash visual matching, physics extraction, SFX
+    classification, parallax depth layers, in-engine test-loop). Merging
+    would have destroyed real, distinct content for no benefit. Instead,
+    rewrote both descriptions to cross-reference each other and state the
+    split plainly, so a request can no longer land on the wrong one.
+  - **Allow-list cleanup:** removed 8 one-time leftover entries from
+    `~/.claude/settings.local.json` (two throwaway echo/test commands, one
+    hyper-specific one-time path check, one giant one-off multi-command
+    debug entry, three near-duplicate entries from writing one past commit
+    message). Backed up to `settings.local.json.bak` first; logged to
+    `~/.claude/gc_log.md` with undo instructions. Count: 23 → 15.
+- **`motion-ui` retired** — side-by-side read against the newer trio showed
+  full overlap: same tokens/accessibility/SSR rules as `motion-foundations`,
+  same modal/stagger/skeleton/parallax examples as `motion-patterns`, but
+  as one older, disconnected file with no dependency link to the trio (no
+  `version`/`author`/`tags`, unlike the trio's `jeff`-authored, versioned
+  set). Nothing in it was missing from the newer three. Deleted the skill
+  folder, fixed the 4 files that referenced it (`frontend-a11y`,
+  `neon-forge-ui`, `taste`, `skills/README.md`), rebuilt
+  `skills/finding-skills/index.json` (419 entries), reconciled counts via
+  `bash bin/skill-doctor.sh --fix` (`README.md`, `ARCHITECTURE.md`).
+- **Next step:** none outstanding from this pass — all four config-gc/
+  skill-audit action items are resolved and ready to commit + push.
+
 ## Latest (2026-07-21) — new skill: 3d-master-modeler (shipped, execution-verified)
 
 - **What:** new skill `skills/3d-master-modeler/SKILL.md` — autonomous 3D asset

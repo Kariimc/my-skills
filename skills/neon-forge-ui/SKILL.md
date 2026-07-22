@@ -146,7 +146,7 @@ The sidebar and grid auto-update.
 
 Pushing is outward-facing — a `git push` to `main` triggers a live Higgsfield deploy. **Confirm with the owner before pushing.** After push: tell the owner "Push done — deploy when ready." Preview URL: `https://preview--hidden-glow-736.higgsfield.app`.
 
-See also: `premium-web-craft`, `motion-ui`, `accessibility`.
+See also: `premium-web-craft`, `motion-foundations`, `accessibility`.
 
 ---
 

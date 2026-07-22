@@ -1,6 +1,6 @@
 ---
 name: autonomous-agent-harness
-description: Stand up the persistent infrastructure that turns Claude Code into a fully autonomous agent system — persistent memory, scheduled operations (crons), computer use, and task queuing. Replaces standalone frameworks (Hermes, AutoGPT) using Claude Code's native crons, dispatch, MCP tools, and memory. Use when the user wants to BUILD the always-on infrastructure for autonomous operation. To run or orchestrate a loop prefer harness-autonomous; for loop-architecture patterns see autonomous-loops.
+description: Stand up the persistent infrastructure that turns Claude Code into a fully autonomous agent system — persistent memory, scheduled operations (crons), computer use, and task queuing. Replaces standalone frameworks (Hermes, AutoGPT) using Claude Code's native crons, dispatch, MCP tools, and memory. Use when the user wants to BUILD the always-on infrastructure for autonomous operation. To run or orchestrate a loop prefer harness-autonomous; for loop-architecture patterns see continuous-agent-loop.
 metadata:
   origin: ECC
 ---

@@ -1,13 +1,13 @@
 ---
 name: continuous-agent-loop
-description: Quality-gate, eval-checkpoint, and recovery-control patterns for autonomous agent loops. Use when the user is wiring guardrails — eval checkpoints, exit conditions, failure recovery — into an autonomous loop. To run a loop prefer harness-autonomous; for the menu of loop architectures see autonomous-loops.
+description: Quality-gate, eval-checkpoint, and recovery-control patterns for autonomous agent loops. Use when the user is wiring guardrails — eval checkpoints, exit conditions, failure recovery — into an autonomous loop. To run a loop prefer harness-autonomous.
 metadata:
   origin: ECC
 ---
 
 # Continuous Agent Loop
 
-This is the v1.8+ canonical loop skill name. It supersedes `autonomous-loops` while keeping compatibility for one release.
+This is the canonical loop skill name. It supersedes the retired `autonomous-loops` skill.
 
 ## Loop Selection Flow
 
