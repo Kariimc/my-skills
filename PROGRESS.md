@@ -3,6 +3,25 @@
 > Last updated: 2026-07-21.
 > Read this first; if it conflicts with the code, the code wins.
 
+## Latest (2026-07-22) — 3d-master-modeler modernized to mid-2026 cutting edge
+
+- **What:** upgraded the skill's stack, all four pieces execution-verified on
+  this machine (Blender 5.2 + browser):
+  - **Three.js → WebGPU + TSL** (r184 `three/webgpu`, node materials): web
+    template rewritten, renders on real WebGPU backend, console clean.
+  - **build123d 0.11** added as the modern code-CAD path (context-manager BREP
+    on OpenCASCADE) → STEP+STL; supersedes CadQuery in the routing table.
+  - **trimesh 4 + manifold3d 3** numeric watertight/manifold/genus/volume gate
+    (two engines cross-checked; bracket = watertight, genus 1, 13.35 cm³ both).
+  - **Compressed delivery**: glTF Draco (7.3× smaller), Meshopt (3.4×), WebP,
+    + OpenUSD `.usdc`. KTX2 documented honestly as a `gltf-transform` post-step
+    (Blender's exporter stops at WebP — verified via operator introspection).
+  - Installed `build123d trimesh manifold3d` into system Python 3.12.
+- **Verify:** every added template re-extracted from the SKILL.md fence and run;
+  desc_len 761, finder index rebuilt (ranks #1 for webgpu/tsl/build123d queries).
+- **State:** committed to master through apex gates; artifact brief+proof at the
+  8f446973 artifact URL. No open items.
+
 ## Session-reflect (2026-07-21, 3d-master-modeler build + photo-real)
 
 **Machine gotchas (durable — don't rediscover):**
