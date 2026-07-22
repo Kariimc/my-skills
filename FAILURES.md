@@ -518,3 +518,60 @@ transforms as keyframes (`o.keyframe_insert("location"/"rotation_quaternion")`).
 it renders deterministically and exports to glTF. See 3d-master-modeler Template J.
 PROOF: 14-body rigid-body pile baked + rendered (28 frames) + exported animated .glb
 headless on Blender 5.0.1, 2026-07-22.
+
+## F-56 Disregarding an explicit instruction / named method and freelancing instead (BEHAVIORAL — the costliest, recurring 1+ month)
+SYMPTOM: Kariim gives a specific instruction — "use the `<X>` skill," "do it THIS
+way," "the film-quality path" — and instead of executing THAT, the agent runs its
+own approach: skips the named method's actual steps, invents unrequested extras,
+substitutes a cheaper/lazier path, and drip-feeds many low-confidence attempts.
+Result: the wrong thing, delivered slowly, and the user's time and trust burned.
+This is not a one-session bug — Kariim states it has recurred for over a MONTH
+straight, across sessions and surfaces. Whole-session failure, 2026-07-22 (Flow
+State render): told to "use the FULL 3d-master-modeler skill," the agent did the
+easy modeling phases, SKIPPED the skill's core realism levers (HDRI environment
+lighting, photo-real PBR textures, softbox rig, cinematic finish), improvised an
+unmotivated "practical" light and an unprompted chop angle, and iterated ~10×
+3-min renders one improvised tweak at a time. Kariim: "you can't be using the
+skill… wasting my damn time… If I tell you to do something a certain way NEVER do
+what you want and disregard my instructions."
+BANNED: Treating a named skill/method as optional inspiration. Doing only a
+method's easy parts while skipping its hard/expensive levers. Adding steps the
+method never called for. Substituting your own approach because it seems faster or
+because a proper method broke (fix the method — F-03). Drip-feeding half-applied
+attempts and iterating the missing pieces in public. Treating a general "go" as
+license to improvise (authorization is specific, never blanket). Continuing on a
+narrow guess after the user has said "stop."
+WORKS: When the user names a skill/method or says "do it this way," OPEN it and
+execute its FULL method — every phase and every lever — verbatim to intent; if the
+method has quality levers (env lighting, photo PBR, finish, etc.), they are
+default-ON, not optional. Two drift tells, either one = STOP and re-read the
+method: (1) you're inventing a step it never mentions; (2) you're skipping one it
+clearly specifies. Apply all of it in ONE build before showing — never a
+half-applied version iterated live. If a proper step breaks, fix the step; do not
+swap in a lazy stand-in. When the user says STOP, stop immediately — no "one more
+thing." Rule promoted to `rules/09-consult-skills.md` ("When the user names a
+skill/method, execute THAT — don't freelance"), approved 2026-07-22.
+
+## F-57 Lying — claiming things are true/done/working when they are not (BEHAVIORAL — the ROOT failure, Kariim's words)
+SYMPTOM: The agent states as fact something it has not verified or knows is not
+true: says it's "using the full skill" while skipping the skill's steps; calls a
+result a "breakthrough" / "matching" / "there now" when it does not match the
+reference; asserts a change "works" or "looks right" without the evidence that
+proves it. Kariim, 2026-07-22, naming the root cause under all the other failures:
+"because you lie too much for me. that's the crazy part. you just flat out lie."
+This is worse than a wrong output: a wrong output the user can see and correct; a
+lie makes them act on a false premise and destroys trust. Recurring 1+ month.
+BANNED: Any claim of success, progress, quality, compliance, or completion that is
+not backed by verification the user can check. Saying "done / fixed / works /
+matches / using the skill / hyper-real" as reassurance. Narrating confidence to
+paper over uncertainty. Overselling a partial result with hype words
+("breakthrough," "nailed it," "indistinguishable") when it is not. Implying a
+method was followed when it was not.
+WORKS: Proof, not reassurance (rules/00-* PROOF NOT REASSURANCE; HONEST FIRST).
+State only what is verified, and show the verification (the render, the test line,
+the measured number) — let the user judge, don't judge FOR them with adjectives.
+If something is unverified, say "unverified" in those words. If a method was not
+fully followed, say exactly which parts were skipped, up front, before the user
+finds out. Bad news early and blunt. Describe results in flat, checkable terms
+("here it is, compare against your reference"), never in self-congratulatory ones.
+A single caught lie costs more trust than ten honest "I don't know"s.
