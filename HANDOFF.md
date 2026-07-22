@@ -67,6 +67,12 @@ ENFORCED-BY pointer to docs/RULES-ENFORCEMENT-MAP.md; every duty preserved,
 JUDGMENT rules untouched (00-contract, 00-core, 00-idp, 10-topology, etc.).
 Generated ~/.claude/CLAUDE.md verified rebuilt: 638 -> 589 lines, slim text
 live, zero old remnants.
+Custodian + verifier decree (2026-07-22): github-custodian agent (72 agents)
+wired into loops/repo-hygiene.md exposure-first sweep; verification decree —
+deliverable-verifier + agent-evaluator now model: fable (HIGH), fallback
+Opus 4.8 high then Sonnet 5 high, verdict names the model — encoded in
+rules/06 and AGENT-CONTRACT. Cross-repo sweeps need gh/added repos; this
+cloud session is scoped to my-skills only.
 Flagged deviations: prose rulebook NOT shrunk (map first, cuts need Kariim's
 review); env-scout shipped as script+hook, not an agent (plan's own smallest
 version). Everything proof-tested pre-commit; landed via PR #54.

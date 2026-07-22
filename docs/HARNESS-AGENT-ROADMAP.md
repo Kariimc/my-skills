@@ -178,3 +178,47 @@ it (or hand it to any agent) whenever this question comes up again:
 2. `env-scout` (kills the wrong-belief-about-the-box cluster)
 3. `harness-visual` (highest-volume work domain, measured exit gate)
 4. `ledger-sentinel` → 5. `scribe` → 6. `harness-3d` → 7. `skill-gardener` → 8. `surface-router`
+
+
+---
+
+## Addendum (2026-07-22, same day) — GitHub custodian + verifier decree
+
+Original ask: *"Can we make an agent that keeps all my github in order, makes
+sure all files are correct and current, makes sure nothing gets in that breaks
+my work and nobody can steal my work. Also make Fable 5 High the Verifier for
+all work agents do in any session, next-smartest model if unavailable."*
+
+Sharpened, reusable version:
+
+> **Context: Kariim's GitHub spans TWO namespaces — user `Kariimc` (31 repos,
+> many private: xavier-agentic-os, Flow-State, claude-eyes, brain, …) and org
+> `shift9-studio` (the flagship monorepo). Enumerating one namespace silently
+> misses the other (rules/10). A weekly repo-hygiene loop and the apex CI
+> gates already exist; secret-scan patterns live in opensource-sanitizer.
+> Sessions are often scoped to a single repo, so cross-repo work needs the
+> laptop's gh CLI or explicitly added repos — a partial sweep must never be
+> reported as a full one.**
+>
+> **Task 1: build a custodian agent with three promises in priority order —
+> nothing exposed (visibility-vs-intent audit, secret scanning, LICENSE
+> deliberateness on public repos, Dependabot criticals; defensive-only, his
+> own repos), nothing broken lands (default-branch protection + required CI
+> everywhere), nothing stale lies (docs/counts/branches diffed against
+> reality). Report-and-confirm; only the pre-approved safe fixes auto-apply.
+> Wire it into the existing weekly loop rather than adding a second one. Be
+> honest about theft: a public repo is copyable by design — the real controls
+> are visibility choice and license, so surface those decisions instead of
+> promising immunity.**
+>
+> **Task 2: route ALL verification of agent work — the deliverable-verifier
+> and agent-evaluator gates — to Fable 5 at HIGH effort, with an explicit
+> fallback chain (Opus 4.8 high, then Sonnet 5 high) when Fable is
+> unavailable on a surface, and the verdict must always name the model that
+> verified. Encode this in the agents' model fields, the model-routing rule,
+> and the worker contract — never as a memory.**
+
+**Shipped:** `agents/github-custodian.md`, security sweep wired into
+`loops/repo-hygiene.md`, `model: fable` + fallback decree on both verification
+agents, rules/06 routing + judge-pick recommendation updated,
+AGENT-CONTRACT verifier-model clause.

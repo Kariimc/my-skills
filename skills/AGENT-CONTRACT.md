@@ -36,4 +36,7 @@ present? anything present that was NOT asked? — before accuracy, completeness,
 clarity, actionability, conciseness. A deliverable that freelanced is rejected
 and re-dispatched with the deviation named, exactly like an incomplete one.
 Final deliverables additionally pass the `deliverable-verifier` agent before
-reaching Kariim.
+reaching Kariim. **Both verification gates run on Fable 5 (high); if
+unavailable on the surface, the next-smartest model verifies (Opus 4.8 high,
+then Sonnet 5 high) and the verdict names the model — never a silent
+downgrade.** (Kariim's decree, 2026-07-22.)
