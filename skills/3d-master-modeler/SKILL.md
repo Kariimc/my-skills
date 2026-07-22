@@ -217,9 +217,15 @@ bpy.ops.wm.usd_export(filepath=base + ".usdc")
 ```
 
 - **KTX2 / Basis-Universal textures** are NOT in Blender's exporter (it stops at
-  WebP). For KTX2, post-process the .glb with the `gltf-transform` CLI:
-  `gltf-transform optimize in.glb out.glb --texture-compress ktx2` (needs Node +
-  `@gltf-transform/cli`). Say so honestly rather than claiming Blender did it.
+  WebP). KTX2 is a two-tool post-process on the .glb, verified needs:
+  1. Node + `@gltf-transform/cli` (`npm i -g @gltf-transform/cli`), AND
+  2. the **KTX-Software `ktx` binary** on PATH — gltf-transform shells out to it;
+     without it the CLI errors `Command "ktx" not found. Please install
+     KTX-Software 4.3.0+`. It is NOT bundled with the npm package, and (as of
+     4.4.2) is distributed only as a platform installer from the Khronos GitHub
+     releases — no portable Windows zip, not in winget.
+  Then: `gltf-transform etc1s in.glb out.glb` (small/ETC1S) or `uastc` (higher
+  quality). Say plainly KTX2 is a separate step — never claim Blender did it.
 - Print/CAD parts: STL (mesh) + STEP (parametric) from build123d, gated by the
   trimesh/manifold3d watertight check in Phase 2 — never ship an unvalidated STL.
 
