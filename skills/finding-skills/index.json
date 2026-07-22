@@ -1,7 +1,7 @@
 [
  {
   "name": "3d-master-modeler",
-  "description": "Autonomous 3D asset generator and technical-art engine. Builds 3D models from scratch in code — Blender Python (bpy) headless, Three.js/WebGL, OpenSCAD/CadQuery — with non-destructive modifier stacks, procedural PBR shader networks, photo-real PBR image textures (CC0 pipeline), lighting rigs, and headless render verification. Use when the user wants to generate, model, or build a 3D asset/model/scene/mesh in code, write a Blender or bpy script, create procedural PBR materials, or render a preview of a generated model. (2D art to game asset → game-assets; AI image-to-3D → omni3d; print slicing → 3d-printing; rig/pose inspection → blender-motion-state-inspection.)",
+  "description": "Autonomous 3D asset generator and technical-art engine. Builds 3D models from scratch in code — Blender (bpy) headless, Three.js WebGPU + TSL, build123d/OpenSCAD CAD — with non-destructive modifier stacks, procedural + photo-real PBR (CC0 pipeline), 3-point lighting, numeric mesh-validation gates (trimesh/manifold3d), and compressed delivery (Draco/Meshopt glTF, OpenUSD). Use when the user wants to generate, model, or build a 3D asset/model/scene/mesh in code, write a Blender or bpy script, author WebGPU/TSL materials, create procedural PBR, or render a preview of a generated model. (2D art to game asset → game-assets; AI image-to-3D → omni3d; print slicing → 3d-printing; rig/pose inspection → blender-motion-state-inspection.)",
   "path": "skills/3d-master-modeler/SKILL.md"
  },
  {

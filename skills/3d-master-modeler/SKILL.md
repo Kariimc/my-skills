@@ -1,6 +1,6 @@
 ---
 name: 3d-master-modeler
-description: Autonomous 3D asset generator and technical-art engine. Builds 3D models from scratch in code — Blender Python (bpy) headless, Three.js/WebGL, OpenSCAD/CadQuery — with non-destructive modifier stacks, procedural PBR shader networks, photo-real PBR image textures (CC0 pipeline), lighting rigs, and headless render verification. Use when the user wants to generate, model, or build a 3D asset/model/scene/mesh in code, write a Blender or bpy script, create procedural PBR materials, or render a preview of a generated model. (2D art to game asset → game-assets; AI image-to-3D → omni3d; print slicing → 3d-printing; rig/pose inspection → blender-motion-state-inspection.)
+description: Autonomous 3D asset generator and technical-art engine. Builds 3D models from scratch in code — Blender (bpy) headless, Three.js WebGPU + TSL, build123d/OpenSCAD CAD — with non-destructive modifier stacks, procedural + photo-real PBR (CC0 pipeline), 3-point lighting, numeric mesh-validation gates (trimesh/manifold3d), and compressed delivery (Draco/Meshopt glTF, OpenUSD). Use when the user wants to generate, model, or build a 3D asset/model/scene/mesh in code, write a Blender or bpy script, author WebGPU/TSL materials, create procedural PBR, or render a preview of a generated model. (2D art to game asset → game-assets; AI image-to-3D → omni3d; print slicing → 3d-printing; rig/pose inspection → blender-motion-state-inspection.)
 context: fork
 ---
 
@@ -37,10 +37,16 @@ Decide the framework from the target, not from habit:
 
 | Target | Framework | Output |
 |---|---|---|
-| Offline/production asset, film-quality render, baking, export to glTF/FBX/OBJ | **Blender `bpy`** (headless) | .blend + glTF/FBX + PNG proof renders |
-| Real-time web: product viewer, game, interactive scene | **Three.js** | Single HTML file (previewable) |
-| 3D printing, CAD, engineering parts, exact dimensions | **OpenSCAD** (or **CadQuery** when Python-side parametrics/STEP export needed) | .scad/.py + STL |
+| Offline/production asset, film-quality render, baking, export to glTF/FBX/OBJ/USD | **Blender `bpy`** (headless) | .blend + compressed glTF/USD + PNG proof renders |
+| Real-time web: product viewer, game, interactive scene | **Three.js WebGPU + TSL** | Single HTML file (previewable) |
+| 3D printing, CAD, engineering parts, exact dimensions | **build123d** (modern context-manager BREP on OpenCASCADE; STEP+STL) — or **OpenSCAD** for quick constructive-solid parts | .py + STEP/STL |
 | User explicitly names a tool | That tool | — |
+
+Modern stack, verified on this pipeline (mid-2026): Blender 5.2 LTS bpy; Three.js
+**r184** `three/webgpu` (WebGPU-first, auto WebGL2 fallback) with **TSL** node
+materials — raw-GLSL `ShaderMaterial`/`onBeforeCompile` do NOT work on WebGPU;
+**build123d 0.11** for code-CAD; **trimesh 4 + manifold3d 3** for numeric mesh
+validation. `pip install build123d trimesh manifold3d` if absent.
 
 Before building, pin down (from the request or by one question max): real-world
 dimensions or a reference object for scale, style (hard-surface vs organic),
@@ -72,6 +78,13 @@ and proceed.
   gradients on flat faces.
 - Audit with the bmesh mesh-audit function in the template: tri/quad/ngon
   counts, non-manifold edges, loose geometry. Fix before Phase 3.
+- **Numeric gate for anything that must be watertight** (print, CAD, physics):
+  export the STL and run it through trimesh + manifold3d — a real pass/fail, not
+  eyeballing. `m = trimesh.load(p); assert m.is_watertight` gives volume, Euler
+  number and winding; `manifold3d.Manifold(manifold3d.Mesh(m.vertices.astype('float32'),
+  m.faces.astype('uint32'))).status()` must be `Error.NoError` and `.genus()`
+  must match intent (0 = solid blob, 1 = one through-hole, …). Cross-check the
+  two volumes agree. This is the CAD/print equivalent of the render audit.
 
 ## Phase 3 — PBR materials & shading
 
@@ -179,8 +192,36 @@ Standard rig (in the template):
    read as the intended surface? lighting separates subject from background?
 4. Any failure → fix the script (surgical edit), re-run, re-read. Cap: 3
    iterations, then report exactly what's still off and why.
-5. On pass: export (glTF for engines/web, STL for print), delete intermediate
+5. On pass: export in the right modern format (below), delete intermediate
    renders/temp scripts, deliver final script + final render + asset path.
+
+### Modern delivery formats (Blender 5.x, all verified on this pipeline)
+
+Pick by destination; compression is free size/latency and the web expects it.
+
+```python
+base = os.path.splitext(OUT)[0]
+bpy.ops.object.select_all(action='SELECT')
+
+# Web / game engine — Draco geometry (≈7x smaller here) + WebP textures
+bpy.ops.export_scene.gltf(filepath=base + ".glb", export_format='GLB',
+    export_apply=True, export_draco_mesh_compression_enable=True,
+    export_draco_mesh_compression_level=6, export_image_format='WEBP')
+
+# Bandwidth-critical streaming — Meshopt (GPU-friendly, ≈3.4x smaller)
+bpy.ops.export_scene.gltf(filepath=base + "_opt.glb", export_format='GLB',
+    export_apply=True, export_meshopt_compression_enable=True)
+
+# Studio / DCC interchange — OpenUSD (industry standard, Omniverse/Houdini/Maya)
+bpy.ops.wm.usd_export(filepath=base + ".usdc")
+```
+
+- **KTX2 / Basis-Universal textures** are NOT in Blender's exporter (it stops at
+  WebP). For KTX2, post-process the .glb with the `gltf-transform` CLI:
+  `gltf-transform optimize in.glb out.glb --texture-compress ktx2` (needs Node +
+  `@gltf-transform/cli`). Say so honestly rather than claiming Blender did it.
+- Print/CAD parts: STL (mesh) + STEP (parametric) from build123d, gated by the
+  trimesh/manifold3d watertight check in Phase 2 — never ship an unvalidated STL.
 
 ---
 
@@ -384,74 +425,113 @@ bpy.ops.export_scene.gltf(filepath=gltf_path, export_apply=True)  # applies modi
 print(f"AUDIT: exported {gltf_path}")
 ```
 
-## Template B — Three.js real-time starter (single file, previewable)
+## Template B — Three.js WebGPU + TSL (single file, previewable)
 
-WebGL build — runs everywhere. For WebGPU (r171+): import from
-`three/webgpu`, `const renderer = new WebGPURenderer({antialias:true})`,
-`await renderer.init()` before first frame, and prefer `MeshStandardNodeMaterial`
-/ TSL for new shader work; it auto-falls back to WebGL 2.
+Modern default (verified: renders on a real WebGPU backend, auto-falls back to
+WebGL2). Import from `three/webgpu`, `await renderer.init()` before the first
+frame, use `MeshStandardNodeMaterial` + TSL nodes for materials (raw-GLSL
+`ShaderMaterial`/`onBeforeCompile` are unsupported on WebGPU), and drive the
+loop with `renderer.render` (NOT the deprecated `renderAsync`).
 
 ```html
 <!doctype html>
 <meta charset="utf-8">
-<style>html,body{margin:0;height:100%;overflow:hidden}canvas{display:block}</style>
+<style>html,body{margin:0;height:100%;overflow:hidden;background:#0a0a0c}canvas{display:block}</style>
 <script type="importmap">
-{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.178.0/build/three.module.js",
-"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.178.0/examples/jsm/"}}
+{"imports":{
+"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.webgpu.js",
+"three/webgpu":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.webgpu.js",
+"three/tsl":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.tsl.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
 </script>
 <script type="module">
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
+import { color, mix, positionLocal, mx_noise_float } from 'three/tsl';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGPURenderer({ antialias: true });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 document.body.appendChild(renderer.domElement);
+await renderer.init();  // MANDATORY before first frame — requests the GPU device
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a0c);
 const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
 camera.position.set(3, 2, 4);
 
-// 3-point rig: warm key, cool fill, white rim + soft ambient
-const key = new THREE.DirectionalLight(0xfff1e0, 3);
-key.position.set(-4, 6, 4); key.castShadow = true;
-key.shadow.mapSize.set(2048, 2048);
+// 3-point rig
+const key = new THREE.DirectionalLight(0xfff1e0, 3); key.position.set(-4, 6, 4);
 const fill = new THREE.DirectionalLight(0xdbe9ff, 0.8); fill.position.set(4, 2, 3);
-const rim = new THREE.DirectionalLight(0xffffff, 2);  rim.position.set(0, 4, -6);
+const rim = new THREE.DirectionalLight(0xffffff, 2); rim.position.set(0, 4, -6);
 scene.add(key, fill, rim, new THREE.AmbientLight(0xffffff, 0.15));
 
-// procedural geometry + PBR material (swap for the actual asset)
-const geo = new THREE.CylinderGeometry(0.4, 0.4, 1, 64);
-const mat = new THREE.MeshStandardMaterial({ color: 0x8a2016, roughness: 0.45, metalness: 0.0 });
-const mesh = new THREE.Mesh(geo, mat);
-mesh.position.y = 0.5; mesh.castShadow = true;
-scene.add(mesh);
+// TSL node material — procedural grain in-shader, compiles to WGSL or GLSL
+const mat = new THREE.MeshStandardNodeMaterial({ metalness: 0.0 });
+const grain = mx_noise_float(positionLocal.mul(6.0));
+mat.colorNode = mix(color(0x5a1810), color(0xc07a2a), grain.mul(0.5).add(0.5));
+mat.roughnessNode = mix(color(0.35), color(0.7), grain).r;
 
-const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(20, 20),
-  new THREE.MeshStandardMaterial({ color: 0x202020, roughness: 0.9 }));
-ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true;
-scene.add(ground);
+const mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 1.2, 64), mat);
+mesh.position.y = 0.6; scene.add(mesh);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(20, 20),
+  new THREE.MeshStandardNodeMaterial({ color: 0x202020, roughness: 0.9 }));
+ground.rotation.x = -Math.PI / 2; scene.add(ground);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 0.5, 0); controls.enableDamping = true;
-
+controls.target.set(0, 0.6, 0); controls.enableDamping = true;
 addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
 renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
 </script>
 ```
 
-Verify Three.js work through the browser tools / live preview (screenshot +
-console check for WebGL errors), the same 3-angle audit as Blender.
+TSL nodes worth knowing: `positionLocal`/`positionWorld`, `normalWorld`, `uv()`,
+`mx_noise_float`/`mx_worley_noise_float` (MaterialX procedurals), `texture(tex)`,
+`mix`/`smoothstep`/`clamp`, `.mul/.add/.sub`. To load a compressed asset from
+Blender, use `GLTFLoader` + `DRACOLoader` (and `KTX2Loader` for KTX2 textures)
+from `three/addons/`. Verify in the browser: screenshot + console must show no
+errors; the on-page tag reports whether the WebGPU or WebGL2 backend is live.
 
-## Template C — OpenSCAD parametric
+## Template C — build123d (modern code-CAD, verified)
+
+Preferred for engineering/print parts: Pythonic context managers (real `for`
+loops, filtering, sorting on edges/faces), OpenCASCADE BREP kernel, STEP + STL
+export, and it feeds straight into the Phase 2 trimesh/manifold3d gate. This
+exact script runs on build123d 0.11 and passes watertight/manifold checks.
+
+```python
+# cad_part.py — run: python cad_part.py   (pip install build123d trimesh manifold3d)
+from build123d import (BuildPart, Box, Cylinder, Locations, Mode,
+                       fillet, chamfer, Axis, export_stl, export_step)
+import trimesh, manifold3d, os
+W, D, H, WALL, BORE, FIL = 60, 40, 24, 3.0, 14, 3.0
+OUT = os.path.dirname(os.path.abspath(__file__))
+
+with BuildPart() as part:
+    Box(W, D, H)
+    Box(W - 2*WALL, D - 2*WALL, H, mode=Mode.SUBTRACT)      # hollow
+    with Locations((0, 0, H/2)):
+        Cylinder(BORE/2, H, mode=Mode.SUBTRACT)            # vertical bore
+    fillet(part.edges().filter_by(Axis.Z), radius=FIL)      # round tall corners
+    chamfer(part.faces().sort_by(Axis.Z)[-1].edges(), length=1.0)  # top rim
+
+stl = os.path.join(OUT, "part.stl"); export_step(part.part, os.path.join(OUT, "part.step"))
+export_stl(part.part, stl)
+
+m = trimesh.load(stl)                                        # numeric gate
+mani = manifold3d.Manifold(manifold3d.Mesh(m.vertices.astype('float32'),
+                                           m.faces.astype('uint32')))
+print(f"AUDIT: watertight={m.is_watertight} genus={mani.genus()} "
+      f"status={mani.status()} vol_cm3={m.volume/1000:.2f}")
+assert m.is_watertight and str(mani.status()) == "Error.NoError"
+print("AUDIT: PASS — watertight manifold part, STEP+STL exported")
+```
+
+## Template D — OpenSCAD parametric (quick constructive-solid parts)
 
 Units are mm. Overlap all unions/differences by `eps` — coincident faces are
 the #1 cause of non-manifold/broken STLs. Preview `$fn` low, render high.
@@ -492,8 +572,8 @@ module body() {
 body();
 ```
 
-CadQuery instead when you need Python logic, fillets on selected edges, or
-STEP export: `result = cq.Workplane("XY").cylinder(60, 20).faces(">Z").shell(-2.4)`;
-export with `cq.exporters.export(result, "asset.stl")`. Verify STLs by slicing
-mentally against: manifold (OpenSCAD's Manifold backend reports errors at
-render), min wall ≥ 0.8mm FDM, overhangs > 45° need chamfers or support.
+Prefer **build123d** (Template C) when you need Python logic, selective fillets,
+or STEP export — it supersedes CadQuery (same OCP kernel, cleaner API) and gates
+through trimesh/manifold3d. Reach for OpenSCAD only for fast constructive-solid
+parts. Either way verify: min wall ≥ 0.8 mm FDM, overhangs > 45° need chamfers
+or support, and the mesh must pass the Phase 2 watertight/manifold gate.
