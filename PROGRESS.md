@@ -3,6 +3,22 @@
 > Last updated: 2026-07-22.
 > Read this first; if it conflicts with the code, the code wins.
 
+## Latest (2026-07-22, cloud) — rig & animate (#8)
+
+- **#8 rig & animate shipped (SKILL Template I):** `bone_chain()` (armature) +
+  `skin_auto()` (automatic-weight skinning) + `animate_curl()` (keyframed loop) +
+  `export_animated()` (animated `.glb`). Two skinning styles documented (smooth
+  skin vs rigid parenting); **Rigify confirmed present** in this bpy build for
+  humanoid auto-rig.
+- **Proven:** a tapered arm skinned to a 4-bone chain curls smoothly (frame 1
+  straight → frame 7 arched, mesh bends continuously = real skinning). 12 frames →
+  looping GIF + 433 KB animated glb. Artifact
+  `b037cf74-c6f0-43c0-a663-29a277e8e218` (live GIF plays on the page).
+- **Gotcha (F-54):** Blender 5.0 slotted actions removed `Action.fcurves` —
+  don't walk fcurves; `keyframe_insert` already eases (Bezier). Also: a mesh needs
+  length rings (edit-mode subdivide) before skinning or it deforms as rigid blocks.
+- **Still open:** #6 omni3d (GPU/cloud, defer), #7 sims, #9 procedural variety.
+
 ## Latest (2026-07-22, cloud) — generalized asset fetchers (#2)
 
 - **#2 fetchers shipped (SKILL Template H):** generalized the HDRI fetcher into

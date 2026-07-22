@@ -843,6 +843,78 @@ Adding a source is a one-line registry entry. To add a whole new asset TYPE
 shape. On the laptop (open network) Poly Haven/ambientCG win and bring fuller map
 sets (normal + displacement + AO); the GitHub mirror is the guaranteed floor.
 
+## Template I — rig & animate: armature + skinning + animated glTF (verified)
+
+Give a mesh a skeleton, skin it so it bends smoothly, keyframe a motion, and export
+an **animated** glTF an engine can play. Verified headless on Blender 5.0.1: a
+tapered arm skinned to a 4-bone chain curls in a clean loop; rendered frames →
+looping GIF, plus a 433 KB animated `.glb`. Two skinning styles:
+
+- **Smooth skin (automatic weights)** — one continuous mesh bends across joints
+  (organic: tentacle, arm, finger, tail). Shown below.
+- **Rigid parenting** — parent whole sub-objects to bones (hard-surface: robot arm,
+  lamp segments). Swap `parent_set(type='ARMATURE_AUTO')` for parenting each part
+  to its bone with `bone.matrix` / a Child-Of constraint.
+
+Two Blender-5.0 gotchas baked in: the mesh needs **length subdivisions** or it
+can't bend (a bare primitive has no rings to deform), and **`Action.fcurves` was
+removed** (slotted actions) — don't touch fcurves; `keyframe_insert` already eases
+with Bezier (F-54).
+
+```python
+import bpy, math
+
+def bone_chain(name, n, height, origin=(0,0,0)):
+    """Vertical n-bone armature; returns the armature object."""
+    bpy.ops.object.armature_add(location=origin); rig = bpy.context.active_object; rig.name = name
+    bpy.ops.object.mode_set(mode='EDIT'); eb = rig.data.edit_bones
+    seg = height / n; prev = eb[0]; prev.head=(0,0,0); prev.tail=(0,0,seg); prev.name="seg0"
+    chain = [prev]
+    for i in range(1, n):
+        b = eb.new(f"seg{i}"); b.head=(0,0,i*seg); b.tail=(0,0,(i+1)*seg)
+        b.parent = chain[-1]; b.use_connect = True; chain.append(b)
+    bpy.ops.object.mode_set(mode='OBJECT'); return rig
+
+def skin_auto(mesh, rig):
+    """Automatic-weight skinning. Mesh MUST have rings along the bend axis first
+    (e.g. edit-mode subdivide) or it deforms as rigid blocks."""
+    bpy.ops.object.select_all(action='DESELECT')
+    mesh.select_set(True); rig.select_set(True); bpy.context.view_layer.objects.active = rig
+    bpy.ops.object.parent_set(type='ARMATURE_AUTO')     # creates one vertex group per bone
+
+def animate_curl(rig, n, frames=12, amount=34):
+    """Keyframe a straight->curl->straight loop across the bone chain."""
+    scene = bpy.context.scene; scene.frame_start = 1; scene.frame_end = frames
+    bpy.context.view_layer.objects.active = rig; bpy.ops.object.mode_set(mode='POSE')
+    def pose(frame, amt):
+        for i in range(n):
+            pb = rig.pose.bones[f"seg{i}"]; pb.rotation_mode = 'XYZ'
+            pb.rotation_euler = (math.radians(amt*(0.6+0.5*i)), 0, math.radians(0.4*amt*math.sin(i)))
+            pb.keyframe_insert("rotation_euler", frame=frame)
+    pose(1, 0); pose(frames//2 + 1, amount); pose(frames, 0)   # loops; Bezier auto-eases (F-54)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+def export_animated(mesh, rig, path):
+    bpy.ops.object.select_all(action='DESELECT'); mesh.select_set(True); rig.select_set(True)
+    bpy.context.view_layer.objects.active = rig
+    bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True,
+                              export_animations=True, export_animation_mode='ACTIONS')
+
+# usage: build a mesh with length rings (edit-mode subdivide), then
+#   rig = bone_chain("Rig", 4, 3.0); skin_auto(mesh, rig)
+#   animate_curl(rig, 4); export_animated(mesh, rig, "rigged.glb")
+# Render frames across scene.frame_start..frame_end (scene.frame_set(f)) and assemble
+# a GIF with Pillow (imgs[0].save(gif, save_all=True, append_images=imgs[1:], loop=0)).
+```
+
+**Rigify (humanoid auto-rig) — available in this bpy build.** For bipeds/quadrupeds
+use the bundled Rigify add-on instead of a hand-built chain:
+`addon_utils.enable("rigify")`, add a metarig
+(`bpy.ops.object.armature_human_metarig_add()`), scale it to the character, then
+`bpy.ops.pose.rigify_generate()` produces a full control rig; skin the character
+mesh to the generated deform bones with automatic weights. The hand-built chain
+above is the general path for non-humanoid shapes.
+
 ## Template B — Three.js WebGPU + TSL (single file, previewable)
 
 Modern default (verified: renders on a real WebGPU backend, auto-falls back to

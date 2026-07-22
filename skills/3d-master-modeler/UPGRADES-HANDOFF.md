@@ -72,8 +72,10 @@ a rendered image published to a clickable page; talk to Kariim in plain words.
    GPU + multi-GB models — DEFER to Kariim's GPU / cloud; document + wire only.
 7. **Effects/sim** (Mantaflow smoke/fire, cloth, rigid-body) — short shots only
    on CPU; document that large sims want the cloud path.
-8. **Rig & animate** — pair `game-assets` + `blender-motion-state-inspection`;
-   Rigify auto-rig, export glTF animation.
+8. ~~Rig & animate~~ **DONE** — SKILL Template I (`bone_chain` + `skin_auto` +
+   `animate_curl` + `export_animated`). Automatic-weight skinning, keyframed loop,
+   animated `.glb`; Rigify documented + confirmed present for humanoids. Proven:
+   arm curls smoothly (GIF + animated glb). F-54 (Action.fcurves removed in 5.0).
 9. **Procedural detail & variation** — Geometry Nodes scatter/greebles + a
    wear/colour/panel variation generator (one asset → a family).
 

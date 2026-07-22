@@ -483,3 +483,20 @@ same emission trick baking roughness and metallic sockets gives clean data maps.
 PROOF: metal (metallic=1) canister baked a correct light-grey albedo via EMIT,
 not black; baked-material render matched source, Blender 5.0.1, 2026-07-22
 (3d-master-modeler Template G).
+
+
+## F-54 Blender 5.0 slotted actions: Action.fcurves removed
+SYMPTOM: `for fc in rig.animation_data.action.fcurves:` raises
+`AttributeError: 'Action' object has no attribute 'fcurves'`. Any 3.x/4.x-era code
+that walks `action.fcurves` to tweak interpolation/handles aborts.
+BANNED: Reading/iterating `action.fcurves` directly. Blender 4.4+/5.0 moved to
+"slotted" actions — F-Curves now live under a layer/strip/channelbag, not on the
+Action object.
+WORKS: usually you don't need it. `pose_bone.keyframe_insert(...)` already defaults
+to BEZIER interpolation, so a curl/loop eases smoothly with no fcurve pass — just
+delete the loop (that was the fix here). If you genuinely must reach the curves,
+go through the new API (`action.layers[0].strips[0].channelbag(slot).fcurves`)
+guarded with hasattr for cross-version safety.
+PROOF: removing the `action.fcurves` easing loop let the rigged-arm animation
+render 12 frames + export an animated .glb, Blender 5.0.1 headless 2026-07-22
+(3d-master-modeler Template I).
