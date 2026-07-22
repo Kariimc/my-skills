@@ -50,6 +50,19 @@ or a report:
 2. Name what it structurally **could not** cover.
 3. Widen it, or state the gap in the doc. Never let the reader infer completeness.
 
+## The same rule applied to the network (egress is a coverage claim too)
+
+"The network blocks it" is an absence claim — a CDN 403 proves only that *one
+host* is denied, never that downloads are impossible. Before concluding a cloud
+session can't fetch something: read `/root/.ccr/README.md`, hit
+`$HTTPS_PROXY/__agentproxy/status`, and **probe a spread of hosts** —
+`for h in example.com github.com raw.githubusercontent.com pypi.org <the-cdn>; do
+curl -o /dev/null -w "%{http_code}" https://$h; done`. On this env that probe
+shows a GitHub+package allowlist: generic sites blocked, but GitHub raw and PyPI
+open — so real CC0 assets pull straight from GitHub mirrors (PLAYBOOK P-16).
+Never write "no downloads possible" from a partial probe (I did, then had to
+rewrite FAILURES F-45). Approved rule, 2026-07-22.
+
 ## Why this is the root of doc drift
 
 Stale docs are the symptom. The disease is an agent confidently recording a
