@@ -136,3 +136,24 @@ Verify filenames exist first with a ranged HEAD (`curl -r 0-0 -w "%{http_code}"`
 PROOF: 4 HDRIs (venice_sunset, quarry_01, san_giuseppe_bridge, pedestrian_overpass)
 fetched from GitHub raw and rendered as real image-based lighting on the locked
 cloud box, 2026-07-22. Never conclude "no downloads" from CDN 403s alone (F-45).
+
+
+## P-17 Full engine texture-bake set from a procedural material (Blender)
+WHEN: You have a procedural/node PBR material and need the texture maps a game
+engine actually reads — albedo, roughness, metallic, normal, AO, packed ORM —
+folded into a glTF.
+DO: (1) apply modifiers, then `smart_project(island_margin=0.03)` +
+`scene.render.bake.margin=8` (non-overlapping UVs, no seam blemish — F-52).
+(2) Bake albedo/roughness/metallic via the EMISSION TRICK: route the socket's
+source through a temp `ShaderNodeEmission` -> Material Output, `bake(type='EMIT')`,
+restore. Raw values, no lighting, and metal albedo stays grey not black (F-53).
+(3) Bake normal + AO with the native `bake(type='NORMAL'|'AO')` passes to
+Non-Color images. (4) Pack ORM with Pillow: `Image.merge("RGB",(ao,rough,metal))`
+(R=occlusion, G=roughness, B=metalness — the glTF layout). (5) Rebuild a
+texture-driven material and `export_scene.gltf(..., export_image_format='AUTO')`.
+Bake target = the ACTIVE Image Texture node; albedo image sRGB, all data maps
+Non-Color. Draft/final tier = Cycles sample count (16 draft, 128+ final) + res
+(512 draft, 1024/2048 final) since EEVEE won't init headless. See Template G.
+PROOF: paneled metal canister -> 6 maps baked clean, baked render indistinguishable
+from procedural source, 871 KB textured .glb, clickable proof page, Blender 5.0.1
+headless 2026-07-22.

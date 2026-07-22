@@ -21,6 +21,17 @@ a rendered image published to a clickable page; talk to Kariim in plain words.
   Native camera depth-of-field + a grade/bloom/vignette post-pass (Pillow+numpy).
   Deliberately NOT the compositor (Blender 5.0 removed `scene.node_tree` + the
   Composite node — F-46). Before/after proven.
+- **#4 Engine texture-bake set — SKILL Template G, `bake_pbr_set()` +
+  `baked_material()`.** Bakes albedo / roughness / metallic / normal / AO + packed
+  ORM (R=AO,G=rough,B=metal) into a textured glTF. Both classic bugs fixed &
+  proven: square blemishes (overlapping smart-UV → island margin + 8px bake margin,
+  F-52) and metal-albedo-black (→ bake Base Color via an EMIT emission pass, F-53).
+  Verified: baked render indistinguishable from procedural source, 871 KB .glb,
+  clickable proof page. PLAYBOOK P-17.
+- **#5 Draft/final tiers — documented in Template G.** EEVEE Next won't init
+  headless (no GPU) → tier knob is Cycles samples (16 draft / 128+ final) + texture
+  res (512 / 1024–2048). Guidance added; grounded in the verified headless-Cycles
+  fallback (P-14). Not a separate template — it's a two-line setting.
 - Proof artifacts (clickable): environment lighting page, and "Real Skies +
   Cinematic Finish" page. Demo asset = a metal canister built inline in the
   scratchpad scripts (ephemeral; the reusable code lives in the SKILL templates).
@@ -56,14 +67,8 @@ a rendered image published to a clickable page; talk to Kariim in plain words.
    mirrors in restricted envs** (that's the working channel here). Cache under a
    local `textures/`/`assets/`; never commit binaries.
 3. ~~Cinematic finish~~ **DONE** (Template F).
-4. **Full engine texture-bake set.** albedo / roughness / metallic / normal /
-   ambient-occlusion / packed ORM, folded into the glTF. KNOWN BUG to fix: the
-   jerry-can bake showed square blemishes on the body — cause is overlapping
-   smart-UV islands (or too-small bake margin) sampling a neighbour. Fix: pack
-   islands with margin, or bake per-object then combine. **Bake albedo with
-   metalness OFF** (metal diffuse bakes black — already learned).
-5. **Draft/final tiers.** EEVEE Next won't run headless here → use low-sample
-   Cycles for the fix-loop draft, high-sample Cycles for final. Add explicit tiers.
+4. ~~Full engine texture-bake set~~ **DONE** (Template G, F-52/F-53, P-17).
+5. ~~Draft/final tiers~~ **DONE** — documented in Template G (Cycles samples + res).
 6. **Photo/text → 3D.** Wire the sibling `omni3d` skill (AI image-to-3D). Needs a
    GPU + multi-GB models — DEFER to Kariim's GPU / cloud; document + wire only.
 7. **Effects/sim** (Mantaflow smoke/fire, cloth, rigid-body) — short shots only

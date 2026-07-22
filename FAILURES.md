@@ -449,3 +449,37 @@ WORKS (two options):
   post-render Pillow+numpy pass on the PNG. Version-proof, no GPU. See
   3d-master-modeler Template F.
 PROOF: post-pass finish rendered + graded on Blender 5.0.1 headless, 2026-07-22.
+
+
+## F-52 Blender texture bake: overlapping smart-UV islands => square blemishes
+SYMPTOM: A baked albedo/normal/etc. map shows square or blocky artifacts on the
+body of the mesh; in the render they appear as patches that sample the wrong part
+of the texture. Cause: `bpy.ops.uv.smart_project` with the default `island_margin=0`
+packs UV islands so they touch, and the baker (plus later mip/filtering) reads
+across the shared edge into a neighbour island.
+BANNED: `smart_project()` at default margin for anything you will bake, and baking
+with `scene.render.bake.margin` left at 0.
+WORKS: two margins, both needed. (1) UV `island_margin=0.02..0.03` so islands never
+touch. (2) `scene.render.bake.margin = 8` (px) so each island's colour bleeds past
+its edge into the gutter — filtering then never samples empty/neighbour texels.
+For a multi-object asset, baking per-object (one texture set each) sidesteps
+cross-object overlap entirely. PROOF: paneled metal canister re-baked with both
+margins — baked render matched the procedural source with zero square blemishes,
+Blender 5.0.1 headless, 2026-07-22 (3d-master-modeler Template G).
+
+## F-53 Blender texture bake: metal albedo bakes BLACK on a DIFFUSE/COLOR pass
+SYMPTOM: Baking base colour of a metallic material via `bake(type='DIFFUSE',
+pass_filter={'COLOR'})` returns a black (or near-black) albedo map. A fully
+metallic surface has no diffuse response, so the diffuse-colour pass has nothing
+to write.
+BANNED: `type='DIFFUSE'` for albedo of any metal; and the half-fix of only
+turning metalness to 0 before a diffuse bake (works but mutates the material and
+misses node-driven metallic).
+WORKS: bake Base Color DIRECTLY through a temporary Emission pass. Connect whatever
+feeds `Principled BSDF > Base Color` (or its constant) to a new `ShaderNodeEmission`,
+rewire Material Output > Surface to it, `bake(type='EMIT')`, then restore. EMIT
+captures the raw node value with no lighting, so metal reads its true grey. The
+same emission trick baking roughness and metallic sockets gives clean data maps.
+PROOF: metal (metallic=1) canister baked a correct light-grey albedo via EMIT,
+not black; baked-material render matched source, Blender 5.0.1, 2026-07-22
+(3d-master-modeler Template G).

@@ -611,6 +611,122 @@ def cinematic_finish(in_png, out_png, lift=(0.00,0.01,0.035), gain=(1.06,1.01,0.
 #        cinematic_finish("render.png", "final.png") AFTER it.
 ```
 
+## Template G — engine texture-bake set (albedo/rough/metal/normal/AO/ORM, verified)
+
+Bake a procedural material down to the texture maps a game engine actually reads,
+folded into a textured glTF. Verified headless on Blender 5.0.1 (bpy from PyPI):
+the baked render is indistinguishable from the procedural source, with the two
+classic bake bugs fixed.
+
+**The two bugs this fixes (both proven dead-then-fixed — FAILURES F-52/F-53):**
+- **Square blemishes on the body** = overlapping smart-UV islands, where the bake
+  reads a neighbour island across a touching edge. Fix: `smart_project` with an
+  `island_margin` (islands never touch) **and** a `bake.margin` in pixels (colour
+  bleeds past each island edge so mip-mapping/filtering never samples the gutter).
+- **Metal albedo bakes black** = a fully-metallic surface has no diffuse response,
+  so a `DIFFUSE`/`COLOR` bake returns black (F-53). Fix below sidesteps it entirely:
+  bake **Base Color directly** through a temporary Emission pass (`EMIT`) — raw node
+  value, no lighting, no metal-black. Same trick captures roughness + metallic.
+
+**Order:** apply modifiers → UV unwrap with margin → bake each pass → pack ORM →
+rebuild a texture-driven material → export glTF. Baking requires the **Cycles**
+engine. Give albedo an **sRGB** image; give roughness/metallic/normal/AO
+**Non-Color** images (they carry data, not colour).
+
+```python
+import bpy, math, os
+from PIL import Image
+
+def uv_unwrap_for_bake(obj, island_margin=0.03):
+    """Non-overlapping UVs — the square-blemish fix starts here (F-47)."""
+    bpy.context.view_layer.objects.active = obj; obj.select_set(True)
+    bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=island_margin)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+def bake_pbr_set(obj, out_dir, res=1024, bake_margin=8):
+    """Bake albedo/roughness/metallic/normal/AO + packed ORM. Returns {tag: path}.
+    obj must already have ONE procedural material and non-overlapping UVs."""
+    os.makedirs(out_dir, exist_ok=True)
+    scene = bpy.context.scene
+    scene.render.engine = 'CYCLES'; scene.cycles.samples = 48
+    scene.render.bake.margin = bake_margin      # px bleed past islands => no seam blemish
+    scene.render.bake.use_clear = True
+    mat = obj.data.materials[0]; nt = mat.node_tree
+    bsdf = nt.nodes["Principled BSDF"]; out = nt.nodes.get("Material Output")
+    paths = {}
+
+    def target(tag, non_color):
+        img = bpy.data.images.new(f"bake_{tag}", res, res, alpha=False)
+        img.colorspace_settings.name = 'Non-Color' if non_color else 'sRGB'
+        node = nt.nodes.new("ShaderNodeTexImage"); node.image = img
+        nt.nodes.active = node                  # bake writes to the ACTIVE image node
+        return img
+
+    def save(img, tag):
+        p = os.path.join(out_dir, f"{tag}.png"); img.filepath_raw = p; img.file_format = 'PNG'
+        img.save(); paths[tag] = p; return p
+
+    def do_bake(bake_type):
+        bpy.context.view_layer.objects.active = obj; obj.select_set(True)
+        bpy.ops.object.bake(type=bake_type)
+
+    # emission-trick: route a socket's source (or its constant) through Emission, bake EMIT.
+    # Raw node value, no lighting — works for albedo/rough/metal and dodges metal-black (F-48).
+    def bake_socket(sock_name, tag, non_color):
+        img = target(tag, non_color)
+        emit = nt.nodes.new("ShaderNodeEmission"); sock = bsdf.inputs.get(sock_name)
+        if sock.is_linked:
+            nt.links.new(sock.links[0].from_socket, emit.inputs["Color"])
+        else:
+            v = sock.default_value
+            emit.inputs["Color"].default_value = v if hasattr(v, '__len__') else (v, v, v, 1.0)
+        keep = out.inputs["Surface"].links[0].from_socket
+        nt.links.new(emit.outputs["Emission"], out.inputs["Surface"])
+        do_bake('EMIT')
+        nt.links.new(keep, out.inputs["Surface"]); nt.nodes.remove(emit)   # restore
+        return save(img, tag)
+
+    bake_socket("Base Color", "albedo", non_color=False)   # metalness-off is implicit here
+    bake_socket("Roughness",  "roughness", non_color=True)
+    bake_socket("Metallic",   "metallic",  non_color=True)
+    nrm = target("normal", True); do_bake('NORMAL'); save(nrm, "normal")  # native tangent-space pass
+    ao = target("ao", True); do_bake('AO'); save(ao, "ao")                # native AO pass
+    # native passes: create+activate target -> bake -> save (target must exist before the bake)
+
+    g = lambda t: Image.open(paths[t]).convert("L")           # pack ORM: R=AO G=rough B=metal
+    orm = Image.merge("RGB", (g("ao"), g("roughness"), g("metallic")))
+    paths["orm"] = os.path.join(out_dir, "orm.png"); orm.save(paths["orm"])
+    return paths
+
+def baked_material(name, paths):
+    """Build a texture-driven material from bake_pbr_set() output — what an engine consumes."""
+    mat = bpy.data.materials.new(name); mat.use_nodes = True
+    nt = mat.node_tree; bsdf = nt.nodes["Principled BSDF"]
+    def tex(path, non_color):
+        n = nt.nodes.new("ShaderNodeTexImage"); n.image = bpy.data.images.load(path)
+        n.image.colorspace_settings.name = 'Non-Color' if non_color else 'sRGB'; return n
+    nt.links.new(tex(paths["albedo"], False).outputs["Color"], bsdf.inputs["Base Color"])
+    nt.links.new(tex(paths["roughness"], True).outputs["Color"], bsdf.inputs["Roughness"])
+    nt.links.new(tex(paths["metallic"], True).outputs["Color"], bsdf.inputs["Metallic"])
+    nm = nt.nodes.new("ShaderNodeNormalMap")
+    nt.links.new(tex(paths["normal"], True).outputs["Color"], nm.inputs["Color"])
+    nt.links.new(nm.outputs["Normal"], bsdf.inputs["Normal"]); return mat
+
+# usage:
+#   uv_unwrap_for_bake(obj)                       # after modifiers are applied
+#   paths = bake_pbr_set(obj, "textures")         # 6 maps to disk
+#   obj.data.materials.clear(); obj.data.materials.append(baked_material("Baked", paths))
+#   bpy.ops.export_scene.gltf(filepath="asset.glb", export_format='GLB',
+#                             use_selection=True, export_image_format='AUTO')  # AUTO, not WEBP
+```
+
+**Draft vs final tiers (upgrade #5):** EEVEE Next won't init headless with no GPU
+(falls back to Cycles), so use Cycles sample counts as the tier knob —
+`scene.cycles.samples = 16` for the fix-loop draft (fast, noisy-but-readable),
+`= 128+` for the final. Bake at the draft tier while iterating UVs, then re-bake
+once at the final tier. Resolution is the second knob: 512² draft, 1024²/2048² final.
+
 ## Template B — Three.js WebGPU + TSL (single file, previewable)
 
 Modern default (verified: renders on a real WebGPU backend, auto-falls back to

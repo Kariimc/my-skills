@@ -1,7 +1,32 @@
 # PROGRESS — session handoff
 
-> Last updated: 2026-07-21.
+> Last updated: 2026-07-22.
 > Read this first; if it conflicts with the code, the code wins.
+
+## Latest (2026-07-22, cloud) — engine texture-bake set (#4) + draft/final tiers (#5)
+
+- **#4 bake set shipped (SKILL Template G):** `bake_pbr_set()` bakes albedo /
+  roughness / metallic / normal / AO + packed ORM (R=AO,G=rough,B=metal) into a
+  textured glTF; `baked_material()` rebuilds an engine-ready texture material.
+  Both classic bugs fixed and proven:
+  - **Square blemishes = overlapping smart-UV islands (F-52).** Fix: UV
+    `island_margin=0.03` + `scene.render.bake.margin=8` px.
+  - **Metal albedo bakes black (F-53).** Fix: bake Base Color directly through a
+    temporary EMIT emission pass (raw node value, no lighting) — same trick for
+    roughness/metallic.
+- **#5 draft/final tiers documented in Template G:** EEVEE won't init headless
+  (no GPU) → tier knob is Cycles samples (16 draft / 128+ final) + res (512 /
+  1024–2048). Grounded in the verified Cycles fallback (P-14), not a new template.
+- **Proof:** artifact `2d976b47-49e2-45f3-b127-8a34ae229247` — procedural vs baked
+  render match (indistinguishable), all 6 maps, ORM shows real AO in the cap seam,
+  871 KB textured .glb. Ledgers: F-52, F-53, P-17 added.
+- **Env note (recurs every fresh cloud session):** the container is wiped between
+  sessions, so `bpy==5.0.1` + `pillow`/`numpy` must be reinstalled (~1–2 min total,
+  P-14). The screen-eyes bridge is vision-IN only — it cannot install/run on the
+  laptop from a cloud session. To avoid the reinstall: run on the laptop, or add
+  the pip line to the cloud env's startup script.
+- **Still open:** #2 (generalize fetchers to textures/models/ambientCG),
+  #6 omni3d (GPU/cloud, defer), #7 sims, #8 rig, #9 procedural variety.
 
 ## Latest (2026-07-22, cloud) — real HDRIs via GitHub + cinematic finish (#3)
 
