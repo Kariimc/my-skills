@@ -38,12 +38,27 @@ provable from the repo alone - fill them in, do not guess.
 `docs/HARNESS-AGENT-ROADMAP.md` — a sharpened reusable prompt plus a ranked,
 evidence-cited roadmap of 8 new harnesses/agents (build-first: deliverable-verifier,
 env-scout, harness-visual), each tied to specific FAILURES/PLAYBOOK/audit entries.
-Doc only; nothing built yet. Same session, second ask: added
+ALL of it was then BUILT the same session (see below). Second ask: added
 `docs/RULE-ENFORCEMENT-STREAMLINE-PLAN.md` — diagnosis of why agents violate
 written rules + an enforcement pyramid (gates > hooks > verifier subagents >
 minimal prose), one standard pipeline, and a 7-item build order. Third ask: added
 `docs/3D-MASTER-MODELER-EXECUTION-PLAN.md` — run-card + phase-gate design so the
 1,170-line 3d-master-modeler skill gets executed top-to-bottom, never sampled.
+
+**BUILT (same session, per "build everything and land everything"):** agents
+`deliverable-verifier` + `scribe` (global via agents/ sync); hooks
+`env-scout.sh` (SessionStart fact sheet), `ledger-sentinel.sh`
+(UserPromptSubmit F/P injection), `runcard-guard.sh` (Stop, 3D run-card
+enforcement) — registered project-level AND in session-start block 6b2 for
+global reach, KNOWN heal-set + selftest-guards extended; skills
+`harness-visual` (with tested tool/imgdiff.py) + `harness-3d`;
+`skills/AGENT-CONTRACT.md` + fidelity gate wired into all 6 harnesses;
+`loops/skill-gardener.md`; `rules/14-surface-router.md` (+ rules README rows
+12-14); `docs/RULES-ENFORCEMENT-MAP.md`; apex behavioral ratchet lane in
+GATES.md; 3d-master-modeler `runcard.md` mandatory via operating rule 7.
+Flagged deviations: prose rulebook NOT shrunk (map first, cuts need Kariim's
+review); env-scout shipped as script+hook, not an agent (plan's own smallest
+version). Everything proof-tested pre-commit; landed via PR #54.
 
 **2026-07-17 session (branch `claude/failure-ledger`):** Kariim declared a new 10-rule
 "Standing Contract" the governing chat-surface rules. Installed as `rules/00-contract.md`
