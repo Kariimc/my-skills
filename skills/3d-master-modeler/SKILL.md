@@ -30,6 +30,11 @@ exported asset.
 6. **Clean up.** Temp scripts and intermediate renders go in the scratchpad;
    only the final script, final render(s), and exported asset land in the
    project.
+7. **Run-card, always.** Copy `runcard.md` (this skill's folder) into the
+   working directory at Phase 0 and fill each row as its phase completes.
+   Every phase leaves a named proof artifact or an explicit `N/A — reason`;
+   a blank row means the run is NOT done. This skill is a staged pipeline,
+   never a menu — the completed card ships with the deliverable.
 
 ## Phase 0 — Intake & framework routing
 

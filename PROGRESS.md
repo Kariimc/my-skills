@@ -442,7 +442,8 @@ assessment, upgrade menu, next-agent handoff) and it dodged the plain-words wall
   `skills/TRIGGERLESS-REPORT.md`, `skills/OVERLAP-REPORT.md`, `nano/README.md`,
   `bin/apex-gates.sh`, and the historical `docs/plans/` handoffs were updated
   or annotated so stale 399/411/416 counts cannot be mistaken for current state.
-- **Audit state:** a bounded structural scan found 420 skills, 0 HARD issues,
+- **Audit state:** a bounded structural scan found 420 skills (count as of that
+  scan; the doctor gate reports the live number), 0 HARD issues,
   and 0 SOFT issues: every skill has `SKILL.md`, matching `name:`,
   `description:`, an explicit trigger clause, and description length under
   1024 characters.

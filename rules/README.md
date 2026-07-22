@@ -24,6 +24,9 @@ orchestration only where a simple loop genuinely can't do the job.
 | `09-consult-skills.md` | Check the skills library before saying "can't" — search first, then name exactly what is missing. |
 | `10-repo-topology.md` | Repos span TWO namespaces (user `Kariimc` + org `shift9-studio`) and are not all public. Never assert an absence, status, or completion without proving scope was exhaustive. |
 | `11-failure-ledger.md` | Read `FAILURES.md` before any work; feed it a new entry whenever an approach fails twice or burns 15+ minutes. |
+| `12-playbook.md` | Read `PLAYBOOK.md` before any work; feed it a WHEN→DO→PROOF entry when a non-obvious method wins. |
+| `13-loop-select.md` | Offer a project loop once at session start (via `loopy`); never block on the offer. |
+| `14-surface-router.md` | Do the work where the tools are: check the probed env fact sheet, act on this surface when it holds the channel, relay a complete message when it doesn't. |
 
 Learning-mode teaching rules (explain-like-I'm-five, step-by-step, 🎓 recaps)
 live in `C:\Dev\my-coding-journey\CLAUDE.md` — they load only there.

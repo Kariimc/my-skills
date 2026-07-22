@@ -106,3 +106,14 @@ shipping — a mid-tier model must never improvise past a failed gate.
 ## Related
 `plan-orchestrate`, `software-implementation`, `orch-pipeline`,
 `subagent-driven-development`, `verify`, `code-review`.
+
+## Worker contract & fidelity gate (mandatory)
+
+Prepend `skills/AGENT-CONTRACT.md`'s CONTRACT block verbatim to every worker
+subagent prompt — workers never saw the global rules and start cold without it.
+On receiving each worker's output, score it with the `agent-evaluator` agent
+with **fidelity as the first axis** (everything asked present? anything present
+that was NOT asked?); freelanced output is rejected and re-dispatched with the
+deviation named. Before the final deliverable reaches Kariim, dispatch the
+`deliverable-verifier` agent on the actual artifacts — its PASS is the finish
+line, not the builder's self-assessment.
