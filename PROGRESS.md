@@ -1,6 +1,26 @@
 # PROGRESS — session handoff
 
 > Last updated: 2026-07-22.
+
+## Session-reflect (2026-07-22, local) - SHIFT-9 reference match
+
+**Phase 1 - durable facts:**
+- Image-match work must inspect the source file dimensions before setting the
+  camera; the SHIFT-9 source was 1408x768 even though the chat preview appeared
+  1366x768. The wrong width caused persistent crop and alignment errors.
+- For a single-image 3D reconstruction, preserve both deliverables: a physically
+  shaded scene for real 3D inspection and a camera-projected scene for a
+  pixel-faithful locked reference view.
+
+**Phase 2 - proposed rule (user approval needed):**
+1. When the user explicitly names a staged skill, execute every applicable phase
+   and gate in order; do not treat the skill as a menu of optional highlights.
+
+**Phase 3 - workflow worth keeping:**
+- Reference-match ritual: inspect native dimensions -> block out silhouette ->
+  audit meshes -> add PBR maps -> render hero/side/top -> cap procedural
+  corrections -> switch to camera projection when the locked view must be
+  pixel-faithful -> verify with a numeric image diff.
 > Read this first; if it conflicts with the code, the code wins.
 
 ## Session-reflect (2026-07-22, cloud) — 3d upgrades complete + deps auto-install
