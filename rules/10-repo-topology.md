@@ -63,6 +63,18 @@ open — so real CC0 assets pull straight from GitHub mirrors (PLAYBOOK P-16).
 Never write "no downloads possible" from a partial probe (I did, then had to
 rewrite FAILURES F-45). Approved rule, 2026-07-22.
 
+## The same rule applied to dependencies on an ephemeral box
+
+"The engine/tool isn't installed" is also an absence claim. A cloud container is
+wiped between sessions, so a dependency genuinely can be gone — but PROVE it before
+reinstalling or telling Kariim it's missing. Locate the interpreter and attempt the
+import (`for py in python3.11 python3; do "$py" -c "import bpy" 2>/dev/null; done`),
+or search the disk (`find / -name "<mod>" -maxdepth 8`). State the finding — "bpy is
+not on disk anywhere; the box was wiped" — before you act. I reinstalled bpy after
+Kariim said it was there; it HAD been wiped, but the proof must come first, not the
+reinstall (the classic absence-without-coverage trap, applied to deps). Approved
+rule, 2026-07-22.
+
 ## Why this is the root of doc drift
 
 Stale docs are the symptom. The disease is an agent confidently recording a
