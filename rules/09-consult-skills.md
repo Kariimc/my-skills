@@ -19,6 +19,18 @@ Before you build a non-trivial task from scratch, and **always** before you say
   refusal. "I can't reach the skill library from this surface" is itself a
   precise, correct gap, not helplessness.
 
+## Exhaust every channel you hold — not just the skills library
+
+Skills are one channel. Before you offload a fetch/install to the user, or say
+"can't reach it," **enumerate and TEST every channel you actually hold this
+session** — MCP connectors (`ListConnectors`), the session browser
+(Chromium/Playwright), `WebFetch`/`WebSearch`, GitHub raw, `pip`/`npm`. Asking
+the user to do a thing you have the tools for is a last resort, not a first move.
+A 403/blocked on *one* path is not "impossible" — it's one path; probe the
+others. (Cost of skipping this: a whole session of the user repeating "you have
+a browser," "use huggingface," "you can download it yourself." Approved rule,
+2026-07-22.)
+
 Portable by design: same behaviour on chat (fetch index), local/cloud Claude
 Code (local index or `~/.claude`), and Cowork — like the relay (rule 08).
 

@@ -99,7 +99,82 @@ On Windows the installer adds `C:\Program Files\KTX-Software\bin` to system PATH
 a fresh shell has it, an existing one needs it prepended.
 PROOF: barrel photo asset 20.7 MB -> 5.59 MB (3.7x) with etc1s, 2026-07-22.
 
-## P-14 Game-asset LOD chain + baked textures in Blender (headless)
+## P-14 Headless Blender on a bare/locked-down box — pip, not blender.org
+WHEN: You need Blender (bpy) on a cloud/CI box and `download.blender.org` is
+blocked by the network policy (403 CONNECT), but PyPI is reachable.
+DO: `pip install bpy==<ver>` — the bpy wheel IS the whole Blender engine
+(headless: mesh build, Cycles/EEVEE render, glTF export). Match your Python to
+the wheel: bpy 5.0.1 needs CPython 3.11. List versions with
+`pip index versions bpy`. Run scripts as plain `python3 script.py` (no `blender
+--background` needed; `import bpy` works directly).
+PROOF: bare Ubuntu cloud box, no Blender — `pip install bpy==5.0.1` then
+`python3` rendered a 768px Cycles frame in ~25 s on 4 CPU cores, 2026-07-22.
+
+## P-15 Real environment lighting that works with no download (Blender)
+WHEN: You want photo-real image-based lighting but the asset CDNs (Poly Haven,
+ambientCG) are blocked, or you want the skill to render anywhere offline.
+DO: Try the Poly Haven `.hdr` first (Background→Environment Texture; send a
+`User-Agent` or it 403s). On failure, fall back IN BLENDER: outdoor looks via
+Sky Texture `sky_type='MULTIPLE_SCATTERING'` (low sun_elevation=warm dusk);
+indoor/soft looks via a gradient dome (Geometry Normal.Z → MULTIPLY_ADD 0.5,0.5
+→ ColorRamp → Background). See 3d-master-modeler Template E.
+PROOF: 5 looks (sunset/overcast/studio/warehouse + 3-point before) rendered on a
+box where Poly Haven 403s — metal reflects the procedural sky, sun casts real
+shadows. Clickable before/after published, 2026-07-22.
+
+## P-16 Pull CC0 art assets via GitHub when a cloud box blocks the CDNs
+WHEN: A cloud/web Claude Code session needs an HDRI/texture/model but the asset
+CDNs 403 (Poly Haven, ambientCG, blender.org, huggingface.co all blocked) — yet
+the box is NOT offline.
+DO: First PROBE what the egress policy actually allows —
+`for h in example.com github.com raw.githubusercontent.com pypi.org; do
+curl -o /dev/null -w "%{http_code}\n" https://$h; done`. On a GitHub-allowlist
+env, github/raw/pypi = 200 while example.com is blocked. Then pull real CC0
+assets from a GitHub mirror, e.g. three.js ships equirectangular HDRIs:
+`curl -L raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/equirectangular/venice_sunset_1k.hdr`.
+Verify filenames exist first with a ranged HEAD (`curl -r 0-0 -w "%{http_code}"`).
+PROOF: 4 HDRIs (venice_sunset, quarry_01, san_giuseppe_bridge, pedestrian_overpass)
+fetched from GitHub raw and rendered as real image-based lighting on the locked
+cloud box, 2026-07-22. Never conclude "no downloads" from CDN 403s alone (F-45).
+
+
+## P-17 Full engine texture-bake set from a procedural material (Blender)
+WHEN: You have a procedural/node PBR material and need the texture maps a game
+engine actually reads — albedo, roughness, metallic, normal, AO, packed ORM —
+folded into a glTF.
+DO: (1) apply modifiers, then `smart_project(island_margin=0.03)` +
+`scene.render.bake.margin=8` (non-overlapping UVs, no seam blemish — F-52).
+(2) Bake albedo/roughness/metallic via the EMISSION TRICK: route the socket's
+source through a temp `ShaderNodeEmission` -> Material Output, `bake(type='EMIT')`,
+restore. Raw values, no lighting, and metal albedo stays grey not black (F-53).
+(3) Bake normal + AO with the native `bake(type='NORMAL'|'AO')` passes to
+Non-Color images. (4) Pack ORM with Pillow: `Image.merge("RGB",(ao,rough,metal))`
+(R=occlusion, G=roughness, B=metalness — the glTF layout). (5) Rebuild a
+texture-driven material and `export_scene.gltf(..., export_image_format='AUTO')`.
+Bake target = the ACTIVE Image Texture node; albedo image sRGB, all data maps
+Non-Color. Draft/final tier = Cycles sample count (16 draft, 128+ final) + res
+(512 draft, 1024/2048 final) since EEVEE won't init headless. See Template G.
+PROOF: paneled metal canister -> 6 maps baked clean, baked render indistinguishable
+from procedural source, 871 KB textured .glb, clickable proof page, Blender 5.0.1
+headless 2026-07-22.
+
+
+## P-18 Generalized on-demand asset fetchers (textures + models), env-agnostic
+WHEN: A Blender/3D task needs a ready-made PBR texture set or a 3D model, and you
+want the same code to work on an open network AND a locked box (GitHub-allowlist).
+DO: one probe-first, best-source-then-mirror pattern per asset type (extends the
+HDRI fetcher, Template E). Textures: try Poly Haven `api.polyhaven.com/files/<slug>`
+(open net, gives diffuse/rough/normal/disp/AO) -> ambientCG zip -> GITHUB MIRROR
+(three.js `examples/textures/*` ships real diffuse+bump+roughness triples, e.g.
+`hardwood2_*.jpg`, `brick_*.jpg`). Models: GitHub mirror
+`KhronosGroup/glTF-Sample-Assets/main/Models/<Name>/glTF-Binary/<Name>.glb`
+(DamagedHelmet, Duck, Avocado) — import with `bpy.ops.import_scene.gltf`. Always
+`_reachable()` (ranged HEAD 200/206) before download; cache locally; never commit
+binaries. Wire texture maps via BOX projection (no UV unwrap). See Template H.
+PROOF: on the locked cloud box (Poly Haven 403), fetched wood + brick sets and the
+Avocado `.glb` from GitHub and rendered all three in one scene, Blender 5.0.1
+headless 2026-07-22. Clickable proof page.
+## P-19 Game-asset LOD chain + baked textures in Blender (headless)
 WHEN: Turning a code-built model into an engine-ready asset with levels of detail.
 DO: Join parts -> apply mods -> smart-UV unwrap (island_margin>=0.02) -> bake
 albedo/roughness/normal off the source material into images, rebuild a clean
@@ -111,3 +186,20 @@ PROOF: jerry can, Blender 5.2, LOD tris 4532/2266/1132/542, baked maps, loaded i
 a WebGPU THREE.LOD viewer, 2026-07-22.
 CAUTION: overlapping smart-UV islands stamp square blemishes on the bake (body
 samples another island) — pack with margin or bake per-object.
+
+
+## P-20 One generator -> a family of assets (seeded procedural variety)
+WHEN: You need many distinct-but-related assets (crowd props, loot, kit-bash, set
+dressing) instead of one.
+DO: write a single `make_variant(seed)` where EVERY design knob is drawn from a
+per-seed `random.Random(seed)` — proportions, facet/segment count, colour
+(`colorsys.hsv_to_rgb`), metal-vs-painted, roughness/wear, sub-part counts (bands,
+bolts), optional features (cap/dome). Same code + different seed = a different asset;
+same seed always reproduces the same one (deterministic, so a good variant is
+re-findable by its seed). Render a grid to eyeball the spread; widen/narrow the
+family by adding/removing axes. Geometry Nodes is the native non-destructive
+alternative but is verbose/fragile to script — prefer the seeded generator for a
+code-first, exportable family. See 3d-master-modeler Template K.
+PROOF: 9 visibly distinct barrel-props (varying height, facets, colour, metal/paint,
+bands, bolts, cap) from one generator in a single render, Blender 5.0.1 headless
+2026-07-22. Clickable proof page.

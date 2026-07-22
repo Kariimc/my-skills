@@ -3,7 +3,148 @@
 > Last updated: 2026-07-22.
 > Read this first; if it conflicts with the code, the code wins.
 
-## Session-reflect (2026-07-22)
+## Latest (2026-07-22, cloud) — physics (#7) + procedural variety (#9)
+
+- **#7 physics shipped (SKILL Template J):** rigid-body sim (14 bodies fall/collide/
+  settle) + `bake_sim_to_keyframes()` (headless-safe manual bake) + animated glb.
+  Cloth/soft-body/smoke documented; big smoke/fire → cloud-GPU path (deferred).
+  Gotcha F-55: `rigidbody.bake_to_keyframes` poll-fails headless (calls a UI-context
+  keyframe op) → read evaluated-depsgraph matrices, disable sim, keyframe manually.
+  Artifact `5f00ab2f-ce3d-48d0-a359-286a4c4cd98d`.
+- **#9 procedural variety shipped (SKILL Template K):** seeded `make_variant(seed)`
+  — every knob (proportions/facets/colour/metal/wear/bands/bolts/cap) from a per-seed
+  RNG; same seed reproduces the same asset. Proven: 9 distinct barrels from one
+  generator in one render. Artifact `40fe6ef8-040b-40e2-9edb-fe4562987e93`. P-20.
+  Geometry Nodes documented as the native non-destructive alternative.
+- **Deps pinned:** `skills/3d-master-modeler/requirements.txt` (bpy==5.0.1, pillow,
+  numpy). Point the cloud env's setup script at it (`pip install -r ...`) to end the
+  per-session reinstall — committing the binary engine itself is wrong (huge,
+  OS-locked, gates/GitHub block big binaries).
+- **Free upgrades COMPLETE:** #1,#2,#3,#4,#5,#7,#8,#9 all shipped + proven. Only #6
+  (image→3D) remains — needs a GPU, deferred to laptop/cloud-GPU.
+
+## Latest (2026-07-22, cloud) — rig & animate (#8)
+
+- **#8 rig & animate shipped (SKILL Template I):** `bone_chain()` (armature) +
+  `skin_auto()` (automatic-weight skinning) + `animate_curl()` (keyframed loop) +
+  `export_animated()` (animated `.glb`). Two skinning styles documented (smooth
+  skin vs rigid parenting); **Rigify confirmed present** in this bpy build for
+  humanoid auto-rig.
+- **Proven:** a tapered arm skinned to a 4-bone chain curls smoothly (frame 1
+  straight → frame 7 arched, mesh bends continuously = real skinning). 12 frames →
+  looping GIF + 433 KB animated glb. Artifact
+  `b037cf74-c6f0-43c0-a663-29a277e8e218` (live GIF plays on the page).
+- **Gotcha (F-54):** Blender 5.0 slotted actions removed `Action.fcurves` —
+  don't walk fcurves; `keyframe_insert` already eases (Bezier). Also: a mesh needs
+  length rings (edit-mode subdivide) before skinning or it deforms as rigid blocks.
+- **Still open:** #6 omni3d (GPU/cloud, defer), #7 sims, #9 procedural variety.
+
+## Latest (2026-07-22, cloud) — generalized asset fetchers (#2)
+
+- **#2 fetchers shipped (SKILL Template H):** generalized the HDRI fetcher into
+  `fetch_texture_set()` (PBR maps) + `fetch_model()` (.glb) + `pbr_from_maps()`
+  (box-projected material from fetched maps). Probe-first, best-source-then-mirror:
+  Poly Haven → ambientCG → **GitHub mirror** → cache. Registry-driven (one line to
+  add a source/asset).
+- **Proven on the locked box** (Poly Haven 403 → fell through to GitHub): fetched a
+  wood + a brick PBR set (three.js mirror: diffuse/bump/roughness) and the Avocado
+  `.glb` (Khronos sample assets), rendered all three in one scene. Artifact
+  `b38cd95e-a75d-459d-9896-70806494851f`. PLAYBOOK P-18.
+- Verified GitHub asset sources (probed 200/206): three.js `examples/textures/*`
+  (hardwood2_*, brick_*), Khronos `glTF-Sample-Assets/.../glTF-Binary/*.glb`
+  (DamagedHelmet, Duck, Avocado).
+- **Still open:** #6 omni3d (GPU/cloud, defer), #7 sims, #8 rig, #9 procedural variety.
+
+## Latest (2026-07-22, cloud) — engine texture-bake set (#4) + draft/final tiers (#5)
+
+- **#4 bake set shipped (SKILL Template G):** `bake_pbr_set()` bakes albedo /
+  roughness / metallic / normal / AO + packed ORM (R=AO,G=rough,B=metal) into a
+  textured glTF; `baked_material()` rebuilds an engine-ready texture material.
+  Both classic bugs fixed and proven:
+  - **Square blemishes = overlapping smart-UV islands (F-52).** Fix: UV
+    `island_margin=0.03` + `scene.render.bake.margin=8` px.
+  - **Metal albedo bakes black (F-53).** Fix: bake Base Color directly through a
+    temporary EMIT emission pass (raw node value, no lighting) — same trick for
+    roughness/metallic.
+- **#5 draft/final tiers documented in Template G:** EEVEE won't init headless
+  (no GPU) → tier knob is Cycles samples (16 draft / 128+ final) + res (512 /
+  1024–2048). Grounded in the verified Cycles fallback (P-14), not a new template.
+- **Proof:** artifact `2d976b47-49e2-45f3-b127-8a34ae229247` — procedural vs baked
+  render match (indistinguishable), all 6 maps, ORM shows real AO in the cap seam,
+  871 KB textured .glb. Ledgers: F-52, F-53, P-17 added.
+- **Env note (recurs every fresh cloud session):** the container is wiped between
+  sessions, so `bpy==5.0.1` + `pillow`/`numpy` must be reinstalled (~1–2 min total,
+  P-14). The screen-eyes bridge is vision-IN only — it cannot install/run on the
+  laptop from a cloud session. To avoid the reinstall: run on the laptop, or add
+  the pip line to the cloud env's startup script.
+- **Still open:** #2 (generalize fetchers to textures/models/ambientCG),
+  #6 omni3d (GPU/cloud, defer), #7 sims, #8 rig, #9 procedural variety.
+
+## Latest (2026-07-22, cloud) — real HDRIs via GitHub + cinematic finish (#3)
+
+- **Network reality corrected (F-45 rewritten):** this cloud box is NOT
+  packages-only. Probed hosts: example.com BLOCKED, but **github.com /
+  raw.githubusercontent.com / pypi.org = 200**. So the egress is a GitHub+package
+  allowlist. Asset CDNs (Poly Haven, ambientCG, blender.org, huggingface.co) 403,
+  but **GitHub-mirrored assets pull straight in**. (Read `/root/.ccr/README.md` +
+  the proxy status endpoint for the policy — don't assume from a CDN 403.)
+- **Real photo-HDRI path now works on the locked box:** `set_environment` gained
+  a GitHub source (three.js CC0 equirectangular maps). Fetched + rendered all 4
+  presets with REAL skies (venice_sunset, quarry_01, san_giuseppe_bridge,
+  pedestrian_overpass), ~38 s/frame. Names are nearest-match on GitHub; Poly Haven
+  gives exact slugs on an open network.
+- **#3 cinematic finish shipped (Template F):** DOF native on the camera +
+  grade/bloom/vignette as a Pillow post-pass (NOT the compositor — Blender 5.0
+  dropped `scene.node_tree` + the Composite node, F-46). Before/after proven.
+- **Proof:** artifact `daf685ed-4c7c-4b34-a295-30a26d8a8518` (real skies +
+  cinematic before/after). Ledgers: F-45 rewritten, F-46 added, P-16 added.
+- **Skill code re-verified as pasted:** Template E falls Poly Haven→GitHub→
+  procedural and returns `HDRI:venice_sunset`; Template F post-pass runs.
+- **Still open:** #2 (generalize fetchers to textures/models/ambientCG),
+  #4 bake set + blemish fix, #5 draft/final tiers, #6 omni3d (GPU/cloud),
+  #7 sims, #8 rig, #9 procedural variety.
+
+## Session-reflect (2026-07-22, cloud) — 3d-master-modeler upgrades
+
+**Phase 1 — durable facts** (full detail in the two entries above; the non-obvious
+one to not rediscover): the egress policy is authoritative in `/root/.ccr/README.md`
++ `$HTTPS_PROXY/__agentproxy/status`, and it's a **GitHub+package allowlist**, not
+packages-only — GitHub raw is an open door for real CC0 assets (F-45, P-16). Blender
+on this box is `pip install bpy==5.0.1` run as `python3 script.py`; Blender 5.0
+renamed the sky enum (F-44) and reworked the compositor off `scene.node_tree` (F-46).
+
+**Proposed rules — both APPROVED 2026-07-22, promoted to rules/:**
+1. ~~Exhaust your own tools before offloading to the user or saying "can't."~~
+   **APPROVED, promoted** to `rules/09-consult-skills.md` ("Exhaust every channel
+   you hold").
+2. ~~Never conclude "the network blocks it" from CDN 403s alone.~~ **APPROVED,
+   promoted** to `rules/10-repo-topology.md` ("The same rule applied to the network").
+
+**Phase 3 — workflow kept:** the "asset in a locked cloud env" recipe (probe hosts
+→ pull a CC0 asset from a GitHub mirror like three.js's HDRIs → cache locally) is
+already captured as PLAYBOOK **P-16** — no new skill needed.
+
+## Latest (2026-07-22, cloud) — 3d-master-modeler: environment lighting (free upgrade #1)
+
+- **What:** added real-world **environment (image-based) lighting** — the biggest
+  realism jump. New `set_environment(scene, "studio"|"sunset"|"warehouse"|"overcast")`
+  in SKILL.md (Phase 4 guidance + **Template E**). Tries a Poly Haven photo HDRI,
+  falls back to Blender's own physical sky / gradient dome with **zero download**.
+- **Proven, not claimed:** rendered 5 looks headless (3-point *before* + 4
+  environment presets) on a bare cloud box, ~25 s/frame. Clickable before/after:
+  artifact `c2c287af-24fa-4f3f-b984-93280e6dbbca`. Sunset & warehouse are the
+  strong wins; studio≈overcast in the *procedural* fallback (real HDRIs separate
+  them on the laptop, where Poly Haven is reachable).
+- **Env reality (cloud vs laptop):** this cloud box has **no Blender** and the
+  proxy blocks `download.blender.org` AND Poly Haven (403). Fix: `pip install
+  bpy==5.0.1` — the whole engine from PyPI (PLAYBOOK P-14). So proof here ran on
+  **Blender 5.0.1**, not the laptop's 5.2; the 5.x API is identical for this work.
+- **Gotcha found (F-44):** Blender 5.x removed the `'NISHITA'` sky enum → use
+  `sky_type='MULTIPLE_SCATTERING'`.
+- **Branch:** `claude/3d-modeler-free-upgrades-j6d5q9` (PR opened; not merged to
+  master). Remaining free upgrades #2–#9 from the handoff still open.
+
+## Session-reflect (2026-07-22, laptop)
 
 **Machine gotchas — installed this session, don't reinstall (and ask before any new install):**
 - KTX-Software 4.4.2 present at `C:\Program Files\KTX-Software\bin` (ktx on system PATH);
@@ -23,7 +164,7 @@
    session despite the existing rule. The rule is right; my self-check isn't sticking.
    Flagging honestly rather than proposing a duplicate.
 
-**Workflows worth keeping:** already saved — game-asset LOD + bake pipeline (playbook P-14),
+**Workflows worth keeping:** already saved — game-asset LOD + bake pipeline (playbook P-19),
 KTX2 compress (P-13). New habit worth noting (no skill needed): publish advisory/decision
 answers as a designed clickable page, not a chat wall — done 3× this session (engine
 assessment, upgrade menu, next-agent handoff) and it dodged the plain-words wall every time.
@@ -33,7 +174,7 @@ assessment, upgrade menu, next-agent handoff) and it dodged the plain-words wall
 - Game-asset-with-LODs pipeline demonstrated end-to-end on a jerry can (single
   joined mesh, smart-UV, baked albedo/rough/normal, LOD 4532→2266→1132→542 tris,
   Draco glb per LOD, WebGPU THREE.LOD viewer). Two hard-won gotchas now in the
-  skill + playbook P-14: (1) bake albedo with Metallic=0 (metal diffuse bakes
+  skill + playbook P-19: (1) bake albedo with Metallic=0 (metal diffuse bakes
   black); (2) overlapping smart-UV islands stamp square blemishes — pack with
   margin or bake per-object (the jerry-can body still shows this; unfixed).
 - Also this session (already shipped/pushed earlier): KTX2 verified end-to-end

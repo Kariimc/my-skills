@@ -163,11 +163,39 @@ Standard rig (in the template):
   energy, larger + softer.
 - **Rim:** Area/Spot behind and above, white, strong enough to draw an edge
   highlight separating subject from background.
-- **World:** neutral dark gray (0.02–0.05) so the rig does the work; plug an
-  HDRI into an Environment Texture only if the user supplies one.
+- **World:** neutral dark gray (0.02–0.05) so the rig does the work. For
+  realism, prefer **environment (image-based) lighting** instead — see below.
 - **Camera:** 50mm, aimed via Track-To constraint at an Empty on the subject's
   bounding-box center, pulled back so the subject fills ~70% of frame with
   slight top-down angle (~15°).
+
+### Environment (image-based) lighting — the biggest realism jump
+
+A photographed sky in the World lights every surface at once — metal reflects a
+real horizon, shadows fall from a real sun. This reads far more real than the
+3-point rig, especially on metal/glossy surfaces (the rig gives them nothing to
+reflect, so they look flat). Prefer it whenever the ask is "realistic".
+
+Expose one simple choice — `lighting = "studio" | "sunset" | "warehouse" |
+"overcast"` — and resolve it two ways, best-first, so it works everywhere:
+
+1. **Real photo HDRI (best):** fetch the matching Poly Haven `.hdr` (CC0) and
+   plug it into a **Background → Environment Texture** node in the World. Poly
+   Haven needs a `User-Agent` header or it 403s; cache in a local `hdris/`
+   folder, never commit it.
+2. **Procedural fallback (no download):** when Poly Haven is unreachable
+   (locked-down box, offline), don't fail — build the light in Blender itself:
+   - Outdoor looks (`sunset`, noon): the **Sky Texture** node. In Blender 5.x
+     the physical model is `sky_type='MULTIPLE_SCATTERING'` — the old
+     `'NISHITA'` enum was **removed** (it raises `enum "NISHITA" not found`).
+     Low `sun_elevation` = warm dusk; high = clean daylight.
+   - Indoor/soft looks (`studio`, `overcast`, `warehouse`): a **gradient dome**
+     (Geometry→Normal.Z → ColorRamp → Background) — brighter top, darker floor.
+     `warehouse` adds one strong "window" Area light for an industrial rake.
+
+Keep the 3-point rig as an explicit fallback (`lighting="3point"`) and for
+before/after checks. Template E below is the verified implementation; the
+before/after render proving it lives in PROGRESS.md's gotchas.
 
 ## Phase 5 — Verification & self-correction (the loop)
 
@@ -459,6 +487,534 @@ bpy.ops.object.select_all(action='SELECT')
 bpy.ops.export_scene.gltf(filepath=gltf_path, export_apply=True)  # applies modifiers on export only
 print(f"AUDIT: exported {gltf_path}")
 ```
+
+## Template E — environment lighting (extends Template A, verified)
+
+Drop-in for Phase 4. Call `set_environment(scene, "sunset")` instead of the
+3-point rig. For a **real photographed sky** it tries Poly Haven first (open
+networks), then a **GitHub-mirrored** three.js HDRI (reachable even on a locked
+cloud box whose egress is a GitHub+package allowlist — see FAILURES F-45); if
+both are unreachable it falls back to Blender's own physical sky / a gradient
+dome with **zero download**, so it always renders. Verified headless on Blender
+5.0.1 (bpy from PyPI): the real GitHub HDRI path and all procedural fallbacks.
+Runs on a bare box — `pip install bpy` is the whole engine (PLAYBOOK P-14).
+
+```python
+import bpy, math, os, urllib.request, json
+
+# Named look -> Poly Haven slug (open networks), a GitHub-mirrored HDRI that's
+# reachable even on a GitHub-allowlist cloud box, and a procedural fallback.
+# GitHub files are real three.js CC0 equirectangular maps (verified to exist).
+GH_HDRI = ("https://raw.githubusercontent.com/mrdoob/three.js/dev/"
+           "examples/textures/equirectangular")
+ENV_PRESETS = {
+    "sunset":    dict(hdri="venice_sunset",       gh="venice_sunset_1k.hdr",       sky=dict(elev=2, dust=3.0, strength=1.0)),
+    "studio":    dict(hdri="studio_small_09",     gh="san_giuseppe_bridge_2k.hdr", dome=dict(top=(0.85,0.85,0.88), bottom=(0.35,0.35,0.37), strength=1.3)),
+    "overcast":  dict(hdri="kloofendal_overcast", gh="quarry_01_1k.hdr",           dome=dict(top=(0.62,0.63,0.66), bottom=(0.5,0.5,0.52),  strength=1.0)),
+    "warehouse": dict(hdri="warehouse",           gh="pedestrian_overpass_1k.hdr", dome=dict(top=(0.10,0.095,0.09), bottom=(0.04,0.04,0.045), strength=1.0),
+                      window=dict(loc=(4.0,-1.0,2.2), energy=1200, color=(0.85,0.9,1.0), size=2.5)),
+}
+
+def _fetch(url, dest, headers):
+    if os.path.exists(dest): return dest
+    data = urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=90).read()
+    with open(dest, "wb") as fh: fh.write(data)
+    return dest
+
+def _real_hdri(preset, out_dir, res="2k"):
+    """Get a real photographed HDRI: Poly Haven first (open net), then a
+    GitHub-mirrored three.js map (reachable on a GitHub-allowlist cloud box).
+    Returns a local path, or None so the caller uses the procedural fallback."""
+    os.makedirs(out_dir, exist_ok=True)
+    H = {"User-Agent": "3d-master-modeler/1.0"}              # Poly Haven 403s without a UA
+    slug = preset.get("hdri")
+    if slug:                                                 # 1) Poly Haven (best, open networks)
+        try:
+            files = json.loads(urllib.request.urlopen(
+                urllib.request.Request(f"https://api.polyhaven.com/files/{slug}", headers=H), timeout=20).read())
+            return _fetch(files["hdri"][res]["hdr"]["url"], os.path.join(out_dir, f"{slug}_{res}.hdr"), H)
+        except Exception as e:
+            print(f"AUDIT: Poly Haven unreachable ({type(e).__name__}); trying GitHub mirror")
+    gh = preset.get("gh")
+    if gh:                                                   # 2) GitHub mirror (locked cloud box)
+        try:
+            return _fetch(f"{GH_HDRI}/{gh}", os.path.join(out_dir, gh), H)
+        except Exception as e:
+            print(f"AUDIT: GitHub HDRI unreachable ({type(e).__name__}); using procedural fallback")
+    return None
+
+def set_environment(scene, lighting="sunset", strength=1.0, hdri_dir="hdris", try_download=True):
+    """Image-based World lighting. Returns a short AUDIT description of what was used."""
+    preset = ENV_PRESETS.get(lighting)
+    if preset is None:
+        raise ValueError(f"unknown lighting '{lighting}', pick {list(ENV_PRESETS)}")
+    world = bpy.data.worlds.new("World"); scene.world = world; world.use_nodes = True
+    nt = world.node_tree
+    for n in list(nt.nodes):
+        if n.type != 'OUTPUT_WORLD':
+            nt.nodes.remove(n)
+    out = nt.nodes.get("World Output") or nt.nodes.new("ShaderNodeOutputWorld")
+    bg = nt.nodes.new("ShaderNodeBackground")
+    nt.links.new(bg.outputs["Background"], out.inputs["Surface"])
+
+    hdri = _real_hdri(preset, hdri_dir) if try_download else None
+    if hdri:                                              # 1) real photo HDRI (Poly Haven or GitHub)
+        env = nt.nodes.new("ShaderNodeTexEnvironment"); env.image = bpy.data.images.load(hdri)
+        nt.links.new(env.outputs["Color"], bg.inputs["Color"])
+        bg.inputs["Strength"].default_value = strength
+        return f"HDRI:{preset['hdri']}"
+
+    if "sky" in preset:                                  # 2a) physical sky (outdoor)
+        s = preset["sky"]
+        sky = nt.nodes.new("ShaderNodeTexSky")
+        sky.sky_type = 'MULTIPLE_SCATTERING'             # Blender 5.x name; 'NISHITA' was removed
+        sky.sun_elevation = math.radians(s["elev"]); sky.sun_rotation = math.radians(-40)
+        if hasattr(sky, "dust_density"): sky.dust_density = s["dust"]
+        nt.links.new(sky.outputs["Color"], bg.inputs["Color"])
+        bg.inputs["Strength"].default_value = s["strength"] * strength
+        return f"sky:{lighting}(elev{s['elev']})"
+
+    d = preset["dome"]                                   # 2b) gradient dome (indoor/soft)
+    geo = nt.nodes.new("ShaderNodeNewGeometry"); sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(geo.outputs["Normal"], sep.inputs["Vector"])
+    mul = nt.nodes.new("ShaderNodeMath"); mul.operation='MULTIPLY_ADD'
+    mul.inputs[1].default_value = 0.5; mul.inputs[2].default_value = 0.5   # map normal.z (-1..1) -> 0..1
+    nt.links.new(sep.outputs["Z"], mul.inputs[0])
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].color = tuple(d["bottom"]) + (1,)
+    ramp.color_ramp.elements[1].color = tuple(d["top"]) + (1,)
+    nt.links.new(mul.outputs["Value"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], bg.inputs["Color"])
+    bg.inputs["Strength"].default_value = d["strength"] * strength
+    if "window" in preset:                               # warehouse: one strong side light
+        w = preset["window"]
+        ld = bpy.data.lights.new("Window", 'AREA'); ld.energy=w["energy"]; ld.color=w["color"]; ld.size=w["size"]
+        lo = bpy.data.objects.new("Window", ld); lo.location=w["loc"]; scene.collection.objects.link(lo)
+        lo.rotation_euler = (math.radians(70), 0, math.radians(50))
+    return f"dome:{lighting}"
+```
+
+## Template F — cinematic final polish (verified)
+
+The finish pass after Phase 5. Depth-of-field stays **native on the camera** (a
+real 3D effect); grade + bloom + vignette run as a **post-render pass on the PNG**
+(Pillow + numpy). This is deliberately NOT the compositor: Blender 5.0 dropped
+`scene.node_tree` and the `Composite` node (FAILURES F-46), so a post-pass is the
+version-proof, GPU-free way to ship a consistent look. Verified on Blender 5.0.1.
+
+```python
+def enable_dof(camera, focus_obj, fstop=2.8):
+    dof = camera.data.dof
+    dof.use_dof = True; dof.focus_object = focus_obj; dof.aperture_fstop = fstop
+
+def cinematic_finish(in_png, out_png, lift=(0.00,0.01,0.035), gain=(1.06,1.01,0.93),
+                     contrast=1.14, bloom=0.55, bloom_thresh=0.72, bloom_radius=10,
+                     vignette=0.40):
+    """Post-render finish: teal/orange grade, gentle highlight bloom, soft vignette."""
+    from PIL import Image, ImageFilter
+    import numpy as np
+    img = np.asarray(Image.open(in_png).convert("RGB"), np.float32) / 255.0
+    img = img * np.array(gain) + np.array(lift) * (1.0 - img)   # gain=highlights, lift=shadows
+    img = np.clip((img - 0.5) * contrast + 0.5, 0, 1)           # contrast around mid-grey
+    if bloom > 0:                                               # highlights -> blur -> screen back
+        hi = np.clip((img.max(axis=2) - bloom_thresh) / (1 - bloom_thresh), 0, 1)
+        blur = np.asarray(Image.fromarray((np.clip(img*hi[...,None],0,1)*255).astype('uint8'))
+                          .filter(ImageFilter.GaussianBlur(bloom_radius)), np.float32)/255.0
+        img = 1 - (1 - img) * (1 - blur * bloom)
+    if vignette > 0:                                            # soft radial edge darkening
+        h, w = img.shape[:2]; yy, xx = np.mgrid[0:h, 0:w]
+        d = np.sqrt(((xx - w/2)/(w/2))**2 + ((yy - h/2)/(h/2))**2)
+        img = img * (1 - vignette * np.clip((d - 0.55)/0.6, 0, 1)**2)[..., None]
+    Image.fromarray((np.clip(img,0,1)*255).astype('uint8')).save(out_png)
+    return f"finish -> {os.path.basename(out_png)}"
+
+# usage: enable_dof(cam, target, 2.8) BEFORE the final render, then
+#        cinematic_finish("render.png", "final.png") AFTER it.
+```
+
+## Template G — engine texture-bake set (albedo/rough/metal/normal/AO/ORM, verified)
+
+Bake a procedural material down to the texture maps a game engine actually reads,
+folded into a textured glTF. Verified headless on Blender 5.0.1 (bpy from PyPI):
+the baked render is indistinguishable from the procedural source, with the two
+classic bake bugs fixed.
+
+**The two bugs this fixes (both proven dead-then-fixed — FAILURES F-52/F-53):**
+- **Square blemishes on the body** = overlapping smart-UV islands, where the bake
+  reads a neighbour island across a touching edge. Fix: `smart_project` with an
+  `island_margin` (islands never touch) **and** a `bake.margin` in pixels (colour
+  bleeds past each island edge so mip-mapping/filtering never samples the gutter).
+- **Metal albedo bakes black** = a fully-metallic surface has no diffuse response,
+  so a `DIFFUSE`/`COLOR` bake returns black (F-53). Fix below sidesteps it entirely:
+  bake **Base Color directly** through a temporary Emission pass (`EMIT`) — raw node
+  value, no lighting, no metal-black. Same trick captures roughness + metallic.
+
+**Order:** apply modifiers → UV unwrap with margin → bake each pass → pack ORM →
+rebuild a texture-driven material → export glTF. Baking requires the **Cycles**
+engine. Give albedo an **sRGB** image; give roughness/metallic/normal/AO
+**Non-Color** images (they carry data, not colour).
+
+```python
+import bpy, math, os
+from PIL import Image
+
+def uv_unwrap_for_bake(obj, island_margin=0.03):
+    """Non-overlapping UVs — the square-blemish fix starts here (F-47)."""
+    bpy.context.view_layer.objects.active = obj; obj.select_set(True)
+    bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=island_margin)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+def bake_pbr_set(obj, out_dir, res=1024, bake_margin=8):
+    """Bake albedo/roughness/metallic/normal/AO + packed ORM. Returns {tag: path}.
+    obj must already have ONE procedural material and non-overlapping UVs."""
+    os.makedirs(out_dir, exist_ok=True)
+    scene = bpy.context.scene
+    scene.render.engine = 'CYCLES'; scene.cycles.samples = 48
+    scene.render.bake.margin = bake_margin      # px bleed past islands => no seam blemish
+    scene.render.bake.use_clear = True
+    mat = obj.data.materials[0]; nt = mat.node_tree
+    bsdf = nt.nodes["Principled BSDF"]; out = nt.nodes.get("Material Output")
+    paths = {}
+
+    def target(tag, non_color):
+        img = bpy.data.images.new(f"bake_{tag}", res, res, alpha=False)
+        img.colorspace_settings.name = 'Non-Color' if non_color else 'sRGB'
+        node = nt.nodes.new("ShaderNodeTexImage"); node.image = img
+        nt.nodes.active = node                  # bake writes to the ACTIVE image node
+        return img
+
+    def save(img, tag):
+        p = os.path.join(out_dir, f"{tag}.png"); img.filepath_raw = p; img.file_format = 'PNG'
+        img.save(); paths[tag] = p; return p
+
+    def do_bake(bake_type):
+        bpy.context.view_layer.objects.active = obj; obj.select_set(True)
+        bpy.ops.object.bake(type=bake_type)
+
+    # emission-trick: route a socket's source (or its constant) through Emission, bake EMIT.
+    # Raw node value, no lighting — works for albedo/rough/metal and dodges metal-black (F-48).
+    def bake_socket(sock_name, tag, non_color):
+        img = target(tag, non_color)
+        emit = nt.nodes.new("ShaderNodeEmission"); sock = bsdf.inputs.get(sock_name)
+        if sock.is_linked:
+            nt.links.new(sock.links[0].from_socket, emit.inputs["Color"])
+        else:
+            v = sock.default_value
+            emit.inputs["Color"].default_value = v if hasattr(v, '__len__') else (v, v, v, 1.0)
+        keep = out.inputs["Surface"].links[0].from_socket
+        nt.links.new(emit.outputs["Emission"], out.inputs["Surface"])
+        do_bake('EMIT')
+        nt.links.new(keep, out.inputs["Surface"]); nt.nodes.remove(emit)   # restore
+        return save(img, tag)
+
+    bake_socket("Base Color", "albedo", non_color=False)   # metalness-off is implicit here
+    bake_socket("Roughness",  "roughness", non_color=True)
+    bake_socket("Metallic",   "metallic",  non_color=True)
+    nrm = target("normal", True); do_bake('NORMAL'); save(nrm, "normal")  # native tangent-space pass
+    ao = target("ao", True); do_bake('AO'); save(ao, "ao")                # native AO pass
+    # native passes: create+activate target -> bake -> save (target must exist before the bake)
+
+    g = lambda t: Image.open(paths[t]).convert("L")           # pack ORM: R=AO G=rough B=metal
+    orm = Image.merge("RGB", (g("ao"), g("roughness"), g("metallic")))
+    paths["orm"] = os.path.join(out_dir, "orm.png"); orm.save(paths["orm"])
+    return paths
+
+def baked_material(name, paths):
+    """Build a texture-driven material from bake_pbr_set() output — what an engine consumes."""
+    mat = bpy.data.materials.new(name); mat.use_nodes = True
+    nt = mat.node_tree; bsdf = nt.nodes["Principled BSDF"]
+    def tex(path, non_color):
+        n = nt.nodes.new("ShaderNodeTexImage"); n.image = bpy.data.images.load(path)
+        n.image.colorspace_settings.name = 'Non-Color' if non_color else 'sRGB'; return n
+    nt.links.new(tex(paths["albedo"], False).outputs["Color"], bsdf.inputs["Base Color"])
+    nt.links.new(tex(paths["roughness"], True).outputs["Color"], bsdf.inputs["Roughness"])
+    nt.links.new(tex(paths["metallic"], True).outputs["Color"], bsdf.inputs["Metallic"])
+    nm = nt.nodes.new("ShaderNodeNormalMap")
+    nt.links.new(tex(paths["normal"], True).outputs["Color"], nm.inputs["Color"])
+    nt.links.new(nm.outputs["Normal"], bsdf.inputs["Normal"]); return mat
+
+# usage:
+#   uv_unwrap_for_bake(obj)                       # after modifiers are applied
+#   paths = bake_pbr_set(obj, "textures")         # 6 maps to disk
+#   obj.data.materials.clear(); obj.data.materials.append(baked_material("Baked", paths))
+#   bpy.ops.export_scene.gltf(filepath="asset.glb", export_format='GLB',
+#                             use_selection=True, export_image_format='AUTO')  # AUTO, not WEBP
+```
+
+**Draft vs final tiers (upgrade #5):** EEVEE Next won't init headless with no GPU
+(falls back to Cycles), so use Cycles sample counts as the tier knob —
+`scene.cycles.samples = 16` for the fix-loop draft (fast, noisy-but-readable),
+`= 128+` for the final. Bake at the draft tier while iterating UVs, then re-bake
+once at the final tier. Resolution is the second knob: 512² draft, 1024²/2048² final.
+
+## Template H — generalized asset fetchers: textures + models (verified)
+
+Extends Template E's HDRI fetcher into a general **probe-first, best-source, cache**
+pattern for PBR **texture sets** and **models** too. Every fetcher tries the richest
+open-net source first (Poly Haven / ambientCG) then falls back to a **GitHub mirror**
+that stays reachable on a locked box whose egress is a GitHub+package allowlist
+(F-45) — so the same code pulls real CC0 assets on the laptop *and* in a restricted
+cloud env. Verified headless on Blender 5.0.1: on the locked box, a wood + a brick
+PBR set (three.js mirror) and a Khronos `.glb` model all fetched and rendered.
+Never commit the downloaded binaries — cache them next to the build script.
+
+```python
+import bpy, os, json, urllib.request
+UA = {"User-Agent": "3d-master-modeler/1.0"}
+GH_TEX   = "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures"
+GH_MODEL = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models"
+
+def _reachable(url):                       # ranged HEAD — probe before download (P-16)
+    try:
+        r = urllib.request.Request(url, headers={**UA, "Range": "bytes=0-0"})
+        return urllib.request.urlopen(r, timeout=20).status in (200, 206)
+    except Exception:
+        return False
+def _download(url, dest):
+    if os.path.exists(dest) and os.path.getsize(dest) > 0: return dest
+    data = urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=120).read()
+    open(dest, "wb").write(data); return dest
+
+# best-first sources per asset. GitHub triple = diffuse+bump+roughness (real photos);
+# Poly Haven / ambientCG add normal/displacement/AO/metal on an open network.
+TEXTURE_SETS = {
+    "wood":  dict(polyhaven="wood_floor",    ambientcg="WoodFloor051",
+                  gh=dict(diffuse="hardwood2_diffuse.jpg", bump="hardwood2_bump.jpg", roughness="hardwood2_roughness.jpg")),
+    "brick": dict(polyhaven="brick_wall_02", ambientcg="Bricks075",
+                  gh=dict(diffuse="brick_diffuse.jpg", bump="brick_bump.jpg", roughness="brick_roughness.jpg")),
+}
+MODELS = {   # GitHub-mirrored glTF binaries (Khronos sample assets) — reachable on a locked box
+    "helmet":  f"{GH_MODEL}/DamagedHelmet/glTF-Binary/DamagedHelmet.glb",
+    "duck":    f"{GH_MODEL}/Duck/glTF-Binary/Duck.glb",
+    "avocado": f"{GH_MODEL}/Avocado/glTF-Binary/Avocado.glb",
+}
+
+def fetch_texture_set(name, out_dir, res="2k"):
+    """{map_type: local_path}. Poly Haven -> (ambientCG zip on open net) -> GitHub mirror -> {}."""
+    spec = TEXTURE_SETS[name]; d = os.path.join(out_dir, f"tex_{name}"); os.makedirs(d, exist_ok=True)
+    try:                                    # 1) Poly Haven — same API shape as the verified HDRI path
+        files = json.loads(urllib.request.urlopen(urllib.request.Request(
+            f"https://api.polyhaven.com/files/{spec['polyhaven']}", headers=UA), timeout=20).read())
+        want = {"Diffuse":"diffuse","Rough":"roughness","nor_gl":"normal","Displacement":"displacement","AO":"ao"}
+        maps = {tag: _download(files[k][res]["jpg"]["url"], os.path.join(d, f"{tag}.jpg"))
+                for k, tag in want.items() if files.get(k, {}).get(res, {}).get("jpg")}
+        if maps: return maps
+    except Exception as e:
+        print(f"AUDIT: Poly Haven set unreachable ({type(e).__name__}); GitHub mirror")
+    return {tag: _download(f"{GH_TEX}/{f}", os.path.join(d, f))   # 3) GitHub mirror (locked box)
+            for tag, f in spec["gh"].items() if _reachable(f"{GH_TEX}/{f}")}
+
+def fetch_model(name, out_dir):
+    """Local .glb from a GitHub mirror. Import with bpy.ops.import_scene.gltf(filepath=...)."""
+    url = MODELS[name]
+    return _download(url, os.path.join(out_dir, f"{name}.glb")) if _reachable(url) else None
+
+def pbr_from_maps(name, maps, scale=2.0):
+    """Wire a fetched map set into a BOX-projected material — no UV unwrap needed (Phase 3b)."""
+    mat = bpy.data.materials.new(name); mat.use_nodes = True
+    nt = mat.node_tree; bsdf = nt.nodes["Principled BSDF"]
+    tc = nt.nodes.new("ShaderNodeTexCoord"); mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Scale"].default_value = (scale, scale, scale)
+    nt.links.new(tc.outputs["Object"], mp.inputs["Vector"])
+    def img(path, non_color):
+        n = nt.nodes.new("ShaderNodeTexImage"); n.image = bpy.data.images.load(path)
+        n.projection = 'BOX'; n.projection_blend = 0.3
+        n.image.colorspace_settings.name = 'Non-Color' if non_color else 'sRGB'
+        nt.links.new(mp.outputs["Vector"], n.inputs["Vector"]); return n
+    if "diffuse" in maps:   nt.links.new(img(maps["diffuse"], False).outputs["Color"], bsdf.inputs["Base Color"])
+    if "roughness" in maps: nt.links.new(img(maps["roughness"], True).outputs["Color"], bsdf.inputs["Roughness"])
+    if "normal" in maps:
+        nm = nt.nodes.new("ShaderNodeNormalMap")
+        nt.links.new(img(maps["normal"], True).outputs["Color"], nm.inputs["Color"])
+        nt.links.new(nm.outputs["Normal"], bsdf.inputs["Normal"])
+    elif "bump" in maps:                    # three.js sets ship a bump (height) map, not a normal
+        bp = nt.nodes.new("ShaderNodeBump"); bp.inputs["Strength"].default_value = 0.4
+        nt.links.new(img(maps["bump"], True).outputs["Color"], bp.inputs["Height"])
+        nt.links.new(bp.outputs["Normal"], bsdf.inputs["Normal"])
+    return mat
+
+# usage: m = fetch_texture_set("wood", "assets"); obj.data.materials.append(pbr_from_maps("Wood", m))
+#        glb = fetch_model("avocado", "assets"); bpy.ops.import_scene.gltf(filepath=glb)
+```
+
+Adding a source is a one-line registry entry. To add a whole new asset TYPE
+(e.g. decals, IES light profiles) copy the probe→best-source→GitHub-mirror→cache
+shape. On the laptop (open network) Poly Haven/ambientCG win and bring fuller map
+sets (normal + displacement + AO); the GitHub mirror is the guaranteed floor.
+
+## Template I — rig & animate: armature + skinning + animated glTF (verified)
+
+Give a mesh a skeleton, skin it so it bends smoothly, keyframe a motion, and export
+an **animated** glTF an engine can play. Verified headless on Blender 5.0.1: a
+tapered arm skinned to a 4-bone chain curls in a clean loop; rendered frames →
+looping GIF, plus a 433 KB animated `.glb`. Two skinning styles:
+
+- **Smooth skin (automatic weights)** — one continuous mesh bends across joints
+  (organic: tentacle, arm, finger, tail). Shown below.
+- **Rigid parenting** — parent whole sub-objects to bones (hard-surface: robot arm,
+  lamp segments). Swap `parent_set(type='ARMATURE_AUTO')` for parenting each part
+  to its bone with `bone.matrix` / a Child-Of constraint.
+
+Two Blender-5.0 gotchas baked in: the mesh needs **length subdivisions** or it
+can't bend (a bare primitive has no rings to deform), and **`Action.fcurves` was
+removed** (slotted actions) — don't touch fcurves; `keyframe_insert` already eases
+with Bezier (F-54).
+
+```python
+import bpy, math
+
+def bone_chain(name, n, height, origin=(0,0,0)):
+    """Vertical n-bone armature; returns the armature object."""
+    bpy.ops.object.armature_add(location=origin); rig = bpy.context.active_object; rig.name = name
+    bpy.ops.object.mode_set(mode='EDIT'); eb = rig.data.edit_bones
+    seg = height / n; prev = eb[0]; prev.head=(0,0,0); prev.tail=(0,0,seg); prev.name="seg0"
+    chain = [prev]
+    for i in range(1, n):
+        b = eb.new(f"seg{i}"); b.head=(0,0,i*seg); b.tail=(0,0,(i+1)*seg)
+        b.parent = chain[-1]; b.use_connect = True; chain.append(b)
+    bpy.ops.object.mode_set(mode='OBJECT'); return rig
+
+def skin_auto(mesh, rig):
+    """Automatic-weight skinning. Mesh MUST have rings along the bend axis first
+    (e.g. edit-mode subdivide) or it deforms as rigid blocks."""
+    bpy.ops.object.select_all(action='DESELECT')
+    mesh.select_set(True); rig.select_set(True); bpy.context.view_layer.objects.active = rig
+    bpy.ops.object.parent_set(type='ARMATURE_AUTO')     # creates one vertex group per bone
+
+def animate_curl(rig, n, frames=12, amount=34):
+    """Keyframe a straight->curl->straight loop across the bone chain."""
+    scene = bpy.context.scene; scene.frame_start = 1; scene.frame_end = frames
+    bpy.context.view_layer.objects.active = rig; bpy.ops.object.mode_set(mode='POSE')
+    def pose(frame, amt):
+        for i in range(n):
+            pb = rig.pose.bones[f"seg{i}"]; pb.rotation_mode = 'XYZ'
+            pb.rotation_euler = (math.radians(amt*(0.6+0.5*i)), 0, math.radians(0.4*amt*math.sin(i)))
+            pb.keyframe_insert("rotation_euler", frame=frame)
+    pose(1, 0); pose(frames//2 + 1, amount); pose(frames, 0)   # loops; Bezier auto-eases (F-54)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+def export_animated(mesh, rig, path):
+    bpy.ops.object.select_all(action='DESELECT'); mesh.select_set(True); rig.select_set(True)
+    bpy.context.view_layer.objects.active = rig
+    bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True,
+                              export_animations=True, export_animation_mode='ACTIONS')
+
+# usage: build a mesh with length rings (edit-mode subdivide), then
+#   rig = bone_chain("Rig", 4, 3.0); skin_auto(mesh, rig)
+#   animate_curl(rig, 4); export_animated(mesh, rig, "rigged.glb")
+# Render frames across scene.frame_start..frame_end (scene.frame_set(f)) and assemble
+# a GIF with Pillow (imgs[0].save(gif, save_all=True, append_images=imgs[1:], loop=0)).
+```
+
+**Rigify (humanoid auto-rig) — available in this bpy build.** For bipeds/quadrupeds
+use the bundled Rigify add-on instead of a hand-built chain:
+`addon_utils.enable("rigify")`, add a metarig
+(`bpy.ops.object.armature_human_metarig_add()`), scale it to the character, then
+`bpy.ops.pose.rigify_generate()` produces a full control rig; skin the character
+mesh to the generated deform bones with automatic weights. The hand-built chain
+above is the general path for non-humanoid shapes.
+
+## Template J — physics simulation: rigid body, baked headless (verified)
+
+Drop objects, let them fall / collide / settle, bake the result to keyframes, and
+export an animated glTF. Verified headless on Blender 5.0.1: 14 colored cubes +
+spheres tumbled into an open container and settled into a natural pile.
+
+**The headless gotcha (F-55):** `bpy.ops.rigidbody.bake_to_keyframes` fails in
+background mode — internally it calls `anim.keyframe_insert_by_name`, whose `poll()`
+needs a UI context that doesn't exist headless (`RuntimeError: ... context is
+incorrect`). Bake it yourself: step frames, read each body's **evaluated-depsgraph**
+matrix (that's where the sim writes), disable the sim, then keyframe those
+transforms. Works headless, and the baked object is exportable + deterministic.
+
+```python
+import bpy
+def rigidbody_world(scene, frame_end):
+    bpy.ops.rigidbody.world_add(); scene.rigidbody_world.point_cache.frame_end = frame_end
+def make_passive(o, friction=0.8):
+    bpy.context.view_layer.objects.active = o; o.select_set(True)
+    bpy.ops.rigidbody.object_add(); o.rigid_body.type='PASSIVE'; o.rigid_body.friction=friction
+def make_active(o, shape='CONVEX_HULL', restitution=0.35):
+    bpy.context.view_layer.objects.active = o; o.select_set(True)
+    bpy.ops.rigidbody.object_add(); o.rigid_body.type='ACTIVE'
+    o.rigid_body.collision_shape = shape; o.rigid_body.restitution = restitution
+
+def bake_sim_to_keyframes(scene, bodies, start, end):
+    """Headless-safe replacement for bpy.ops.rigidbody.bake_to_keyframes (F-55).
+    Captures the evaluated (simulated) matrices, stops the sim, writes keyframes."""
+    caps = {o: [] for o in bodies}
+    for f in range(start, end + 1):
+        scene.frame_set(f)
+        deg = bpy.context.evaluated_depsgraph_get()
+        for o in bodies:
+            caps[o].append((f, o.evaluated_get(deg).matrix_world.copy()))
+    scene.rigidbody_world.enabled = False              # let keyframes drive playback now
+    for o in bodies:
+        o.rotation_mode = 'QUATERNION'
+        for f, m in caps[o]:
+            loc, rot, _ = m.decompose(); o.location = loc; o.rotation_quaternion = rot
+            o.keyframe_insert("location", frame=f); o.keyframe_insert("rotation_quaternion", frame=f)
+
+# usage: rigidbody_world(scene, N); make_passive(floor); [make_active(o) for o in drops]
+#        bake_sim_to_keyframes(scene, drops, 1, N); render frames; export_scene.gltf(export_animations=True)
+```
+
+**Cloth, soft body, smoke/fire (Mantaflow):** same shape — set up the modifier /
+physics, bake the point cache (`ptcache`), render. All CPU-only here, so keep shots
+SHORT (a few seconds, modest resolution): cloth over an object and a small soft-body
+squash bake fine; a high-res smoke/fire domain is the one to push to the **cloud-GPU
+path** (documented below) — a big Mantaflow bake will blow past a CPU box's patience.
+
+## Template K — procedural variety: one generator, a family (verified)
+
+Turn a single design into a whole family of distinct assets — for crowds, kit-bashing,
+loot, set dressing. The pattern is a **seeded generator**: one `make_variant(seed)`
+function where every knob (proportions, facet count, colour, metal-vs-painted, wear,
+band count, scattered bolts, cap shape) is drawn from a per-seed RNG. Same code, a
+different asset for every seed; the same seed always reproduces the same asset.
+Verified headless on Blender 5.0.1: 9 visibly different barrel-props from one
+generator in a single render.
+
+```python
+import bpy, math, random, colorsys
+
+def make_variant(seed, origin=(0,0,0)):
+    """One seeded prop. Every '.uniform/.choice/.randint' is a variation axis —
+    add or remove axes to widen/narrow the family."""
+    rng = random.Random(seed)                                   # seed == the asset's DNA
+    R = rng.uniform(0.36, 0.54); H = rng.uniform(1.0, 1.7)      # proportions
+    facets = rng.choice([12, 16, 20, 32])                       # silhouette chunky<->round
+    metal = rng.random() > 0.45                                 # metal vs painted
+    hue = rng.random(); sat = rng.uniform(0.05, 0.2) if metal else rng.uniform(0.35, 0.8)
+    rgb = colorsys.hsv_to_rgb(hue, sat, rng.uniform(0.45, 0.85))
+    rough = rng.uniform(0.2, 0.5) if metal else rng.uniform(0.45, 0.8)   # wear
+    bpy.ops.mesh.primitive_cylinder_add(vertices=facets, radius=R, depth=H,
+        location=(origin[0], origin[1], H/2))
+    body = bpy.context.active_object
+    body.modifiers.new("b", 'BEVEL').width = rng.uniform(0.01, 0.03)
+    bpy.ops.object.shade_auto_smooth(angle=math.radians(35))
+    # ... apply a PBR material from (rgb, rough, metal); add rng.randint(1,3) rim bands;
+    #     scatter rng.choice([0,6,8,10,12]) bolts round the rim; maybe a dome cap.
+    return body
+
+# a family: for i in range(9): make_variant(1000 + i*7, grid_origin(i))
+```
+
+**Geometry Nodes** is Blender's native non-destructive way to do the same scatter /
+greeble / instancing (and it survives as a live modifier in the .blend). Scripting a
+GN tree via `bpy` is verbose and version-fragile, so for a code-first, exportable
+family the seeded-generator above is the robust path; reach for Geometry Nodes when
+the artist wants to keep tweaking the scatter interactively in Blender.
+
+## Cloud-GPU render/sim — deferred (needs Kariim's explicit yes, costs money)
+
+Everything above runs free on CPU. The paid escalation, when a job is too heavy
+here: ship the `.blend` (or scene) to a rented GPU / render service, run the render
+or the heavy Mantaflow/large-frame-range bake there, pull the result back. What it
+unlocks: fast final renders, EEVEE-real-time headless, heavy sims, Unreal/USD
+pipelines. **Revisit trigger:** Kariim approves a cloud-GPU budget. Until then this
+stays a documented path, not wired.
 
 ## Template B — Three.js WebGPU + TSL (single file, previewable)
 

@@ -1,0 +1,18 @@
+# 3d-master-modeler — Python dependencies (the whole engine + helpers).
+# On a fresh cloud box these are NOT persisted (the container is wiped between
+# sessions), so install them at session start. The clean "always ready" fix is to
+# point the Claude-Code cloud environment's SETUP SCRIPT at this file:
+#
+#     python3 -m pip install -r skills/3d-master-modeler/requirements.txt
+#
+# Then every session boots with the engine already present — no manual re-download.
+# On Kariim's Windows laptop, Blender 5.2 is installed natively; bpy from pip is only
+# needed on boxes without a Blender binary (PLAYBOOK P-14). Match Python to the wheel:
+# bpy==5.0.1 needs CPython 3.11.
+bpy==5.0.1        # the Blender engine as a wheel — headless mesh build, Cycles render, glTF export
+pillow            # post-pass grade/bloom/vignette (Template F), GIF assembly, ORM packing (Template G)
+numpy             # cinematic post-pass math (Template F)
+# optional, only for the watertight/manifold gate on CAD/print parts (Phase 2):
+# trimesh
+# manifold3d
+# build123d
