@@ -35,14 +35,39 @@ tp = data.get("transcript_path") or ""
 if not tp or not os.path.isfile(tp):
     raise SystemExit(0)
 
-# Only police sessions that actually used the 3D skill. Cheap scan; on any
-# read problem, fail open.
+# Only police sessions that actually INVOKED the 3D skill — a structural
+# Skill tool_use in the transcript, never a text match. A session that edits
+# or discusses the skill contains its name everywhere (the guard's own
+# authoring session false-blocked twice on that: first on the bare name, then
+# on its own marker strings). Text written into files appears in the JSONL as
+# ESCAPED string content, so parsing each line and walking for a real
+# tool_use dict is immune to mentions. Fail open on any parse trouble.
+def is_3d_invoke(node):
+    if isinstance(node, dict):
+        if (node.get("type") == "tool_use" and node.get("name") == "Skill"
+                and isinstance(node.get("input"), dict)
+                and node["input"].get("skill") == "3d-master-modeler"):
+            return True
+        return any(is_3d_invoke(v) for v in node.values())
+    if isinstance(node, list):
+        return any(is_3d_invoke(v) for v in node)
+    return False
+
+invoked = False
 try:
     with open(tp, encoding="utf-8", errors="replace") as f:
-        used_3d = "3d-master-modeler" in f.read()
+        for line in f:
+            if "3d-master-modeler" not in line:   # cheap pre-filter
+                continue
+            try:
+                if is_3d_invoke(json.loads(line)):
+                    invoked = True
+                    break
+            except Exception:
+                continue
 except Exception:
     raise SystemExit(0)
-if not used_3d:
+if not invoked:
     raise SystemExit(0)
 
 cwd = data.get("cwd") or os.getcwd()

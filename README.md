@@ -52,7 +52,7 @@ your PATH (Git for Windows provides it with the default install options).
 | Folder | Synced to | What it holds |
 |---|---|---|
 | [`skills/`](./skills/) | `~/.claude/skills/` | 421 skills, one folder each (`skills/<name>/SKILL.md`). See [the catalog](./skills/README.md). |
-| [`agents/`](./agents/) | `~/.claude/agents/` | 70 specialist subagents, one `.md` each (reviewers, build-resolvers, planners). |
+| [`agents/`](./agents/) | `~/.claude/agents/` | 71 specialist subagents, one `.md` each (reviewers, build-resolvers, planners). |
 | [`rules/`](./rules/) | `~/.claude/CLAUDE.md` | Always-on global instructions (concatenated). |
 | [`commands/`](./commands/) | `~/.claude/commands/` | Slash commands (`/new-skill`, `/sync-skills`, `/skill-audit`). |
 | [`hooks/`](./hooks/) | `~/.claude/hooks/` | Global hook scripts (e.g. the harness router) + auto-registered into `~/.claude/settings.json`. |

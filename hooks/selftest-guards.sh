@@ -114,7 +114,11 @@ if [ -f "$rg" ]; then
   printf '{"stop_hook_active":false,"transcript_path":"%s/t.jsonl","cwd":"%s"}' "$trc" "$trc" \
     | bash "$rg" >/dev/null 2>&1
   [ $? -eq 0 ] && echo "PASS runcard skips non-3d session" || { echo "FAIL runcard skips non-3d session"; fails=$((fails+1)); }
-  echo 'used skill 3d-master-modeler today' > "$trc/t.jsonl"
+  echo 'mentions 3d-master-modeler in prose only' > "$trc/t.jsonl"
+  printf '{"stop_hook_active":false,"transcript_path":"%s/t.jsonl","cwd":"%s"}' "$trc" "$trc" \
+    | bash "$rg" >/dev/null 2>&1
+  [ $? -eq 0 ] && echo "PASS runcard ignores mere mention" || { echo "FAIL runcard ignores mere mention"; fails=$((fails+1)); }
+  echo '{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{"skill":"3d-master-modeler"}}]}}' > "$trc/t.jsonl"
   printf '{"stop_hook_active":false,"transcript_path":"%s/t.jsonl","cwd":"%s"}' "$trc" "$trc" \
     | bash "$rg" >/dev/null 2>&1
   [ $? -eq 2 ] && echo "PASS runcard blocks 3d session without card" || { echo "FAIL runcard blocks 3d session without card"; fails=$((fails+1)); }
