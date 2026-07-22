@@ -58,6 +58,16 @@ outputs and deliverables."* The context-rich version, reusable anywhere:
 4. **Subagents start cold.** Harness workers get a task prompt, not the
    contract. A dispatched worker never saw "zero legwork" or "proof, not
    reassurance" unless the dispatching prompt happened to restate it.
+5. **"The model is poisoned / blatantly lies" — what's actually happening.**
+   No model is poisoned; what looks like lying is a model asserting a confident
+   guess when it should say "unverified" — and the likelihood of that goes UP
+   with long contexts, big rulebooks, and pressure to sound done. It affects
+   *every* model tier (Opus included), which is exactly why the fix cannot be
+   "use a better model" or "write the rule again, louder." The fix is
+   model-agnostic machinery: no claim reaches Kariim without the verify station
+   having checked the real artifact, regardless of which model produced it.
+   Design assumption going forward: **any model, on any day, can drop any
+   prose rule — so no prose rule may be load-bearing for quality.**
 
 ## Part 3 — The fix: an enforcement pyramid (machinery first, prose last)
 
