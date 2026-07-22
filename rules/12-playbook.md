@@ -1,26 +1,13 @@
 # Playbook — read before working, feed on every win worth reusing
 
-`PLAYBOOK.md` at this repo's root is the sibling of the failure ledger. FAILURES.md
-bans dead roads; PLAYBOOK.md hands over live ones (WHEN → DO → PROOF). The live
-working copy on Kariim's machine is `~/.claude/PLAYBOOK.md`; this repo copy is what
-cloud and fresh surfaces read.
+`PLAYBOOK.md` (repo root; live copy `~/.claude/PLAYBOOK.md`) is the sibling
+ledger of roads proven LIVE. An entry needs all three of WHEN (precondition —
+never "always do X"), DO (exact command/flags/path), PROOF (measured output);
+an entry that fails its own precondition moves to FAILURES.md. Duty 1: don't
+re-derive a method the playbook already proves — `ledger-sentinel` injects
+matches. Duty 2: feed it — a non-obvious reusable win gets `## P-NN` the same
+turn, both copies. The two ledgers are one system: playbook = what to reach
+for, failure ledger = what to never reach for again.
 
-An entry is only legal with all three:
-
-1. **A PRECONDITION (WHEN).** Never "always do X." A method without its trigger
-   becomes cargo cult — reaching for the tarball when the API was fine.
-2. **An EXACT method (DO).** Real command, real flags, real path. No paraphrase.
-3. **A MEASURED PROOF.** Output, number, or verified state. Never "seemed to work."
-
-Two duties, same force as every other rule here:
-
-1. **Read it before any work.** Inventing a method the playbook already proves is
-   waste, not initiative.
-2. **Feed it.** When a non-obvious method works and would otherwise be re-derived
-   from scratch next time, append a `## P-NN` entry as part of the same turn — never
-   on request, never deferred. Keep `~/.claude/PLAYBOOK.md` and this repo copy in
-   sync in the same pass.
-
-An entry that fails its own precondition test is struck here and written into
-FAILURES.md instead. The two ledgers are one system: the playbook is what to reach
-for, the failure ledger is what to never reach for again.
+> ENFORCED-BY `hooks/ledger-sentinel.sh` (UserPromptSubmit) on the read side;
+> the append duty stays yours — see `docs/RULES-ENFORCEMENT-MAP.md`.
