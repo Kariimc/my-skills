@@ -27,6 +27,32 @@
   #4 bake set + blemish fix, #5 draft/final tiers, #6 omni3d (GPU/cloud),
   #7 sims, #8 rig, #9 procedural variety.
 
+## Session-reflect (2026-07-22, cloud) — 3d-master-modeler upgrades
+
+**Phase 1 — durable facts** (full detail in the two entries above; the non-obvious
+one to not rediscover): the egress policy is authoritative in `/root/.ccr/README.md`
++ `$HTTPS_PROXY/__agentproxy/status`, and it's a **GitHub+package allowlist**, not
+packages-only — GitHub raw is an open door for real CC0 assets (F-45, P-16). Blender
+on this box is `pip install bpy==5.0.1` run as `python3 script.py`; Blender 5.0
+renamed the sky enum (F-44) and reworked the compositor off `scene.node_tree` (F-46).
+
+**Proposed rules (user approval needed)** — promote to rules/ only if you agree:
+1. **Exhaust your own tools before offloading to the user or saying "can't."**
+   When blocked on reaching/doing something, enumerate and TEST every channel you
+   actually hold (MCP connectors, WebFetch, the session browser, GitHub raw,
+   pip/npm) *before* asking the user to fetch/install it. (Kariim corrected this
+   ~4× this session — "you have skills to do this," "you have a browser," "use
+   huggingface." Escalated to top: it's the absence rule (F-43) wearing a new hat.)
+2. **Never conclude "the network blocks it" from CDN 403s alone.** Read
+   `/root/.ccr/README.md`, hit the proxy status endpoint, and probe
+   `github.com / raw.githubusercontent.com / pypi.org` first — name the scope you
+   tested. (I wrote a wrong "no downloads possible" ledger entry from a partial
+   probe; had to rewrite F-45.)
+
+**Phase 3 — workflow kept:** the "asset in a locked cloud env" recipe (probe hosts
+→ pull a CC0 asset from a GitHub mirror like three.js's HDRIs → cache locally) is
+already captured as PLAYBOOK **P-16** — no new skill needed.
+
 ## Latest (2026-07-22, cloud) — 3d-master-modeler: environment lighting (free upgrade #1)
 
 - **What:** added real-world **environment (image-based) lighting** — the biggest
