@@ -27,6 +27,20 @@ or sample run) and get a yes before production code. Small changes inside an
 existing project skip this.
 
 
+# DEPENDENCIES — pin them, never commit the binary
+
+Never commit heavy or OS-specific binary dependencies into a repo (engine wheels,
+compiled libraries, model files): they bloat every clone, are locked to one
+OS/arch — so they can't even be "always there" for both a Linux cloud box and a
+Windows laptop — and the gates plus GitHub reject large binaries outright. Pin them
+in a `requirements.txt`/lockfile and make them install themselves: a small
+idempotent setup script wired into the SessionStart hook, backgrounded so it never
+blocks session start or asks Kariim to re-run it. On an ephemeral (wiped) box the
+fetch still recurs each session; only a custom pre-baked environment image removes
+it, which is an env-config job, not a repo one — say so plainly rather than reaching
+for the binary-in-repo shortcut. Approved rule, 2026-07-22.
+
+
 # THE TWO THAT COST MOST (hard rules, learned from repeated failure)
 
 A failure sweep of every past session surfaced two mistakes that hurt the user
