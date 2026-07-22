@@ -70,14 +70,18 @@ a rendered image published to a clickable page; talk to Kariim in plain words.
 5. ~~Draft/final tiers~~ **DONE** — documented in Template G (Cycles samples + res).
 6. **Photo/text → 3D.** Wire the sibling `omni3d` skill (AI image-to-3D). Needs a
    GPU + multi-GB models — DEFER to Kariim's GPU / cloud; document + wire only.
-7. **Effects/sim** (Mantaflow smoke/fire, cloth, rigid-body) — short shots only
-   on CPU; document that large sims want the cloud path.
+7. ~~Effects/sim~~ **DONE** — SKILL Template J: rigid-body sim + headless-safe
+   `bake_sim_to_keyframes` (F-55: `bake_to_keyframes` poll-fails headless). Proven:
+   14 bodies fall + settle → GIF + animated glb. Cloth/soft-body/smoke documented;
+   big smoke/fire → cloud-GPU path (documented, deferred).
 8. ~~Rig & animate~~ **DONE** — SKILL Template I (`bone_chain` + `skin_auto` +
    `animate_curl` + `export_animated`). Automatic-weight skinning, keyframed loop,
    animated `.glb`; Rigify documented + confirmed present for humanoids. Proven:
    arm curls smoothly (GIF + animated glb). F-54 (Action.fcurves removed in 5.0).
-9. **Procedural detail & variation** — Geometry Nodes scatter/greebles + a
-   wear/colour/panel variation generator (one asset → a family).
+9. ~~Procedural detail & variation~~ **DONE** — SKILL Template K: seeded
+   `make_variant(seed)` generator (proportions/facets/colour/metal/wear/bands/bolts/
+   cap). Proven: 9 distinct barrels from one generator in a single render. PLAYBOOK
+   P-20. Geometry Nodes documented as the native non-destructive alternative.
 
 ## DO NOT build (paid) — leave the path
 Cloud-GPU rendering costs money → needs Kariim's explicit yes. Keep a

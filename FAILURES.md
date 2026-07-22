@@ -500,3 +500,21 @@ guarded with hasattr for cross-version safety.
 PROOF: removing the `action.fcurves` easing loop let the rigged-arm animation
 render 12 frames + export an animated .glb, Blender 5.0.1 headless 2026-07-22
 (3d-master-modeler Template I).
+
+
+## F-55 Blender headless: rigidbody.bake_to_keyframes poll-fails in background
+SYMPTOM: `bpy.ops.rigidbody.bake_to_keyframes(...)` raises `RuntimeError: Operator
+bpy.ops.anim.keyframe_insert_by_name.poll() failed, context is incorrect` when run
+headless (`python3 script.py` / `--background`). The bake operator internally calls
+a keyframing operator whose poll needs a 3D-view/UI context that doesn't exist
+headless.
+BANNED: calling `rigidbody.bake_to_keyframes` in a headless sim pipeline (and, by
+the same class, other ops that shell out to `keyframe_insert_by_name`).
+WORKS: bake the sim yourself. Step frames start..end; at each frame read the body's
+EVALUATED matrix from the depsgraph (`o.evaluated_get(bpy.context.evaluated_depsgraph_get()).matrix_world`)
+— that's where the sim result lives; the original object's `.location` is not updated
+mid-sim. Then `scene.rigidbody_world.enabled = False` and write the captured
+transforms as keyframes (`o.keyframe_insert("location"/"rotation_quaternion")`). Now
+it renders deterministically and exports to glTF. See 3d-master-modeler Template J.
+PROOF: 14-body rigid-body pile baked + rendered (28 frames) + exported animated .glb
+headless on Blender 5.0.1, 2026-07-22.

@@ -3,6 +3,26 @@
 > Last updated: 2026-07-22.
 > Read this first; if it conflicts with the code, the code wins.
 
+## Latest (2026-07-22, cloud) — physics (#7) + procedural variety (#9)
+
+- **#7 physics shipped (SKILL Template J):** rigid-body sim (14 bodies fall/collide/
+  settle) + `bake_sim_to_keyframes()` (headless-safe manual bake) + animated glb.
+  Cloth/soft-body/smoke documented; big smoke/fire → cloud-GPU path (deferred).
+  Gotcha F-55: `rigidbody.bake_to_keyframes` poll-fails headless (calls a UI-context
+  keyframe op) → read evaluated-depsgraph matrices, disable sim, keyframe manually.
+  Artifact `5f00ab2f-ce3d-48d0-a359-286a4c4cd98d`.
+- **#9 procedural variety shipped (SKILL Template K):** seeded `make_variant(seed)`
+  — every knob (proportions/facets/colour/metal/wear/bands/bolts/cap) from a per-seed
+  RNG; same seed reproduces the same asset. Proven: 9 distinct barrels from one
+  generator in one render. Artifact `40fe6ef8-040b-40e2-9edb-fe4562987e93`. P-20.
+  Geometry Nodes documented as the native non-destructive alternative.
+- **Deps pinned:** `skills/3d-master-modeler/requirements.txt` (bpy==5.0.1, pillow,
+  numpy). Point the cloud env's setup script at it (`pip install -r ...`) to end the
+  per-session reinstall — committing the binary engine itself is wrong (huge,
+  OS-locked, gates/GitHub block big binaries).
+- **Free upgrades COMPLETE:** #1,#2,#3,#4,#5,#7,#8,#9 all shipped + proven. Only #6
+  (image→3D) remains — needs a GPU, deferred to laptop/cloud-GPU.
+
 ## Latest (2026-07-22, cloud) — rig & animate (#8)
 
 - **#8 rig & animate shipped (SKILL Template I):** `bone_chain()` (armature) +

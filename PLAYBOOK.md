@@ -186,3 +186,20 @@ PROOF: jerry can, Blender 5.2, LOD tris 4532/2266/1132/542, baked maps, loaded i
 a WebGPU THREE.LOD viewer, 2026-07-22.
 CAUTION: overlapping smart-UV islands stamp square blemishes on the bake (body
 samples another island) — pack with margin or bake per-object.
+
+
+## P-20 One generator -> a family of assets (seeded procedural variety)
+WHEN: You need many distinct-but-related assets (crowd props, loot, kit-bash, set
+dressing) instead of one.
+DO: write a single `make_variant(seed)` where EVERY design knob is drawn from a
+per-seed `random.Random(seed)` — proportions, facet/segment count, colour
+(`colorsys.hsv_to_rgb`), metal-vs-painted, roughness/wear, sub-part counts (bands,
+bolts), optional features (cap/dome). Same code + different seed = a different asset;
+same seed always reproduces the same one (deterministic, so a good variant is
+re-findable by its seed). Render a grid to eyeball the spread; widen/narrow the
+family by adding/removing axes. Geometry Nodes is the native non-destructive
+alternative but is verbose/fragile to script — prefer the seeded generator for a
+code-first, exportable family. See 3d-master-modeler Template K.
+PROOF: 9 visibly distinct barrel-props (varying height, facets, colour, metal/paint,
+bands, bolts, cap) from one generator in a single render, Blender 5.0.1 headless
+2026-07-22. Clickable proof page.

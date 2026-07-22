@@ -915,6 +915,107 @@ use the bundled Rigify add-on instead of a hand-built chain:
 mesh to the generated deform bones with automatic weights. The hand-built chain
 above is the general path for non-humanoid shapes.
 
+## Template J — physics simulation: rigid body, baked headless (verified)
+
+Drop objects, let them fall / collide / settle, bake the result to keyframes, and
+export an animated glTF. Verified headless on Blender 5.0.1: 14 colored cubes +
+spheres tumbled into an open container and settled into a natural pile.
+
+**The headless gotcha (F-55):** `bpy.ops.rigidbody.bake_to_keyframes` fails in
+background mode — internally it calls `anim.keyframe_insert_by_name`, whose `poll()`
+needs a UI context that doesn't exist headless (`RuntimeError: ... context is
+incorrect`). Bake it yourself: step frames, read each body's **evaluated-depsgraph**
+matrix (that's where the sim writes), disable the sim, then keyframe those
+transforms. Works headless, and the baked object is exportable + deterministic.
+
+```python
+import bpy
+def rigidbody_world(scene, frame_end):
+    bpy.ops.rigidbody.world_add(); scene.rigidbody_world.point_cache.frame_end = frame_end
+def make_passive(o, friction=0.8):
+    bpy.context.view_layer.objects.active = o; o.select_set(True)
+    bpy.ops.rigidbody.object_add(); o.rigid_body.type='PASSIVE'; o.rigid_body.friction=friction
+def make_active(o, shape='CONVEX_HULL', restitution=0.35):
+    bpy.context.view_layer.objects.active = o; o.select_set(True)
+    bpy.ops.rigidbody.object_add(); o.rigid_body.type='ACTIVE'
+    o.rigid_body.collision_shape = shape; o.rigid_body.restitution = restitution
+
+def bake_sim_to_keyframes(scene, bodies, start, end):
+    """Headless-safe replacement for bpy.ops.rigidbody.bake_to_keyframes (F-55).
+    Captures the evaluated (simulated) matrices, stops the sim, writes keyframes."""
+    caps = {o: [] for o in bodies}
+    for f in range(start, end + 1):
+        scene.frame_set(f)
+        deg = bpy.context.evaluated_depsgraph_get()
+        for o in bodies:
+            caps[o].append((f, o.evaluated_get(deg).matrix_world.copy()))
+    scene.rigidbody_world.enabled = False              # let keyframes drive playback now
+    for o in bodies:
+        o.rotation_mode = 'QUATERNION'
+        for f, m in caps[o]:
+            loc, rot, _ = m.decompose(); o.location = loc; o.rotation_quaternion = rot
+            o.keyframe_insert("location", frame=f); o.keyframe_insert("rotation_quaternion", frame=f)
+
+# usage: rigidbody_world(scene, N); make_passive(floor); [make_active(o) for o in drops]
+#        bake_sim_to_keyframes(scene, drops, 1, N); render frames; export_scene.gltf(export_animations=True)
+```
+
+**Cloth, soft body, smoke/fire (Mantaflow):** same shape — set up the modifier /
+physics, bake the point cache (`ptcache`), render. All CPU-only here, so keep shots
+SHORT (a few seconds, modest resolution): cloth over an object and a small soft-body
+squash bake fine; a high-res smoke/fire domain is the one to push to the **cloud-GPU
+path** (documented below) — a big Mantaflow bake will blow past a CPU box's patience.
+
+## Template K — procedural variety: one generator, a family (verified)
+
+Turn a single design into a whole family of distinct assets — for crowds, kit-bashing,
+loot, set dressing. The pattern is a **seeded generator**: one `make_variant(seed)`
+function where every knob (proportions, facet count, colour, metal-vs-painted, wear,
+band count, scattered bolts, cap shape) is drawn from a per-seed RNG. Same code, a
+different asset for every seed; the same seed always reproduces the same asset.
+Verified headless on Blender 5.0.1: 9 visibly different barrel-props from one
+generator in a single render.
+
+```python
+import bpy, math, random, colorsys
+
+def make_variant(seed, origin=(0,0,0)):
+    """One seeded prop. Every '.uniform/.choice/.randint' is a variation axis —
+    add or remove axes to widen/narrow the family."""
+    rng = random.Random(seed)                                   # seed == the asset's DNA
+    R = rng.uniform(0.36, 0.54); H = rng.uniform(1.0, 1.7)      # proportions
+    facets = rng.choice([12, 16, 20, 32])                       # silhouette chunky<->round
+    metal = rng.random() > 0.45                                 # metal vs painted
+    hue = rng.random(); sat = rng.uniform(0.05, 0.2) if metal else rng.uniform(0.35, 0.8)
+    rgb = colorsys.hsv_to_rgb(hue, sat, rng.uniform(0.45, 0.85))
+    rough = rng.uniform(0.2, 0.5) if metal else rng.uniform(0.45, 0.8)   # wear
+    bpy.ops.mesh.primitive_cylinder_add(vertices=facets, radius=R, depth=H,
+        location=(origin[0], origin[1], H/2))
+    body = bpy.context.active_object
+    body.modifiers.new("b", 'BEVEL').width = rng.uniform(0.01, 0.03)
+    bpy.ops.object.shade_auto_smooth(angle=math.radians(35))
+    # ... apply a PBR material from (rgb, rough, metal); add rng.randint(1,3) rim bands;
+    #     scatter rng.choice([0,6,8,10,12]) bolts round the rim; maybe a dome cap.
+    return body
+
+# a family: for i in range(9): make_variant(1000 + i*7, grid_origin(i))
+```
+
+**Geometry Nodes** is Blender's native non-destructive way to do the same scatter /
+greeble / instancing (and it survives as a live modifier in the .blend). Scripting a
+GN tree via `bpy` is verbose and version-fragile, so for a code-first, exportable
+family the seeded-generator above is the robust path; reach for Geometry Nodes when
+the artist wants to keep tweaking the scatter interactively in Blender.
+
+## Cloud-GPU render/sim — deferred (needs Kariim's explicit yes, costs money)
+
+Everything above runs free on CPU. The paid escalation, when a job is too heavy
+here: ship the `.blend` (or scene) to a rented GPU / render service, run the render
+or the heavy Mantaflow/large-frame-range bake there, pull the result back. What it
+unlocks: fast final renders, EEVEE-real-time headless, heavy sims, Unreal/USD
+pipelines. **Revisit trigger:** Kariim approves a cloud-GPU budget. Until then this
+stays a documented path, not wired.
+
 ## Template B — Three.js WebGPU + TSL (single file, previewable)
 
 Modern default (verified: renders on a real WebGPU backend, auto-falls back to
