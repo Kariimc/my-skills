@@ -57,8 +57,12 @@
   `neon-forge-ui`, `taste`, `skills/README.md`), rebuilt
   `skills/finding-skills/index.json` (419 entries), reconciled counts via
   `bash bin/skill-doctor.sh --fix` (`README.md`, `ARCHITECTURE.md`).
-- **Next step:** none outstanding from this pass — all four config-gc/
-  skill-audit action items are resolved and ready to commit + push.
+- **Shipped:** committed as 174f191 (test fix), 13c0d72 (autonomous-loops +
+  video disambiguation), 58389fd (motion-ui). Reviewed with a local
+  `code-reviewer` subagent (0 findings — the free path, not the paid
+  `/code-review ultra`, per the user's standing preference below). Opened
+  [PR #48](https://github.com/Kariimc/my-skills/pull/48), all CI gates green,
+  squash-merged to `master` (6dbb3ca). Nothing outstanding from this pass.
 
 ## Latest (2026-07-21) — new skill: 3d-master-modeler (shipped, execution-verified)
 
@@ -244,6 +248,31 @@ PARTIAL (core done, tail is ongoing habit or user-gated):
 (Resolved: Win10-vs-Win11 contradiction — it IS Win10 today; upgrade path
 found; the wrong Agetnic-OS memory has been corrected.)
 
+## Proposed rules (user approval needed)
+
+1. **Prefer a free/local method over a paid one whenever it can do the job.**
+   Offered to run the paid multi-agent `/code-review ultra` on a PR; the user
+   said not to reach for a billed method when a free one exists. Correct
+   default going forward: review with a local `code-reviewer` subagent first
+   (free, already available) and only mention the paid deep-review option if
+   the user asks for that specific depth.
+2. **Self-check every reply against the plain-language contract before
+   sending it, don't rely on the hook to catch it.** The plain-words guard
+   blocked two separate replies this session for the same category (file
+   paths / dev jargon / wall of text) even after the first correction. One
+   rule appearing twice in one session — escalate: draft, scan for paths/
+   extensions/code terms/jargon, rewrite, then send.
+
+## Workflow worth codifying
+
+- **Retire-a-skill checklist**, done twice this session (`autonomous-loops`,
+  `motion-ui`): grep the whole repo for the skill's name → delete its folder
+  → fix every file that referenced it → rebuild
+  `skills/finding-skills/index.json` via `build-index.py` → run
+  `bin/skill-doctor.sh --fix` → hand-fix `PROGRESS.md`'s count mention →
+  commit → push. Check whether `skill-ship` already documents these exact
+  steps; if not, add them there rather than reinventing per session.
+
 ## Machine gotchas (full detail in project memory + wiki/debugging-heuristics)
 
 - Fast python: `C:\Users\karii\AppData\Local\Python\pythoncore-3.14-64\python.exe`
@@ -254,3 +283,20 @@ found; the wrong Agetnic-OS memory has been corrected.)
 - settings.json edits are classifier-blocked — hand the user a script.
 - Never put guarded strings or live tokens literally in a command line — the
   guard/classifier blocks the call; pipe from files.
+- `bin/skill-doctor.sh --fix` auto-reconciles skill/agent counts in
+  `README.md` and `ARCHITECTURE.md` but deliberately leaves `PROGRESS.md`
+  alone (contextual numbers, no auto-sed) — that one still needs a manual edit.
+- `skills/finding-skills/tool/build-index.py skills skills/finding-skills/index.json`
+  rebuilds the skill index from whatever's on disk — run it any time a skill
+  is added or removed, before `skill-doctor --fix`.
+- `gh pr merge --delete-branch` can print `fatal: 'master' is already used by
+  worktree` and exit 1 when run from a worktree session where `master` is
+  checked out elsewhere — that error is only the local branch-cleanup step
+  failing; the merge itself lands on GitHub regardless. Re-run
+  `gh pr merge <n> --squash --delete-branch --repo <owner>/<repo>` (scoping to
+  the remote) or just check `gh pr view <n> --json state` to confirm before
+  assuming it failed.
+- `video-to-animation` and `video-to-game` look like duplicates by
+  description word-overlap (~34%) but are genuinely different pipelines
+  (motion-capture/retargeting vs whole-scene asset extraction) — cross-check
+  full content before merging any two skills that only *look* similar.
