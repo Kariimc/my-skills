@@ -47,17 +47,18 @@
     debug entry, three near-duplicate entries from writing one past commit
     message). Backed up to `settings.local.json.bak` first; logged to
     `~/.claude/gc_log.md` with undo instructions. Count: 23 → 15.
-- **Deferred (user asked to look closer first, not yet done):**
-  `motion-ui` vs the `motion-foundations`/`motion-patterns`/`motion-advanced`
-  trio — `motion-ui` looks like an older, pre-split standalone guide that
-  may now be redundant, but this needs a real side-by-side content read
-  before deciding retire/keep/merge, same way the video-tools call turned
-  out to need one.
-- **Next step:** review `motion-ui` against the newer motion-family trio
-  and report back with a recommendation (do not auto-merge/retire without
-  that comparison, per the video-tools lesson above). Then commit all of
-  the skill-repo changes above (currently staged, not yet committed as of
-  this write-up) and push.
+- **`motion-ui` retired** — side-by-side read against the newer trio showed
+  full overlap: same tokens/accessibility/SSR rules as `motion-foundations`,
+  same modal/stagger/skeleton/parallax examples as `motion-patterns`, but
+  as one older, disconnected file with no dependency link to the trio (no
+  `version`/`author`/`tags`, unlike the trio's `jeff`-authored, versioned
+  set). Nothing in it was missing from the newer three. Deleted the skill
+  folder, fixed the 4 files that referenced it (`frontend-a11y`,
+  `neon-forge-ui`, `taste`, `skills/README.md`), rebuilt
+  `skills/finding-skills/index.json` (419 entries), reconciled counts via
+  `bash bin/skill-doctor.sh --fix` (`README.md`, `ARCHITECTURE.md`).
+- **Next step:** none outstanding from this pass — all four config-gc/
+  skill-audit action items are resolved and ready to commit + push.
 
 ## Latest (2026-07-21) — new skill: 3d-master-modeler (shipped, execution-verified)
 

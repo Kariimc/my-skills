@@ -1180,11 +1180,6 @@
   "path": "skills/motion-patterns/SKILL.md"
  },
  {
-  "name": "motion-ui",
-  "description": "\"Production-ready UI motion system for React/Next.js. Use when implementing animations, transitions, or motion patterns.\"",
-  "path": "skills/motion-ui/SKILL.md"
- },
- {
   "name": "multiplayer-netcode",
   "description": "Principal Multiplayer/Netcode Engineer. Designs real-time networked gameplay — authority models, state synchronization, client-side prediction and reconciliation, interpolation, lag compensation, rollback, delta compression, and anti-cheat — over UDP/WebSocket/WebRTC and engine transports (Netcode for GameObjects, Photon, Mirror, Nakama). Use when the user wants to add multiplayer, sync game state, implement prediction/rollback, reduce perceived lag, choose an authority model, or stop network-based cheating.",
   "path": "skills/multiplayer-netcode/SKILL.md"
