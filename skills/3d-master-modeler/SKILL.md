@@ -237,6 +237,27 @@ bpy.ops.wm.usd_export(filepath=base + ".usdc")
 - Print/CAD parts: STL (mesh) + STEP (parametric) from build123d, gated by the
   trimesh/manifold3d watertight check in Phase 2 — never ship an unvalidated STL.
 
+### Game asset with LODs (verified pipeline)
+
+For an engine-ready asset with levels of detail:
+1. **Join** all parts into ONE mesh (apply every modifier first), shade smooth.
+2. **Smart-UV unwrap** (`bpy.ops.uv.smart_project`, island_margin ≥ 0.02).
+3. **Bake** albedo + roughness + normal to images off the source material, then
+   rebuild a clean UV-mapped material from the baked maps. **Gotcha: bake the
+   albedo with Metallic = 0** — a metal's diffuse pass bakes near-black, so a
+   metallic source gives a flat dark map; force metalness off for the color
+   bake, then set it back on the final material. (Full ORM set — add metallic +
+   AO packed — is the next extension.)
+   **Gotcha: overlapping smart-UV islands stamp square blemishes** where the
+   body samples another island's texels; pack with margin or bake per-object.
+4. **LOD chain** via the Decimate modifier at ratios `[1.0, 0.5, 0.25, 0.12]`
+   (COLLAPSE preserves UVs); audit tri counts per level. Measured on the jerry
+   can: 4,532 → 2,266 → 1,132 → 542 tris.
+5. **Export** each LOD as its own Draco `.glb` (`use_selection=True`).
+6. **Verify** in a `THREE.LOD` viewer: `addLevel(mesh, distance)` per LOD,
+   `lod.update(camera)` each frame; a HUD reading the active level + tri count
+   proves the swap by distance.
+
 ---
 
 ## Template A — Blender `bpy` master script

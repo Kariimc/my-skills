@@ -1,7 +1,25 @@
 # PROGRESS — session handoff
 
-> Last updated: 2026-07-21.
+> Last updated: 2026-07-22.
 > Read this first; if it conflicts with the code, the code wins.
+
+## Latest (2026-07-22) — 3d-master-modeler: game-asset LOD + bake lessons saved
+
+- Game-asset-with-LODs pipeline demonstrated end-to-end on a jerry can (single
+  joined mesh, smart-UV, baked albedo/rough/normal, LOD 4532→2266→1132→542 tris,
+  Draco glb per LOD, WebGPU THREE.LOD viewer). Two hard-won gotchas now in the
+  skill + playbook P-14: (1) bake albedo with Metallic=0 (metal diffuse bakes
+  black); (2) overlapping smart-UV islands stamp square blemishes — pack with
+  margin or bake per-object (the jerry-can body still shows this; unfixed).
+- Also this session (already shipped/pushed earlier): KTX2 verified end-to-end
+  (KTX-Software installed), WebP→AUTO glTF export fix, rules promoted (visual
+  preview + plain-words), ask-before-install saved to memory.
+- Test assets (barrel, jerry can, viewers, assessment/upgrade/handoff pages) are
+  in the session scratchpad, NOT the repo — intentional (throwaway).
+- Next: a warm-start handoff prompt exists (given to Kariim as an artifact) to
+  build the free upgrades (HDRI lighting first, asset libraries, cinematic
+  post, full ORM bake, draft mode, AI→mesh, sim, rig, procedural). Cloud-GPU
+  path documented-but-deferred pending Kariim's budget OK.
 
 ## Latest (2026-07-22) — 3d-master-modeler modernized to mid-2026 cutting edge
 

@@ -98,3 +98,16 @@ NOT bundled, only a platform installer at github.com/KhronosGroup/KTX-Software
 On Windows the installer adds `C:\Program Files\KTX-Software\bin` to system PATH;
 a fresh shell has it, an existing one needs it prepended.
 PROOF: barrel photo asset 20.7 MB -> 5.59 MB (3.7x) with etc1s, 2026-07-22.
+
+## P-14 Game-asset LOD chain + baked textures in Blender (headless)
+WHEN: Turning a code-built model into an engine-ready asset with levels of detail.
+DO: Join parts -> apply mods -> smart-UV unwrap (island_margin>=0.02) -> bake
+albedo/roughness/normal off the source material into images, rebuild a clean
+UV material from them; BAKE ALBEDO WITH METALLIC=0 (a metal's diffuse pass bakes
+near-black), restore metalness on the final material. LODs: Decimate COLLAPSE at
+[1.0,0.5,0.25,0.12] (preserves UVs), export each as its own Draco .glb with
+use_selection=True. Verify with THREE.LOD (addLevel(mesh,dist) + lod.update(cam)).
+PROOF: jerry can, Blender 5.2, LOD tris 4532/2266/1132/542, baked maps, loaded in
+a WebGPU THREE.LOD viewer, 2026-07-22.
+CAUTION: overlapping smart-UV islands stamp square blemishes on the bake (body
+samples another island) — pack with margin or bake per-object.
