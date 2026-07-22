@@ -9,7 +9,10 @@ honest, branches pruned, gates green — before it compounds.
 `gh repo list Kariimc` alone - that skips shift9-studio silently. Read-mostly. May auto-fix ONLY: README
 count drift in my-skills (the gate's own job) and merged-branch deletion where
 `git branch --merged` proves safety. Everything else is report-only.
-**Act (per cycle):** run `bin/skill-doctor.sh` + apex gates in my-skills; list
+**Act (per cycle):** dispatch the `github-custodian` agent for the full sweep —
+exposure first (visibility vs intent, secret scan, LICENSE on public repos,
+Dependabot criticals), then protection (default-branch rules, required CI),
+then currency: run `bin/skill-doctor.sh` + apex gates in my-skills; list
 stale branches (>30d, unmerged) per repo; flag failing/absent CI; diff each
 README's claims against reality (counts, sprint tables).
 **Verify:** every auto-fix is committed with the proving command output in the

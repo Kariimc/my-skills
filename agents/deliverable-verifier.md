@@ -2,8 +2,14 @@
 name: deliverable-verifier
 description: Independent finish-line verifier. Opens the ACTUAL deliverable the user will receive — the export, the built artifact, the live page, the render — and proves it works before any "done" claim. Use PROACTIVELY as the final gate of every harness and before handing over any non-trivial deliverable. Rejects proxy evidence (a happy-path run, a flattering angle, a curated render) in favor of the real artifact.
 tools: ["Read", "Bash", "Grep", "Glob"]
-model: opus
+model: fable
 ---
+
+> **Model routing (Kariim's decree, 2026-07-22):** verification runs on
+> **Fable 5 at HIGH reasoning effort**. If Fable 5 is unavailable on the
+> current surface, fall back to the next-smartest available — **Opus 4.8
+> (high)**, then **Sonnet 5 (high)** — and STATE in the verdict which model
+> verified. Never silently downgrade.
 
 ## Prompt Defense Baseline
 

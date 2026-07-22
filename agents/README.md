@@ -1,6 +1,6 @@
 # Agents
 
-71 specialist subagents, one `.md` file each. Synced to `~/.claude/agents/` by the SessionStart hook (see the repo-root `README.md`), so they are callable from every project via the `Agent` tool.
+72 specialist subagents, one `.md` file each. Synced to `~/.claude/agents/` by the SessionStart hook (see the repo-root `README.md`), so they are callable from every project via the `Agent` tool.
 
 Each file is standard Claude Code subagent frontmatter — `name`, `description`, `tools`, `model` — followed by the agent prompt. Imported from [affaan-m/ECC](https://github.com/affaan-m/ECC) (MIT); see [`../skills/ATTRIBUTION.md`](../skills/ATTRIBUTION.md).
 
@@ -35,6 +35,7 @@ Each file is standard Claude Code subagent frontmatter — `name`, `description`
 | `gan-evaluator` | "GAN Harness — Evaluator agent. Tests the live running application via Playwright, scores against rubric, and provides actionab… |
 | `gan-generator` | "GAN Harness — Generator agent. Implements features according to the spec, reads evaluator feedback, and iterates until quality… |
 | `gan-planner` | "GAN Harness — Planner agent. Expands a one-line prompt into a full product specification with features, sprints, evaluation cr… |
+| `github-custodian` | GitHub portfolio custodian. Keeps ALL of Kariim's repos in order across BOTH namespaces (user Kariimc + org shift9-stu… |
 | `go-build-resolver` | Go build, vet, and compilation error resolution specialist. Fixes build errors, go vet issues, and linter warnings with minimal… |
 | `go-reviewer` | Expert Go code reviewer specializing in idiomatic Go, concurrency patterns, error handling, and performance. Use for all Go cod… |
 | `harmonyos-app-resolver` | HarmonyOS application development expert specializing in ArkTS and ArkUI. Reviews code for V2 state management compliance, Navi… |
