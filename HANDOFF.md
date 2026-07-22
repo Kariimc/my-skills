@@ -41,7 +41,9 @@ env-scout, harness-visual), each tied to specific FAILURES/PLAYBOOK/audit entrie
 Doc only; nothing built yet. Same session, second ask: added
 `docs/RULE-ENFORCEMENT-STREAMLINE-PLAN.md` — diagnosis of why agents violate
 written rules + an enforcement pyramid (gates > hooks > verifier subagents >
-minimal prose), one standard pipeline, and a 7-item build order.
+minimal prose), one standard pipeline, and a 7-item build order. Third ask: added
+`docs/3D-MASTER-MODELER-EXECUTION-PLAN.md` — run-card + phase-gate design so the
+1,170-line 3d-master-modeler skill gets executed top-to-bottom, never sampled.
 
 **2026-07-17 session (branch `claude/failure-ledger`):** Kariim declared a new 10-rule
 "Standing Contract" the governing chat-surface rules. Installed as `rules/00-contract.md`
