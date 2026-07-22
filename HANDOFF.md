@@ -34,6 +34,12 @@ provable from the repo alone - fill them in, do not guess.
 
 ## Current state
 
+**2026-07-22 session (branch `claude/harnesses-agents-suggestions-dqaas2`):** Added
+`docs/HARNESS-AGENT-ROADMAP.md` — a sharpened reusable prompt plus a ranked,
+evidence-cited roadmap of 8 new harnesses/agents (build-first: deliverable-verifier,
+env-scout, harness-visual), each tied to specific FAILURES/PLAYBOOK/audit entries.
+Doc only; nothing built yet.
+
 **2026-07-17 session (branch `claude/failure-ledger`):** Kariim declared a new 10-rule
 "Standing Contract" the governing chat-surface rules. Installed as `rules/00-contract.md`
 (named to sort FIRST in the concatenated `~/.claude/CLAUDE.md`). Removed the two real
