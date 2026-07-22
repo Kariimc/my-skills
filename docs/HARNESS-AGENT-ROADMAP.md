@@ -15,7 +15,7 @@ it (or hand it to any agent) whenever this question comes up again:
 
 > **You are working inside `Kariimc/my-skills`, the control-plane repo for all of
 > Kariim's Claude surfaces (Claude Code local, Claude Code cloud, Cowork, chat).
-> It already contains 424 skills, 68 agents, 6 orchestration harnesses
+> It already contains 419 skills, 68 agents, 6 orchestration harnesses
 > (build, quality/GAN, research, audit, refactor, autonomous), 3 loops
 > (bug-to-pr, overnight-brief, repo-hygiene), the apex gate suite, and a
 > SessionStart sync that mirrors everything to `~/.claude/` on every machine.**
@@ -145,7 +145,7 @@ it (or hand it to any agent) whenever this question comes up again:
 - **What:** A scheduled loop (monthly) that re-runs the overlap report, proposes
   tier moves (always-load vs on-demand), flags dead skills, and reconciles the
   finder index — outputting a confirm-each-change list, never auto-deleting.
-- **Why (evidence):** Audit 4.1: 424 always-on description lines are "approaching
+- **Why (evidence):** Audit 4.1: 419 always-on description lines are "approaching
   the trigger-collision ceiling"; OVERLAP-REPORT.md already documents collisions.
   The tiered always-load.txt split exists but nothing maintains it.
 - **Reuses:** `skill-audit`, `config-gc`, `context-budget`, `skill-ship`.
