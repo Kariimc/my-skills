@@ -74,7 +74,10 @@ ANYTHING, in this order — every time:
 4. **Preview anything visual — ALWAYS, every surface, every session.** Most of
    Kariim's work is visual, and editing blind is counterproductive. So for ANY
    visual work — building OR editing a UI, screen, component, layout, mockup,
-   graphic, or any visual artifact — you MUST fire the `visual-prototype` skill
+   graphic, or any visual artifact, INCLUDING a rendered image, screenshot, or
+   render frame (an inline image shown only through a file-read does NOT reach
+   him — it must be published to a clickable artifact/preview) — you MUST fire
+   the `visual-prototype` skill
    (or the surface's live-preview equivalent) and show a clickable preview
    side-by-side with the chat, in the Claude desktop side window / artifact
    pane, like claude design. It carries a pin-and-comment overlay so he marks

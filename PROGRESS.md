@@ -3,6 +3,40 @@
 > Last updated: 2026-07-21.
 > Read this first; if it conflicts with the code, the code wins.
 
+## Session-reflect (2026-07-21, 3d-master-modeler build + photo-real)
+
+**Machine gotchas (durable — don't rediscover):**
+- Blender **5.2 LTS** is installed here; launch it headless with
+  `"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" --background --factory-startup --python <s>.py`.
+- **No discrete GPU** — this laptop is Intel Iris Xe integrated only. Cycles
+  runs CPU-only; ray-trace time is the render bottleneck. A Blender MCP / live
+  link would NOT speed renders (only saves ~10s scene-rebuild per iteration).
+- Blender 5.x: `mat.use_nodes` / `world.use_nodes` are deprecated (gone in 6.0)
+  — guard with `if node_tree is None:`. `shade_auto_smooth()` is the 4.1+/5.x
+  API; `use_auto_smooth` is removed. Principled socket names changed at 4.0
+  (resolver in the skill handles both).
+- Box projection can't orient grain direction on curved side faces — photo
+  textures that must run a direction (planks, staves) need real UVs.
+- Poly Haven API returns 403 without a `User-Agent` header.
+- `find-skills.py` reads the committed `index.json`, not the live tree — a new
+  skill is invisible to search until the index is rebuilt (playbook P-12).
+
+**Proposed rules (user approval needed — I propose, you promote):**
+1. **[ESCALATED — happened this session] Never hand a visual result via a
+   Read-image alone; always publish a clickable preview/artifact.** The user
+   said "I can't see it" after I inline-rendered PNGs — the images never reach
+   them. This is the existing VISUAL=PREVIEWABLE rule; I violated it. Make it
+   reflexive: any render/mockup/screenshot → artifact or live preview, every time.
+2. **[ESCALATED — 4× this session] Keep chat plain: no commit hashes, file
+   paths, or dev jargon in replies.** The plain-words guard blocked me
+   repeatedly. Scan the draft for hashes/paths/extensions before sending, not
+   after the hook fires.
+
+**Workflows kept (already encoded, no new skill needed):**
+- The Blender verify-loop (extract template → run headless → Read the PNG →
+  patch → re-render, capped at 3 iters) and the Poly Haven CC0 photo-texture
+  pull are both now written into the `3d-master-modeler` skill itself.
+
 ## Latest (2026-07-21) — config-gc + skill-audit pass: fixed test-pollution bug, retired autonomous-loops, disambiguated video-to-animation/video-to-game
 
 - **Test-isolation bug fixed:** `skills/remembering-conversations/tool/src/paths.ts`
