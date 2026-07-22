@@ -20,6 +20,7 @@
 | Continuity docs updated, never on request (law #18) | `hooks/guard-handoff.sh` (Stop); `scribe` agent does the writing | HOOK+AGENT |
 | No destructive commands without a yes (contract #6) | `hooks/guard-destructive.sh` (PreToolUse) | HOOK |
 | No junk/backup/versioned files (law #7) | `hooks/guard-junk-files.sh` (PreToolUse) | HOOK |
+| Skills/connectors before "can't" (09-consult-skills) | `hooks/cant-guard.sh` (Stop) — helpless reply without a library/connector search is blocked; env-scout prints the capability inventory each session | HOOK |
 | Never repeat a banned road (11-failure-ledger) | `hooks/ledger-sentinel.sh` (UserPromptSubmit) — matching F/P entries injected at plan time | HOOK |
 | Staged skill = every phase, never a menu (3D) | `hooks/runcard-guard.sh` (Stop) + `skills/3d-master-modeler/runcard.md` | HOOK |
 | Harness routing / proportionality | `hooks/harness-router.sh` (UserPromptSubmit) | HOOK |

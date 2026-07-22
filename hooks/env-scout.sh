@@ -57,6 +57,27 @@ mkdir -p "$ROOT/.claude" 2>/dev/null
   fi
   [ -x /opt/pw-browsers/chromium ] 2>/dev/null && echo "- browser: Chromium at /opt/pw-browsers/chromium (do NOT playwright install)"
 
+  # ── Capability inventory (the cure for "acts like it has nothing") ────────
+  SK_DIR=""; AG_DIR=""
+  for d in "$HOME/.claude" "$ROOT"; do
+    [ -z "$SK_DIR" ] && [ -d "$d/skills" ] && SK_DIR="$d/skills"
+    [ -z "$AG_DIR" ] && [ -d "$d/agents" ] && AG_DIR="$d/agents"
+  done
+  NSK=0; NAG=0
+  [ -n "$SK_DIR" ] && NSK=$(find "$SK_DIR" -maxdepth 2 -name 'SKILL.md' 2>/dev/null | wc -l | tr -d ' ')
+  [ -n "$AG_DIR" ] && NAG=$(find "$AG_DIR" -maxdepth 1 -name '*.md' ! -name 'README.md' 2>/dev/null | wc -l | tr -d ' ')
+  echo
+  NLIB=0
+  [ -d "$ROOT/skills" ] && NLIB=$(find "$ROOT/skills" -maxdepth 2 -name 'SKILL.md' 2>/dev/null | wc -l | tr -d ' ')
+  LIB_NOTE=""
+  [ "$NLIB" -gt "$NSK" ] && LIB_NOTE=" — plus the FULL $NLIB-skill library in this repo's skills/ (auto-load is the core tier only; pull any other via /pull-skill or the finder)"
+  echo "## YOU HAVE (verified just now — never claim otherwise without searching)"
+  echo "- $NSK skills live at ${SK_DIR:-'(none found — name that gap, do not guess)'}$LIB_NOTE — search BEFORE building or refusing: python3 skills/finding-skills/tool/find-skills.py \"<task>\""
+  echo "- $NAG agents at ${AG_DIR:-'(none found)'} — dispatchable via the Agent tool"
+  echo "- Connectors & deferred tools may exist beyond what is listed in context: check ListConnectors / ToolSearch before saying a capability is missing"
+  echo "- Source of all of it: the Kariimc/my-skills repo (public; raw.githubusercontent.com fetch works even when this box is not that repo)"
+  echo "- READ IN FULL what a task names: a skill you invoke, a file you edit, a doc you cite — skimming a staged skill and shipping a partial run is the #1 quality failure (the 3D run-card exists because of it)"
+
   echo
   echo "_Full sheet also at .claude/env-facts.local.md. Durable NEW facts (a capability gained/lost) belong in PROGRESS.md the same session — see rules/07._"
 } | tee "$OUT" 2>/dev/null
