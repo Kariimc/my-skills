@@ -15,9 +15,19 @@ Usage:
   python3 organize.py --zones "C:/Users/K/Downloads" --apply
   python3 organize.py --undo <manifest.jsonl>
 
+Deletion suggestions (Kariim's request 2026-07-23 — suggest, explain in plain
+words, act only on approval, and even then only STAGE, never erase):
+  python3 organize.py --suggest-deletions          # report with plain reasons
+  python3 organize.py --stage-deletions <report>   # AFTER approval: move to
+                                                   # ~/.file-butler/trash/<date>/
+                                                   # (restorable via --undo)
+  Nothing is ever permanently erased by this tool. Emptying the holding folder
+  is a manual, human act after the 30-day cool-off.
+
 Stdlib only — runs on any box with Python, no installs.
 """
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -135,21 +145,156 @@ def undo(manifest_path: Path):
     return 0 if skipped == 0 else 1
 
 
+SUGGEST_MIN_AGE_DAYS = 30
+
+
+def sha256_of(path: Path, limit=200 * 1024 * 1024):
+    try:
+        if path.stat().st_size > limit:
+            return None                     # don't hash huge files; skip them
+        h = hashlib.sha256()
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                h.update(chunk)
+        return h.hexdigest()
+    except OSError:
+        return None
+
+
+def deletion_candidates(zone: Path):
+    """Only PROVABLE reasons, each stated in plain words. Conservative by design."""
+    now = time.time()
+    old = lambda p: (now - p.stat().st_mtime) > SUGGEST_MIN_AGE_DAYS * 86400
+    cands = []
+
+    files = []
+    for root, dirs, names in os.walk(zone):
+        rootp = Path(root)
+        dirs[:] = [d for d in dirs if not d.startswith(".") and d != ".git"]
+        if in_git_repo(rootp):
+            continue
+        for n in names:
+            p = rootp / n
+            if not p.name.startswith(".") and p.is_file():
+                files.append(p)
+
+    # 1. Exact duplicates (same size, then same content hash) — keep the oldest.
+    by_size = {}
+    for p in files:
+        try:
+            by_size.setdefault(p.stat().st_size, []).append(p)
+        except OSError:
+            pass
+    for size, group in by_size.items():
+        if size == 0 or len(group) < 2:
+            continue
+        by_hash = {}
+        for p in group:
+            h = sha256_of(p)
+            if h:
+                by_hash.setdefault(h, []).append(p)
+        for h, dupes in by_hash.items():
+            if len(dupes) < 2:
+                continue
+            dupes.sort(key=lambda p: (p.stat().st_mtime, len(p.name), p.name))
+            keeper = dupes[0]
+            for extra in dupes[1:]:
+                cands.append((extra, f"This is an exact copy of \"{keeper.name}\" — "
+                                     "the two files have identical content, so keeping "
+                                     "both just uses space twice. The original stays."))
+
+    for p in files:
+        try:
+            st = p.stat()
+        except OSError:
+            continue
+        if p.suffix.lower() in SKIP_SUFFIXES and old(p):
+            cands.append((p, "A download that never finished, over a month ago — "
+                             "it's an unusable fragment of a file, not the real thing."))
+        elif st.st_size == 0 and old(p):
+            cands.append((p, "This file is completely empty (zero bytes) and over a "
+                             "month old — there is nothing inside it to lose."))
+        elif category_for(p) == "Installers" and old(p):
+            cands.append((p, "This is an installer — the setup file you download once "
+                             "to put a program on the computer. After installing, the "
+                             "installer itself does nothing; the program lives elsewhere. "
+                             "If you ever need it again, it can be re-downloaded."))
+    # de-dup candidates (a file could match two rules); keep first reason
+    seen, unique = set(), []
+    for p, r in cands:
+        if p not in seen:
+            seen.add(p)
+            unique.append((p, r))
+    return unique
+
+
+def suggest_deletions(zones):
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    report_path = Path.home() / ".file-butler" / f"delete-suggestions-{stamp}.json"
+    all_items = []
+    for zone in zones:
+        items = deletion_candidates(zone)
+        print(f"\n{zone}: {len(items)} deletion suggestion(s)")
+        for p, reason in items:
+            try:
+                kb = p.stat().st_size // 1024
+            except OSError:
+                kb = 0
+            print(f"  {p.name}  ({kb} KB)\n    why: {reason}")
+            all_items.append({"path": str(p), "reason": reason})
+    if not all_items:
+        print("\nNo safe deletion suggestions — nothing here meets the provable rules.")
+        return 0
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(json.dumps(all_items, indent=2), encoding="utf-8")
+    print(f"\nNOTHING has been touched. If approved, stage with:\n"
+          f"  python3 organize.py --stage-deletions {report_path}\n"
+          f"Staged files sit restorable in ~/.file-butler/trash/ for 30 days.")
+    return 0
+
+
+def stage_deletions(report_path: Path):
+    items = json.loads(report_path.read_text(encoding="utf-8"))
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    trash = Path.home() / ".file-butler" / "trash" / stamp
+    manifest = Path.home() / ".file-butler" / f"manifest-trash-{stamp}.jsonl"
+    moves = []
+    for it in items:
+        src = Path(it["path"])
+        if not src.is_file():
+            print(f"  SKIP (already gone): {src}")
+            continue
+        moves.append((src, unique_target(trash / src.name)))
+    n = apply_moves(moves, manifest)
+    print(f"staged {n} file(s) into {trash} — restorable for 30 days via:\n"
+          f"  python3 organize.py --undo {manifest}")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--zones", nargs="*", help="directories to organize (default: ~/Downloads ~/Desktop)")
     ap.add_argument("--apply", action="store_true", help="actually move files (default: dry-run)")
     ap.add_argument("--undo", metavar="MANIFEST", help="reverse every move in a manifest file")
+    ap.add_argument("--suggest-deletions", action="store_true",
+                    help="report deletable files with plain-language reasons; touches nothing")
+    ap.add_argument("--stage-deletions", metavar="REPORT",
+                    help="AFTER approval: move a report's files to the restorable holding folder")
     args = ap.parse_args()
 
     if args.undo:
         return undo(Path(args.undo))
+    if args.stage_deletions:
+        return stage_deletions(Path(args.stage_deletions))
 
     zones = [Path(z).expanduser() for z in args.zones] if args.zones else default_zones()
     zones = [z for z in zones if z.is_dir()]
     if not zones:
         print("no zones found to organize")
         return 0
+
+    if args.suggest_deletions:
+        return suggest_deletions(zones)
 
     stamp = time.strftime("%Y%m%d-%H%M%S")
     manifest = Path.home() / ".file-butler" / f"manifest-{stamp}.jsonl"
