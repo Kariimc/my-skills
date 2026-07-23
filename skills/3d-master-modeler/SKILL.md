@@ -1082,11 +1082,46 @@ the deliverable. Feed it through the rest of this skill to finish it:
 | 7. Cinematic finish | depth-of-field + grade/bloom/vignette | **Template F** |
 | 8. Physics / variety | sim it, or spin one mesh into a family | **Templates J / K** |
 | 9. Deliver | compressed glTF (Draco/Meshopt) + USD, proof render | delivery formats + Phase 5 |
+| 10. Real-time finish | movie-real lighting, keep full detail, make it interactive/cinematic | **Unreal Engine 5** (GPU/laptop) |
 
 So the honest pitch to Kariim: **HF turns a picture into rough 3D; this skill turns
-rough 3D into a finished, rigged, beautifully-lit, engine-ready asset.** Steps 3–9
-all run free on CPU here (verified this session); only step 1 needs his HF Pro GPU on
-the laptop. Same render-verify loop (Phase 5) closes every step.
+rough 3D into a finished, rigged, beautifully-lit, engine-ready asset; Unreal turns
+that into a real-time, interactive, film-grade one.** Steps 3–9 all run free on CPU
+here (verified this session); step 1 needs his HF Pro GPU and step 10 needs Unreal —
+both on the laptop. Same render-verify loop (Phase 5) closes every step.
+
+HF's model catalog also feeds the MIDDLE, not just step 1: texture/PBR-material
+generators, upscalers, and delight models on HF can strengthen steps 3–4 (better maps)
+before Unreal ever sees the asset — same "generate on HF, refine in-skill" split.
+
+## Stage 10 — Unreal Engine 5: the real-time finish (GPU/laptop, documented)
+
+Where Blender-on-CPU here tops out, Unreal takes the asset the last mile — but it's a
+GPU + big-install engine, so this is DOCUMENTED + WIRED, **not run on this box** (no
+GPU, no ~100 GB install; the sibling `omni3d` already targets UE5 live-sync). What it
+adds that CPU Cycles can't:
+
+- **Nanite** — renders the raw, heavy HF/ high-poly mesh directly, so you keep every
+  detail and skip most hand-retopo (step 2 gets lighter).
+- **Lumen** — real-time global-illumination lighting/reflections; movie-real, live,
+  past what an offline CPU render gives for iteration.
+- **Interactive, not just an image** — the same asset becomes a walk-around, a playable
+  build, or a **Movie Render Queue** film-grade clip from Sequencer.
+- **In-engine Chaos physics + Control Rig animation** at real-time scale.
+
+**Wiring (all real, stable UE5 features — confirm exact calls on the laptop, don't
+hardcode blind):** export the polished asset from step 9 as **glTF** (UE5 has a native
+glTF importer) or **Datasmith**/USD → import → enable Nanite on the mesh + a Lumen scene
+→ assign a material (the baked ORM/normal maps from Template G map straight onto a UE
+Material) → for cinematics drive the **Movie Render Queue** via the **`unreal` Python
+API** (Editor scripting) or a headless `-game`/MRQ commandline on a GPU box. omni3d's
+live-sync is the interactive path; MRQ is the film path.
+
+**Boundaries to state plainly:** GPU-only (laptop/cloud-GPU, never this box); Unreal is
+Windows/Linux-desktop, not a pip wheel — no `import unreal` to verify here; and HF↔Unreal
+is a HANDOFF, not a fusion — HF/skill *generate and polish*, Unreal *renders/animates/ships*.
+Revisit trigger to actually build+verify it: Kariim runs it once on the laptop and pastes
+back the confirmed import path + MRQ config.
 
 ## Template B — Three.js WebGPU + TSL (single file, previewable)
 
