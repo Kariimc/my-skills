@@ -1021,6 +1021,50 @@ unlocks: fast final renders, EEVEE-real-time headless, heavy sims, Unreal/USD
 pipelines. **Revisit trigger:** Kariim approves a cloud-GPU budget. Until then this
 stays a documented path, not wired.
 
+## #6 Image / photo → 3D — the Hugging Face path (documented, not run on this box)
+
+Everything above BUILDS geometry in code. Turning a **photo or text prompt into a
+mesh** needs a neural reconstruction model on a GPU — the one capability that can't
+run free on this CPU box. Two honest facts set the plan:
+
+- **This cloud box cannot reach Hugging Face at all** — every HF host is blocked by
+  the egress policy (probed: `huggingface.co`, `api-inference…`, `router…`,
+  `cdn-lfs…` all fail; F-45). So the HF path runs on **Kariim's laptop** (open
+  network) or a **hosted HF endpoint**, never here. Don't claim a run happened here.
+- **Kariim has HF Pro** = a GPU on tap. That's the budget for #6 without buying a card.
+
+**Where this fits:** the sibling **`omni3d`** skill already owns the image/text/video
+→ game-asset PIPELINE (retopo → auto-rig → engine validation), but its neural
+reconstruction stage is a classic-CV scaffold (shape-from-silhouette voxel carving).
+HF Pro is what gives it (or a direct call) a REAL single-image reconstruction. So #6
+= `omni3d` for the pipeline + an HF model for the reconstruction backend.
+
+**Backend options (all on HF, pick by quality/speed):**
+- **TRELLIS** (`microsoft/TRELLIS`) — current SOTA image→3D, clean meshes + PBR.
+- **Hunyuan3D-2** (`tencent/Hunyuan3D-2`) — strong image→3D, textured.
+- **TripoSR** — fast/light single-image→mesh, good for drafts.
+
+**How to call it (verify the exact endpoint on the laptop — DON'T hardcode blind):**
+each model ships a Hugging Face **Space** with a Gradio API. The stable, real pattern
+is the `gradio_client`:
+
+```python
+# runs where HF is reachable + authenticated (laptop / HF endpoint), NOT this box.
+from gradio_client import Client, handle_file
+client = Client("tencent/Hunyuan3D-2", hf_token=HF_TOKEN)   # Pro token = GPU quota
+# IMPORTANT: read the Space's "View API" tab for the exact api_name + input names —
+# they differ per Space and change over time; do not guess them. The call shape is:
+result = client.predict(handle_file(image_path), api_name="<from the API tab>")
+# result → a generated mesh (.glb/.obj); download it, then hand to omni3d / Blender
+# (Template G to bake textures, Template I to rig) for a clean game-ready asset.
+```
+
+For repeatable/heavy use, duplicate the Space to a **private HF Inference Endpoint**
+(dedicated GPU) with the Pro account — that's the paid-hourly part; Pro credits soften
+it but don't zero it. **Verify on the laptop** (real photo → real .glb rendered), then
+paste the confirmed `api_name`/inputs back into this template. Until then it stays
+documented, not executed — honest, because HF can't be reached from here to prove it.
+
 ## Template B — Three.js WebGPU + TSL (single file, previewable)
 
 Modern default (verified: renders on a real WebGPU backend, auto-falls back to

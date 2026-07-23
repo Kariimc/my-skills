@@ -23,6 +23,26 @@
   pixel-faithful -> verify with a numeric image diff.
 > Read this first; if it conflicts with the code, the code wins.
 
+## Latest (2026-07-22, cloud) — custom-image fix + HF image→3D (#6) wired
+
+- **"Stop fetching" mechanism corrected (was slightly wrong):** the cloud env's
+  **Setup script** field (environment settings dialog, web UI) runs once, then
+  Anthropic **snapshots the filesystem and reuses it for later sessions** (rebuilds
+  ~weekly or when the script/hosts change). So the deps persist across sessions —
+  that snapshot IS the "pre-baked image". The one manual step (web-UI only, can't
+  reach it from a session): paste `python3 -m pip install -q bpy==5.0.1 pillow numpy || true`
+  into the Setup script field. The SessionStart hook I committed stays as backup.
+  (Docs: code.claude.com/docs/en/claude-code-on-the-web → Setup scripts + caching.)
+- **#6 image/photo → 3D DOCUMENTED + WIRED (SKILL "#6 Hugging Face path"):** points
+  to sibling `omni3d` for the pipeline + an HF model (TRELLIS/Hunyuan3D-2/TripoSR via
+  `gradio_client`, Kariim's HF Pro = GPU quota) for neural reconstruction. NOT run
+  here — **HF is fully blocked on this cloud box** (probed: all HF hosts fail; the HF
+  connector is anonymous, not Pro). Verify on the laptop, then paste the confirmed
+  Space `api_name` back into the template. Heavy use → paid HF Inference Endpoint.
+- Did NOT bluff the exact gradio `api_name` (varies per Space) — template says read
+  the Space's "View API" tab. All 9 free upgrades now shipped or documented; #6 is
+  the only GPU-gated one and it now has an honest wired path.
+
 ## Session-reflect (2026-07-22, cloud) — 3d upgrades complete + deps auto-install
 
 **Phase 1 — durable facts (don't rediscover):**
