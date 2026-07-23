@@ -518,3 +518,31 @@ transforms as keyframes (`o.keyframe_insert("location"/"rotation_quaternion")`).
 it renders deterministically and exports to glTF. See 3d-master-modeler Template J.
 PROOF: 14-body rigid-body pile baked + rendered (28 frames) + exported animated .glb
 headless on Blender 5.0.1, 2026-07-22.
+
+## F-56 — Building on an unverified baseline, shipping the risk as a footnote
+SYMPTOM: two live copies of the work exist (e.g. GitHub HEAD vs an AI Studio /
+local working copy) and the agent builds a large artifact on the copy IT can
+see, attaching "this might overwrite your newer work" as a caveat at the end.
+The 2026-07-22 titanium-forge chat built 2,190 lines this way, then had to
+delete the file — an hour of the user's time chasing SHAs, zero usable output.
+BANNED ROAD: act-then-flag. If "which copy is current?" is unanswered, any
+artifact built on a guess is invalid at birth, and a warning label on a
+possibly-destructive output is not a safeguard.
+THE ROAD THAT WORKS: resolving the baseline IS the work and comes first. If it
+needs one thing only the user holds (a ZIP, a paste, a yes), ask that ONE
+question and stop — that is the clarity gate, not legwork. Build only on a
+verified base; in Code sessions, plan-gate/wargame's RECON NEEDED marker is
+the mechanism.
+
+## F-57 — Routing the user through the expensive channel when a one-click one exists
+SYMPTOM: the agent needs to see or receive the user's work and sends them
+through pushes, SHA hunts, deploys, or re-prompting another model — when the
+tool they're in has a ZIP download / export button / paste that delivers the
+same thing in one click. Same 2026-07-22 chat: the export-to-GitHub button and
+ZIP existed from the start; the search result proving it sat unused in context.
+BANNED ROAD: defaulting to the channel the AGENT finds natural (repo plumbing)
+instead of the cheapest channel the USER holds.
+THE ROAD THAT WORKS: before asking the user to move anything, enumerate their
+one-click paths first (export/download/share buttons in the tool they named,
+paste, drag-drop) and request the cheapest one, once. Ponytail applies to
+channels, not just code.

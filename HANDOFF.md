@@ -73,6 +73,11 @@ deliverable-verifier + agent-evaluator now model: fable (HIGH), fallback
 Opus 4.8 high then Sonnet 5 high, verdict names the model — encoded in
 rules/06 and AGENT-CONTRACT. Cross-repo sweeps need gh/added repos; this
 cloud session is scoped to my-skills only.
+Chat-surface fix (2026-07-22, from the titanium-forge chat incident): F-56
+(unverified-baseline build) + F-57 (expensive channel over one-click) appended
+to FAILURES.md (both copies); chat/CHAT-BOOTSTRAP.md created — the 7-law
+chat-surface rulebook every plain-Claude chat loads via a settings pointer.
+Kariim's one manual step: paste the pointer into claude.ai settings.
 Flagged deviations: prose rulebook NOT shrunk (map first, cuts need Kariim's
 review); env-scout shipped as script+hook, not an agent (plan's own smallest
 version). Everything proof-tested pre-commit; landed via PR #54.
