@@ -1094,6 +1094,34 @@ HF's model catalog also feeds the MIDDLE, not just step 1: texture/PBR-material
 generators, upscalers, and delight models on HF can strengthen steps 3–4 (better maps)
 before Unreal ever sees the asset — same "generate on HF, refine in-skill" split.
 
+### The FREE / no-GPU-hardware path (default until Kariim owns a card)
+
+The whole pipeline runs with **no dedicated graphics card** and at ~zero cost, because
+the only GPU-heavy steps are pushed onto machines Kariim doesn't own:
+
+- **Step 1 (reconstruct) runs on HF's GPUs, free.** The image→3D models ship public
+  **ZeroGPU Spaces** (TRELLIS, Hunyuan3D-2, TripoSR) — HF runs them on THEIR GPU when
+  you call the Space (via `gradio_client`); you pay nothing. HF **Pro just buys
+  priority + higher quota + less queue** on that same free GPU — it lowers wait, not a
+  hard paywall. So image→3D needs no local card.
+- **Squeeze HF for every GPU-heavy generation, still free:** the input picture itself
+  (text→image on a free FLUX/SDXL Space) if you only have a prompt, plus texture /
+  PBR-map / upscale / delight Spaces to strengthen steps 3–4. Generation = HF's GPUs;
+  refinement = the skill's CPU.
+- **Steps 2–9 (all the polish) run FREE on CPU** — Blender `bpy`, this box or the
+  laptop. Nothing is cut: retopo, bake, materials, rig, lighting, cinematic finish,
+  physics, variety all still run.
+- **Step 10 real-time finish — FREE substitute:** the **Three.js WebGPU viewer
+  (Template B)** gives you an interactive, orbitable, lit view of the finished asset
+  **in a browser**, using whatever GPU the laptop already has (even integrated Intel) —
+  no dedicated card, no install. That covers "make it interactive" for free. **Unreal
+  (Nanite/Lumen, Stage 10 below) is the UPGRADE for when Kariim buys a real GPU** — same
+  asset, more horsepower — not a requirement to finish.
+
+Net: photo-or-prompt → finished, textured, rigged, lit, and interactively viewable
+asset, **no GPU hardware and ~no spend** — HF's free hosted GPUs do the heavy lifting,
+the skill's CPU does the craft, the browser does the real-time view.
+
 ## Stage 10 — Unreal Engine 5: the real-time finish (GPU/laptop, documented)
 
 Where Blender-on-CPU here tops out, Unreal takes the asset the last mile — but it's a
