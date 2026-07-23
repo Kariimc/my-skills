@@ -78,6 +78,12 @@ Chat-surface fix (2026-07-22, from the titanium-forge chat incident): F-56
 to FAILURES.md (both copies); chat/CHAT-BOOTSTRAP.md created — the 7-law
 chat-surface rulebook every plain-Claude chat loads via a settings pointer.
 Kariim's one manual step: paste the pointer into claude.ai settings.
+file-butler shipped (2026-07-23): agent + skill + stdlib engine
+(moves-only, undo manifest, git/hidden/in-flight/<1h protected) + daily loop.
+Proof-tested end to end (11 sorted, collision suffixed, protected intact,
+undo 12/12). Relay inbox message left for code-local to run the first shown
+dry-run and arm the laptop schedule — Kariim explicitly authorized automatic
+operation 2026-07-23. Cloud cannot reach laptop files; laptop owns execution.
 Flagged deviations: prose rulebook NOT shrunk (map first, cuts need Kariim's
 review); env-scout shipped as script+hook, not an agent (plan's own smallest
 version). Everything proof-tested pre-commit; landed via PR #54.
