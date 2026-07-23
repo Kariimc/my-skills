@@ -2,6 +2,24 @@
 
 > Last updated: 2026-07-22.
 
+## Latest (2026-07-22, cloud) — free/no-GPU AAA path + HF research (3d-master-modeler)
+
+- **Goal set by Kariim:** AAA-cinematic 3D assets, fewest passes, quick, FREE, and he
+  has **no GPU yet** — workaround via HF's hosted GPUs. Now the skill's default path.
+- **Live-researched facts (baked into SKILL "AAA-cinematic … recipe"):**
+  - Best free image→3D 2026: **TRELLIS** (won ~68% head-to-head, cleanest topology) and
+    **Hunyuan3D-2.1/2.5** (native PBR, up to **8K textures**, <60s) — Hunyuan for "AAA in
+    one pass" (texture-ready → no separate texture pass), TRELLIS for topology.
+  - **HF Pro ZeroGPU = 1500 GPU-seconds/day (25 min) FREE**; charged on REQUESTED
+    duration (fails when remaining < requested); ~60–120s/gen → **~12–20 assets/day
+    free**; overflow **$1 per 10 GPU-min**. Generate hero assets in one sitting, iterate
+    free on CPU, don't re-roll the model.
+  - Fewest passes = ONE strong HF call (mesh+PBR) → skill lights+grades → deliver.
+- **Proven this session (no GPU):** fetched mesh → environment light + DOF + cinematic
+  grade → clean before/after on CPU alone. Artifact `ce222768-aaa2-49b0-bcd5-53edc77ff36f`.
+- HF fully blocked on this cloud box (step 1 verifies on the laptop); polish steps 2–9 +
+  browser WebGPU (10, free) verified CPU-only here.
+
 ## Session-reflect (2026-07-22, local) - SHIFT-9 reference match
 
 **Phase 1 - durable facts:**

@@ -1122,6 +1122,44 @@ Net: photo-or-prompt → finished, textured, rigged, lit, and interactively view
 asset, **no GPU hardware and ~no spend** — HF's free hosted GPUs do the heavy lifting,
 the skill's CPU does the craft, the browser does the real-time view.
 
+### AAA-cinematic in the fewest passes, free — the recipe (live-researched 2026)
+
+Goal: AAA-quality assets, fewest passes, quick, free — inside HF Pro's limits. The
+lever is **pick a reconstruction model that already outputs clean topology + PBR in
+one shot**, so the skill only lights and grades instead of rebuilding.
+
+- **Model choice (both free on HF ZeroGPU):**
+  - **Hunyuan3D-2.1 / 2.5** — native **PBR materials, up to 8K textures**, ~<60 s.
+    Best "AAA in one pass" — the mesh arrives already texture-ready, so you skip the
+    separate texture-gen passes entirely. **Primary pick for cinematic quality.**
+  - **TRELLIS / TRELLIS.2** (Microsoft) — won ~68 % of head-to-head vs Hunyuan's 24 %;
+    **cleanest topology**, PBR from a single photo (~20 s–4 min). Pick when retopo
+    matters more than texture richness.
+  - Both use multi-view-diffusion → feed-forward reconstruction (the 2026 SOTA
+    pattern) = the cleanest topology, which is *why* fewer retopo passes are needed.
+- **HF Pro quota reality (design around it):** Pro gives **1500 ZeroGPU-seconds/day**
+  (25 min) free. Quota is charged on the **requested** duration, not actual runtime,
+  and a call fails once remaining < requested — so **set the Space's duration
+  realistically** and batch. One generation ≈ 60–120 s → **~12–20 AAA assets/day for
+  free**; past that it's **$1 per 10 GPU-min** of prepaid credit. So: generate the
+  day's hero assets in one sitting, and do all iteration on the CPU side (free), never
+  by re-rolling the model.
+- **The AAA finish, still free:** HF hands you an 8K-PBR mesh → (only if needed)
+  Template G re-bakes/optimizes the maps → **Template E real-HDRI environment** (pull a
+  GitHub-mirrored HDRI, P-16) → **high-sample Cycles** (256+; #5 final tier) →
+  **Template F cinematic finish** → an AAA still. Interactive/real-time for free via the
+  **browser WebGPU viewer (Template B)**; Unreal (below) is the upgrade when a card
+  arrives. **Verified this session (no GPU):** a fetched mesh → environment light + DOF
+  + cinematic grade produced a clean before/after on CPU alone.
+- **Fewest-passes summary:** ONE strong HF call (mesh + PBR) → light → grade → deliver.
+  The model does the sculpt+texture; the skill does the cinematography. No manual
+  modelling pass, no separate texture pass, no GPU.
+
+Sources: [Hunyuan3D 2.5 (arXiv)](https://arxiv.org/pdf/2506.16504) ·
+[3D-gen API comparison 2026](https://www.3daistudio.com/blog/best-3d-model-generation-apis-2026) ·
+[HF ZeroGPU quota docs](https://huggingface.co/docs/hub/en/spaces-zerogpu) ·
+[ZeroGPU Pro quota (1500 s/day)](https://discuss.huggingface.co/t/zero-gpu-daily-quota/168376).
+
 ## Stage 10 — Unreal Engine 5: the real-time finish (GPU/laptop, documented)
 
 Where Blender-on-CPU here tops out, Unreal takes the asset the last mile — but it's a
