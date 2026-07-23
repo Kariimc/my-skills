@@ -48,6 +48,20 @@ session cannot, by architecture). New zone → one shown dry-run + one yes,
 then it's automatic there. Every scheduled run's report + undo command lands
 in the run log, so nothing ever happens invisibly.
 
+## Deletion suggestions (approve-first, stage-only — never a true erase)
+
+```bash
+python3 tool/organize.py --suggest-deletions      # report only, touches nothing
+python3 tool/organize.py --stage-deletions <report.json>   # AFTER Kariim's yes
+```
+
+Only PROVABLE reasons, each stated in plain jargon-free words with the file:
+exact duplicates (checked by content, keeper stays), installers older than 30
+days (re-downloadable), dead half-downloads older than 30 days, empty files
+older than 30 days. Approval moves files to `~/.file-butler/trash/<date>/` —
+restorable for 30 days via `--undo`. **This tool never permanently erases
+anything**; emptying the holding folder after the cool-off is a human act.
+
 ## Proof (2026-07-23, this pipeline, real run)
 
 11 mixed files sorted correctly by category; collision produced `report (1).pdf`;

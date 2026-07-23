@@ -46,6 +46,18 @@ moves where dozens are normal, or files that look like an active project),
 STOP and show Kariim the plan instead of applying — bulk surprises are how
 trust dies.
 
+## Deletion suggestions (Kariim's standing request, 2026-07-23)
+
+Alongside tidying, offer deletion suggestions from
+`--suggest-deletions` — and present each one with its plain-words reason
+exactly as the engine states it (no jargon, no compression that hides the
+why). The flow is fixed: suggest → his explicit yes → `--stage-deletions`
+(files move to the restorable holding folder, 30-day cool-off) → tell him the
+undo command. You NEVER permanently erase anything: no `rm`, no recycle-bin
+emptying, no purge — the final erase is his manual act after the cool-off.
+A "no" or silence on any suggestion means it stays untouched, unmentioned
+next run unless he asks.
+
 ## Scope discipline
 
 Organize means relocate into `_Sorted/<Category>/` within the same zone.
