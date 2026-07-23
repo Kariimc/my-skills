@@ -1065,6 +1065,29 @@ it but don't zero it. **Verify on the laptop** (real photo → real .glb rendere
 paste the confirmed `api_name`/inputs back into this template. Until then it stays
 documented, not executed — honest, because HF can't be reached from here to prove it.
 
+### The full pipeline — HF is the front door, the rest of this skill is the polish
+
+The HF model gives you a RAW mesh from a photo/prompt: recognizable but rough —
+messy topology, one baked-in texture, no rig, no lighting. That's the *start*, not
+the deliverable. Feed it through the rest of this skill to finish it:
+
+| Step | What it does | Where |
+|---|---|---|
+| 1. Reconstruct | photo / text → raw mesh (the front door) | **#6 HF** → TRELLIS / Hunyuan3D-2 |
+| 2. Retopo + auto-rig | rebuild to clean quads, weld, auto-rig + skin | sibling **`omni3d`** pipeline |
+| 3. Bake engine PBR | albedo/rough/metal/normal/AO + packed ORM | **Template G** |
+| 4. Extra materials | swap/layer real texture sets if the baked one is weak | **Template H** |
+| 5. Rig & animate | add a skeleton + motion if omni3d didn't | **Template I** |
+| 6. Environment light | drop it into a real photographed sky | **Template E** |
+| 7. Cinematic finish | depth-of-field + grade/bloom/vignette | **Template F** |
+| 8. Physics / variety | sim it, or spin one mesh into a family | **Templates J / K** |
+| 9. Deliver | compressed glTF (Draco/Meshopt) + USD, proof render | delivery formats + Phase 5 |
+
+So the honest pitch to Kariim: **HF turns a picture into rough 3D; this skill turns
+rough 3D into a finished, rigged, beautifully-lit, engine-ready asset.** Steps 3–9
+all run free on CPU here (verified this session); only step 1 needs his HF Pro GPU on
+the laptop. Same render-verify loop (Phase 5) closes every step.
+
 ## Template B — Three.js WebGPU + TSL (single file, previewable)
 
 Modern default (verified: renders on a real WebGPU backend, auto-falls back to
