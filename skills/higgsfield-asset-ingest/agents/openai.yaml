@@ -1,0 +1,4 @@
+interface:
+  display_name: "Higgsfield Asset Ingest"
+  short_description: "Import downloaded Higgsfield assets into projects reliably."
+  default_prompt: "Import my newly downloaded Higgsfield assets into this project, rename them clearly, dedupe them, and place them in the right app asset folder."
