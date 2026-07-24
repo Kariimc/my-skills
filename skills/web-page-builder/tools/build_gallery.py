@@ -57,9 +57,12 @@ def card_html(s):
     </a>"""
 
 
-def build(out_path):
+def load_sites():
     idx = json.load(open(INDEX)) if os.path.exists(INDEX) else {"sites": []}
-    sites = idx.get("sites", [])
+    return idx.get("sites", [])
+
+
+def render(sites, inject_head="", inject_body=""):
     alltags = sorted({t for s in sites for t in s.get("tags", [])})
     chips = "".join('<button class="chip" data-tag="%s">%s</button>' % (esc(t), esc(t))
                     for t in alltags)
@@ -85,6 +88,7 @@ python3 tools/import_bookmarks.py bookmarks.html --harvest</pre>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Taste Library &mdash; {count} site{'s' if count!=1 else ''}</title>
+{inject_head}
 <style>
   :root{{--bg:#faf9f7;--fg:#16161a;--muted:#6b7280;--card:#ffffff;--line:#e6e4df;--accent:#e8482b}}
   html[data-theme=dark]{{--bg:#0b0b0f;--fg:#f4f3ee;--muted:#8a8f98;--card:#15151b;--line:#26262e;--accent:#ff5a3c}}
@@ -131,6 +135,7 @@ python3 tools/import_bookmarks.py bookmarks.html --harvest</pre>
   <span class="spacer"></span>
   <button class="themebtn" onclick="var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">theme</button>
 </header>
+{inject_body}
 {f'<div class="chips"><button class="chip on" data-tag="">all</button>{chips}</div>' if alltags else ''}
 <main>
   <div class="grid">{grid}</div>
@@ -149,8 +154,13 @@ python3 tools/import_bookmarks.py bookmarks.html --harvest</pre>
 </script>
 </body>
 </html>"""
-    open(out_path, "w").write(doc)
-    print("Wrote %s (%d sites)" % (out_path, count))
+    return doc
+
+
+def build(out_path):
+    sites = load_sites()
+    open(out_path, "w").write(render(sites))
+    print("Wrote %s (%d sites)" % (out_path, len(sites)))
 
 
 def main():

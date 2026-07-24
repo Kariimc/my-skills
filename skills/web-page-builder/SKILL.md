@@ -87,6 +87,16 @@ Browse the library as a **web app**: `python3 tools/build_gallery.py` generates 
 single self-contained `gallery.html` — a clickable grid of every card with its
 screenshot, palette swatches, and fonts. That is the "view your inspiration" surface.
 
+### Local GUI on localhost (the Chase-AI way — paste a URL, watch the card appear)
+
+`python3 tools/serve_library.py` opens a **local web app** at `http://127.0.0.1:8777`
+(no dependencies — Python's built-in server). It has a text box + **Add site** button:
+paste a website URL, click Add, and its card is harvested and appears in the live grid.
+A **Harvest queue** button harvests every pending site in `candidates.json`. Run this for
+the user when they want to manage the library visually instead of by command. (Harvesting
+still needs open web; the GUI itself always runs.) For a localhost GUI to build and tweak
+the *site itself*, use impeccable's `live` mode (see `preview-and-tweak.md`).
+
 See `references/taste-library.md` for the card schema and `references/harvesting.md`
 for details and troubleshooting.
 
