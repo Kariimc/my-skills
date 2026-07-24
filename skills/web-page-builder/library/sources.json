@@ -1,0 +1,79 @@
+{
+  "note": "Inspiration feeds Kariim pulls from. These are galleries/dashboards (many sites each) or image boards, NOT single sites. Harvest galleries in --links mode (mine for site URLs, then harvest the good ones). Dashboards need Kariim's logged-in browser session. Image boards give moodboard references, not palette-from-live-site cards.",
+  "sources": [
+    {
+      "url": "https://www.awwwards.com/websites/sites_of_the_day/",
+      "kind": "gallery",
+      "auth": false,
+      "harvest": "links",
+      "priority": 1,
+      "note": "Awwwards Sites of the Day — PRIMARY feed. Paginated. Mine for the featured site links, harvest a reasonable batch."
+    },
+    {
+      "url": "https://www.awwwards.com/websites/sites_of_the_week/",
+      "kind": "gallery",
+      "auth": false,
+      "harvest": "links",
+      "priority": 1,
+      "note": "Awwwards Sites of the Week — PRIMARY feed. The week's standouts."
+    },
+    {
+      "url": "https://www.awwwards.com/websites/sites_of_the_year/",
+      "kind": "gallery",
+      "auth": false,
+      "harvest": "links",
+      "priority": 1,
+      "note": "Awwwards Sites of the Year — PRIMARY feed. The annual best (e.g. Messenger, SOTY 2025)."
+    },
+    {
+      "url": "https://www.awwwards.com/websites/sites_of_the_month/",
+      "kind": "gallery",
+      "auth": false,
+      "harvest": "links",
+      "priority": 1,
+      "note": "Awwwards Sites of the Month — PRIMARY feed. Monthly standouts (e.g. Bruno Simon Jan 2026)."
+    },
+    {
+      "url": "https://recent.design/?ref=godly",
+      "kind": "gallery",
+      "auth": false,
+      "harvest": "links",
+      "note": "recent.design feed (Godly-style). Public. Mine for outbound site links."
+    },
+    {
+      "url": "https://dribbble.com/",
+      "kind": "gallery",
+      "auth": false,
+      "harvest": "links",
+      "note": "Dribbble shots are mostly images; some link to live sites. Use for moodboard + follow through to real site URLs where present. Search 'web design' for on-topic shots."
+    },
+    {
+      "url": "https://manage.wix.com/account/explore/inspiring-websites",
+      "kind": "dashboard",
+      "auth": true,
+      "harvest": "links",
+      "note": "Wix 'inspiring websites' gallery — behind Kariim's Wix account login. Needs his browser session; a headless fetch hits a login wall."
+    },
+    {
+      "url": "https://lovable.dev/dashboard",
+      "kind": "dashboard",
+      "auth": true,
+      "harvest": "manual",
+      "note": "Kariim's own Lovable project dashboard — behind his login, and it's his projects, not a public gallery. Point at specific published project URLs to harvest those."
+    },
+    {
+      "url": "https://twitter.com/search?q=web%20design",
+      "kind": "social",
+      "auth": true,
+      "harvest": "moodboard",
+      "note": "Twitter/X web-design posts. Often auth-gated and JS-heavy. Treat as image/link moodboard; follow through to real site URLs to harvest as cards."
+    },
+    {
+      "url": "https://www.pinterest.com/search/pins/?q=web%20design",
+      "kind": "image-board",
+      "auth": false,
+      "harvest": "moodboard",
+      "note": "Pinterest web-design pins are images, not sites. Use as visual moodboard (save images for direction), not palette-from-live-site extraction."
+    }
+  ]
+}

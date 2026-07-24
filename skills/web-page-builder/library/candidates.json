@@ -1,0 +1,24 @@
+{
+  "note": "Individual inspo sites discovered from Kariim's feeds via web search (names are facts; live URLs are resolved by the harvester from the Awwwards listing on a surface with open web + login). status 'pending' = not yet harvested into a card. Harvest on the laptop: the cloud box can't reach these. Re-run search periodically — Awwwards Day/Week/Year rotates.",
+  "discovered": "2026-07-24",
+  "candidates": [
+    { "name": "Messenger (WebGL planet)", "source_feed": "awwwards_soty_2025", "note": "Awwwards Site of the Year 2025 — tiny WebGL planet, browser deliveries.", "status": "pending" },
+    { "name": "Bruno Simon 2025 portfolio", "source_feed": "awwwards_sotm", "url": "https://bruno-simon.com/", "note": "Site of the Month Jan 2026. Known stable URL.", "status": "pending" },
+    { "name": "By-Kin", "source_feed": "awwwards_sotd", "url": "https://by-kin.com/", "note": "UK studio; SOTD + Developer Award + FWA + CSSDA. Next.js/GSAP/Strapi, editorial type, weighted smooth scroll.", "status": "pending" },
+    { "name": "Jeton", "source_feed": "awwwards_sotd", "note": "Fintech; scroll-based movement, morphing desktop-to-mobile. SOTD.", "status": "pending" },
+    { "name": "OceanX", "source_feed": "awwwards_sotd", "note": "SOTD Feb 23 2026.", "status": "pending" },
+    { "name": "Art Here 2025 — Richard Mille", "source_feed": "awwwards_sotd", "note": "SOTD Feb 12 2026.", "status": "pending" },
+    { "name": "Shopify Live Globe 2025", "source_feed": "awwwards_sotd", "note": "SOTD Jan 19 2026.", "status": "pending" },
+    { "name": "Dragonfly Redux", "source_feed": "awwwards_sotd", "note": "SOTD Jul 23 2026.", "status": "pending" },
+    { "name": "Lacoste — Polo Factory", "source_feed": "awwwards_sotd", "note": "SOTD Jul 22 2026.", "status": "pending" },
+    { "name": "Lama Lama", "source_feed": "awwwards_sotd", "note": "SOTD Jul 21 2026.", "status": "pending" },
+    { "name": "Glitch&Grit", "source_feed": "awwwards_sotd", "note": "SOTD Jul 20 2026.", "status": "pending" },
+    { "name": "IZANAMI", "source_feed": "awwwards_sotd", "note": "SOTD Jul 19 2026.", "status": "pending" },
+    { "name": "Hiroto Sato", "source_feed": "awwwards_sotd", "note": "SOTD Jul 18 2026.", "status": "pending" },
+    { "name": "CoffeeTech", "source_feed": "awwwards_sotd", "note": "SOTD Jul 17 2026.", "status": "pending" },
+    { "name": "RISK", "source_feed": "awwwards_sotd", "note": "SOTD Jul 16 2026.", "status": "pending" },
+    { "name": "House of Honey", "source_feed": "awwwards_sotd", "note": "SOTD Jul 15 2026.", "status": "pending" },
+    { "name": "Longbow", "source_feed": "awwwards_sotd", "note": "SOTD Jul 13 2026.", "status": "pending" },
+    { "name": "Vectr", "source_feed": "awwwards_sotd", "note": "SOTD Jul 12 2026.", "status": "pending" }
+  ]
+}

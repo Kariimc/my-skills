@@ -37,6 +37,8 @@ token-saver
 context-budget
 
 # --- your actual workflow ---
+web-page-builder
+impeccable
 visual-prototype
 screen-eyes
 plain-language

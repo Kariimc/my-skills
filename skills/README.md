@@ -1,6 +1,6 @@
 # Skills Catalog
 
-422 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
+425 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
 auto-loaded into every project via the SessionStart sync hook (see the repo
 root `README.md`). Claude invokes a skill automatically when your request
 matches its `description` — you can also force one with `/<skill-name>`.
@@ -43,6 +43,8 @@ imported in the ECC + ponytail batch (see [Imported batch](#-imported-batch--ecc
 ## 🌐 Web & Frontend
 | Skill | What it does |
 |---|---|
+| `web-page-builder` | ⭐ The one front door for building any website — pulls a look from your taste library, commits a bold direction, builds, lets you pin-and-tweak in the browser, polishes with impeccable, adds award-tier motion, and deploys. Folds in the frontend/design/deploy skills + Higgsfield assets. |
+| `impeccable` | Design language + quality engine (vendored, Apache-2.0) — 23 one-word passes (`polish`, `audit`, `critique`, `bolder`, `quieter`, `typeset`, `layout`, `animate`, `live`, …) for out-of-distribution UI craft. |
 | `web-implementation` | Build out web app features/frontends. |
 | `web-deployment` | Ship web apps — build, deploy, release validation. |
 | `web-scraper` | Robust web scraping pipelines. |

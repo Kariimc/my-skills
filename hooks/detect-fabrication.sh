@@ -62,6 +62,13 @@ def skipped(path):
         return True
     if base == "selftest-guards.sh":
         return True
+    # Vendored third-party skills are copied verbatim under their upstream
+    # license (LICENSE + VENDORED.md sit in the skill dir). Their TODO/FIXME
+    # markers are upstream's code, not our unfinished work, and editing them
+    # would break vendoring fidelity — so they're out of scope for the
+    # "finish the implementation" gate. Add each vendored tree here.
+    if low.startswith("skills/impeccable/"):
+        return True
     # The CI gate's own workflow quotes these markers in its self-check and its
     # comments. Exactly this one path — NOT all of .github/, or an agent could
     # park TODOs in CI config and the gate would wave them through.
