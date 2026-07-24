@@ -672,3 +672,17 @@ found; the wrong Agetnic-OS memory has been corrected.)
   description word-overlap (~34%) but are genuinely different pipelines
   (motion-capture/retargeting vs whole-scene asset extraction) — cross-check
   full content before merging any two skills that only *look* similar.
+
+## 2026-07-24 — code-local: higgsfield-asset-ingest skill pushed, PR open
+- New skill `skills/higgsfield-asset-ingest/` (SKILL.md + agents/openai.yaml +
+  references/workflow.md + scripts/ingest_assets.py) was sitting untracked on
+  the laptop (built via Codex; the relay-referenced commit 3e8a51e never
+  existed). Secret-scanned clean, frontmatter name matches dir.
+- Committed on branch `claude/higgsfield-asset-ingest` (1fb63fc); README skill
+  count auto-bumped to 423 by the live gate. All apex commit + push gates green.
+  Pushed to origin. PR #68 open against master.
+- PR #68 merged to master 2026-07-24 (Kariim approved). Skill now live on
+  master; cloud my-skills has it on next sync.
+- Still queued in relay inbox/code-local: arm laptop self-scheduler (Kariim
+  pre-approved), file-butler first dry-run + arm, shift9 work-wall sync (needs
+  local shift9-studio/.github clone).
