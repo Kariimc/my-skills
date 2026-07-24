@@ -34,6 +34,60 @@ provable from the repo alone - fill them in, do not guess.
 
 ## Current state
 
+**2026-07-22 session (branch `claude/harnesses-agents-suggestions-dqaas2`):** Added
+`docs/HARNESS-AGENT-ROADMAP.md` — a sharpened reusable prompt plus a ranked,
+evidence-cited roadmap of 8 new harnesses/agents (build-first: deliverable-verifier,
+env-scout, harness-visual), each tied to specific FAILURES/PLAYBOOK/audit entries.
+ALL of it was then BUILT the same session (see below). Second ask: added
+`docs/RULE-ENFORCEMENT-STREAMLINE-PLAN.md` — diagnosis of why agents violate
+written rules + an enforcement pyramid (gates > hooks > verifier subagents >
+minimal prose), one standard pipeline, and a 7-item build order. Third ask: added
+`docs/3D-MASTER-MODELER-EXECUTION-PLAN.md` — run-card + phase-gate design so the
+1,170-line 3d-master-modeler skill gets executed top-to-bottom, never sampled.
+
+**BUILT (same session, per "build everything and land everything"):** agents
+`deliverable-verifier` + `scribe` (global via agents/ sync); hooks
+`env-scout.sh` (SessionStart fact sheet), `ledger-sentinel.sh`
+(UserPromptSubmit F/P injection), `runcard-guard.sh` (Stop, 3D run-card
+enforcement) — registered project-level AND in session-start block 6b2 for
+global reach, KNOWN heal-set + selftest-guards extended; skills
+`harness-visual` (with tested tool/imgdiff.py) + `harness-3d`;
+`skills/AGENT-CONTRACT.md` + fidelity gate wired into all 6 harnesses;
+`loops/skill-gardener.md`; `rules/14-surface-router.md` (+ rules README rows
+12-14); `docs/RULES-ENFORCEMENT-MAP.md`; apex behavioral ratchet lane in
+GATES.md; 3d-master-modeler `runcard.md` mandatory via operating rule 7.
+Post-landing same session: runcard-guard re-armed on STRUCTURAL skill
+invocation after false-blocking its own authoring session (PR #55, merged);
+env-scout became a full agent (71 agents); cant-guard Stop hook + YOU-HAVE
+capability inventory added so "can't" requires a search first (PR #56).
+Rulebook-slimming pass (Kariim's explicit yes, 2026-07-22): the five
+machine-carried rule files (01 plain-talk, 07 progress, 09 consult-skills,
+11 failure-ledger, 12 playbook) shrunk 113 -> 64 lines, each ending in an
+ENFORCED-BY pointer to docs/RULES-ENFORCEMENT-MAP.md; every duty preserved,
+JUDGMENT rules untouched (00-contract, 00-core, 00-idp, 10-topology, etc.).
+Generated ~/.claude/CLAUDE.md verified rebuilt: 638 -> 589 lines, slim text
+live, zero old remnants.
+Custodian + verifier decree (2026-07-22): github-custodian agent (72 agents)
+wired into loops/repo-hygiene.md exposure-first sweep; verification decree —
+deliverable-verifier + agent-evaluator now model: fable (HIGH), fallback
+Opus 4.8 high then Sonnet 5 high, verdict names the model — encoded in
+rules/06 and AGENT-CONTRACT. Cross-repo sweeps need gh/added repos; this
+cloud session is scoped to my-skills only.
+Chat-surface fix (2026-07-22, from the titanium-forge chat incident): F-56
+(unverified-baseline build) + F-57 (expensive channel over one-click) appended
+to FAILURES.md (both copies); chat/CHAT-BOOTSTRAP.md created — the 7-law
+chat-surface rulebook every plain-Claude chat loads via a settings pointer.
+Kariim's one manual step: paste the pointer into claude.ai settings.
+file-butler shipped (2026-07-23): agent + skill + stdlib engine
+(moves-only, undo manifest, git/hidden/in-flight/<1h protected) + daily loop.
+Proof-tested end to end (11 sorted, collision suffixed, protected intact,
+undo 12/12). Relay inbox message left for code-local to run the first shown
+dry-run and arm the laptop schedule — Kariim explicitly authorized automatic
+operation 2026-07-23. Cloud cannot reach laptop files; laptop owns execution.
+Flagged deviations: prose rulebook NOT shrunk (map first, cuts need Kariim's
+review); env-scout shipped as script+hook, not an agent (plan's own smallest
+version). Everything proof-tested pre-commit; landed via PR #54.
+
 **2026-07-17 session (branch `claude/failure-ledger`):** Kariim declared a new 10-rule
 "Standing Contract" the governing chat-surface rules. Installed as `rules/00-contract.md`
 (named to sort FIRST in the concatenated `~/.claude/CLAUDE.md`). Removed the two real

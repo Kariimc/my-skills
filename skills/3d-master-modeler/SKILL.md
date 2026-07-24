@@ -30,6 +30,11 @@ exported asset.
 6. **Clean up.** Temp scripts and intermediate renders go in the scratchpad;
    only the final script, final render(s), and exported asset land in the
    project.
+7. **Run-card, always.** Copy `runcard.md` (this skill's folder) into the
+   working directory at Phase 0 and fill each row as its phase completes.
+   Every phase leaves a named proof artifact or an explicit `N/A — reason`;
+   a blank row means the run is NOT done. This skill is a staged pipeline,
+   never a menu — the completed card ships with the deliverable.
 
 ## Phase 0 — Intake & framework routing
 
@@ -1015,6 +1020,174 @@ or the heavy Mantaflow/large-frame-range bake there, pull the result back. What 
 unlocks: fast final renders, EEVEE-real-time headless, heavy sims, Unreal/USD
 pipelines. **Revisit trigger:** Kariim approves a cloud-GPU budget. Until then this
 stays a documented path, not wired.
+
+## #6 Image / photo → 3D — the Hugging Face path (documented, not run on this box)
+
+Everything above BUILDS geometry in code. Turning a **photo or text prompt into a
+mesh** needs a neural reconstruction model on a GPU — the one capability that can't
+run free on this CPU box. Two honest facts set the plan:
+
+- **This cloud box cannot reach Hugging Face at all** — every HF host is blocked by
+  the egress policy (probed: `huggingface.co`, `api-inference…`, `router…`,
+  `cdn-lfs…` all fail; F-45). So the HF path runs on **Kariim's laptop** (open
+  network) or a **hosted HF endpoint**, never here. Don't claim a run happened here.
+- **Kariim has HF Pro** = a GPU on tap. That's the budget for #6 without buying a card.
+
+**Where this fits:** the sibling **`omni3d`** skill already owns the image/text/video
+→ game-asset PIPELINE (retopo → auto-rig → engine validation), but its neural
+reconstruction stage is a classic-CV scaffold (shape-from-silhouette voxel carving).
+HF Pro is what gives it (or a direct call) a REAL single-image reconstruction. So #6
+= `omni3d` for the pipeline + an HF model for the reconstruction backend.
+
+**Backend options (all on HF, pick by quality/speed):**
+- **TRELLIS** (`microsoft/TRELLIS`) — current SOTA image→3D, clean meshes + PBR.
+- **Hunyuan3D-2** (`tencent/Hunyuan3D-2`) — strong image→3D, textured.
+- **TripoSR** — fast/light single-image→mesh, good for drafts.
+
+**How to call it (verify the exact endpoint on the laptop — DON'T hardcode blind):**
+each model ships a Hugging Face **Space** with a Gradio API. The stable, real pattern
+is the `gradio_client`:
+
+```python
+# runs where HF is reachable + authenticated (laptop / HF endpoint), NOT this box.
+from gradio_client import Client, handle_file
+client = Client("tencent/Hunyuan3D-2", hf_token=HF_TOKEN)   # Pro token = GPU quota
+# IMPORTANT: read the Space's "View API" tab for the exact api_name + input names —
+# they differ per Space and change over time; do not guess them. The call shape is:
+result = client.predict(handle_file(image_path), api_name="<from the API tab>")
+# result → a generated mesh (.glb/.obj); download it, then hand to omni3d / Blender
+# (Template G to bake textures, Template I to rig) for a clean game-ready asset.
+```
+
+For repeatable/heavy use, duplicate the Space to a **private HF Inference Endpoint**
+(dedicated GPU) with the Pro account — that's the paid-hourly part; Pro credits soften
+it but don't zero it. **Verify on the laptop** (real photo → real .glb rendered), then
+paste the confirmed `api_name`/inputs back into this template. Until then it stays
+documented, not executed — honest, because HF can't be reached from here to prove it.
+
+### The full pipeline — HF is the front door, the rest of this skill is the polish
+
+The HF model gives you a RAW mesh from a photo/prompt: recognizable but rough —
+messy topology, one baked-in texture, no rig, no lighting. That's the *start*, not
+the deliverable. Feed it through the rest of this skill to finish it:
+
+| Step | What it does | Where |
+|---|---|---|
+| 1. Reconstruct | photo / text → raw mesh (the front door) | **#6 HF** → TRELLIS / Hunyuan3D-2 |
+| 2. Retopo + auto-rig | rebuild to clean quads, weld, auto-rig + skin | sibling **`omni3d`** pipeline |
+| 3. Bake engine PBR | albedo/rough/metal/normal/AO + packed ORM | **Template G** |
+| 4. Extra materials | swap/layer real texture sets if the baked one is weak | **Template H** |
+| 5. Rig & animate | add a skeleton + motion if omni3d didn't | **Template I** |
+| 6. Environment light | drop it into a real photographed sky | **Template E** |
+| 7. Cinematic finish | depth-of-field + grade/bloom/vignette | **Template F** |
+| 8. Physics / variety | sim it, or spin one mesh into a family | **Templates J / K** |
+| 9. Deliver | compressed glTF (Draco/Meshopt) + USD, proof render | delivery formats + Phase 5 |
+| 10. Real-time finish | movie-real lighting, keep full detail, make it interactive/cinematic | **Unreal Engine 5** (GPU/laptop) |
+
+So the honest pitch to Kariim: **HF turns a picture into rough 3D; this skill turns
+rough 3D into a finished, rigged, beautifully-lit, engine-ready asset; Unreal turns
+that into a real-time, interactive, film-grade one.** Steps 3–9 all run free on CPU
+here (verified this session); step 1 needs his HF Pro GPU and step 10 needs Unreal —
+both on the laptop. Same render-verify loop (Phase 5) closes every step.
+
+HF's model catalog also feeds the MIDDLE, not just step 1: texture/PBR-material
+generators, upscalers, and delight models on HF can strengthen steps 3–4 (better maps)
+before Unreal ever sees the asset — same "generate on HF, refine in-skill" split.
+
+### The FREE / no-GPU-hardware path (default until Kariim owns a card)
+
+The whole pipeline runs with **no dedicated graphics card** and at ~zero cost, because
+the only GPU-heavy steps are pushed onto machines Kariim doesn't own:
+
+- **Step 1 (reconstruct) runs on HF's GPUs, free.** The image→3D models ship public
+  **ZeroGPU Spaces** (TRELLIS, Hunyuan3D-2, TripoSR) — HF runs them on THEIR GPU when
+  you call the Space (via `gradio_client`); you pay nothing. HF **Pro just buys
+  priority + higher quota + less queue** on that same free GPU — it lowers wait, not a
+  hard paywall. So image→3D needs no local card.
+- **Squeeze HF for every GPU-heavy generation, still free:** the input picture itself
+  (text→image on a free FLUX/SDXL Space) if you only have a prompt, plus texture /
+  PBR-map / upscale / delight Spaces to strengthen steps 3–4. Generation = HF's GPUs;
+  refinement = the skill's CPU.
+- **Steps 2–9 (all the polish) run FREE on CPU** — Blender `bpy`, this box or the
+  laptop. Nothing is cut: retopo, bake, materials, rig, lighting, cinematic finish,
+  physics, variety all still run.
+- **Step 10 real-time finish — FREE substitute:** the **Three.js WebGPU viewer
+  (Template B)** gives you an interactive, orbitable, lit view of the finished asset
+  **in a browser**, using whatever GPU the laptop already has (even integrated Intel) —
+  no dedicated card, no install. That covers "make it interactive" for free. **Unreal
+  (Nanite/Lumen, Stage 10 below) is the UPGRADE for when Kariim buys a real GPU** — same
+  asset, more horsepower — not a requirement to finish.
+
+Net: photo-or-prompt → finished, textured, rigged, lit, and interactively viewable
+asset, **no GPU hardware and ~no spend** — HF's free hosted GPUs do the heavy lifting,
+the skill's CPU does the craft, the browser does the real-time view.
+
+### AAA-cinematic in the fewest passes, free — the recipe (live-researched 2026)
+
+Goal: AAA-quality assets, fewest passes, quick, free — inside HF Pro's limits. The
+lever is **pick a reconstruction model that already outputs clean topology + PBR in
+one shot**, so the skill only lights and grades instead of rebuilding.
+
+- **Model choice (both free on HF ZeroGPU):**
+  - **Hunyuan3D-2.1 / 2.5** — native **PBR materials, up to 8K textures**, ~<60 s.
+    Best "AAA in one pass" — the mesh arrives already texture-ready, so you skip the
+    separate texture-gen passes entirely. **Primary pick for cinematic quality.**
+  - **TRELLIS / TRELLIS.2** (Microsoft) — won ~68 % of head-to-head vs Hunyuan's 24 %;
+    **cleanest topology**, PBR from a single photo (~20 s–4 min). Pick when retopo
+    matters more than texture richness.
+  - Both use multi-view-diffusion → feed-forward reconstruction (the 2026 SOTA
+    pattern) = the cleanest topology, which is *why* fewer retopo passes are needed.
+- **HF Pro quota reality (design around it):** Pro gives **1500 ZeroGPU-seconds/day**
+  (25 min) free. Quota is charged on the **requested** duration, not actual runtime,
+  and a call fails once remaining < requested — so **set the Space's duration
+  realistically** and batch. One generation ≈ 60–120 s → **~12–20 AAA assets/day for
+  free**; past that it's **$1 per 10 GPU-min** of prepaid credit. So: generate the
+  day's hero assets in one sitting, and do all iteration on the CPU side (free), never
+  by re-rolling the model.
+- **The AAA finish, still free:** HF hands you an 8K-PBR mesh → (only if needed)
+  Template G re-bakes/optimizes the maps → **Template E real-HDRI environment** (pull a
+  GitHub-mirrored HDRI, P-16) → **high-sample Cycles** (256+; #5 final tier) →
+  **Template F cinematic finish** → an AAA still. Interactive/real-time for free via the
+  **browser WebGPU viewer (Template B)**; Unreal (below) is the upgrade when a card
+  arrives. **Verified this session (no GPU):** a fetched mesh → environment light + DOF
+  + cinematic grade produced a clean before/after on CPU alone.
+- **Fewest-passes summary:** ONE strong HF call (mesh + PBR) → light → grade → deliver.
+  The model does the sculpt+texture; the skill does the cinematography. No manual
+  modelling pass, no separate texture pass, no GPU.
+
+Sources: [Hunyuan3D 2.5 (arXiv)](https://arxiv.org/pdf/2506.16504) ·
+[3D-gen API comparison 2026](https://www.3daistudio.com/blog/best-3d-model-generation-apis-2026) ·
+[HF ZeroGPU quota docs](https://huggingface.co/docs/hub/en/spaces-zerogpu) ·
+[ZeroGPU Pro quota (1500 s/day)](https://discuss.huggingface.co/t/zero-gpu-daily-quota/168376).
+
+## Stage 10 — Unreal Engine 5: the real-time finish (GPU/laptop, documented)
+
+Where Blender-on-CPU here tops out, Unreal takes the asset the last mile — but it's a
+GPU + big-install engine, so this is DOCUMENTED + WIRED, **not run on this box** (no
+GPU, no ~100 GB install; the sibling `omni3d` already targets UE5 live-sync). What it
+adds that CPU Cycles can't:
+
+- **Nanite** — renders the raw, heavy HF/ high-poly mesh directly, so you keep every
+  detail and skip most hand-retopo (step 2 gets lighter).
+- **Lumen** — real-time global-illumination lighting/reflections; movie-real, live,
+  past what an offline CPU render gives for iteration.
+- **Interactive, not just an image** — the same asset becomes a walk-around, a playable
+  build, or a **Movie Render Queue** film-grade clip from Sequencer.
+- **In-engine Chaos physics + Control Rig animation** at real-time scale.
+
+**Wiring (all real, stable UE5 features — confirm exact calls on the laptop, don't
+hardcode blind):** export the polished asset from step 9 as **glTF** (UE5 has a native
+glTF importer) or **Datasmith**/USD → import → enable Nanite on the mesh + a Lumen scene
+→ assign a material (the baked ORM/normal maps from Template G map straight onto a UE
+Material) → for cinematics drive the **Movie Render Queue** via the **`unreal` Python
+API** (Editor scripting) or a headless `-game`/MRQ commandline on a GPU box. omni3d's
+live-sync is the interactive path; MRQ is the film path.
+
+**Boundaries to state plainly:** GPU-only (laptop/cloud-GPU, never this box); Unreal is
+Windows/Linux-desktop, not a pip wheel — no `import unreal` to verify here; and HF↔Unreal
+is a HANDOFF, not a fusion — HF/skill *generate and polish*, Unreal *renders/animates/ships*.
+Revisit trigger to actually build+verify it: Kariim runs it once on the laptop and pastes
+back the confirmed import path + MRQ config.
 
 ## Template B — Three.js WebGPU + TSL (single file, previewable)
 

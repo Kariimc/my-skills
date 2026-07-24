@@ -68,8 +68,12 @@ a rendered image published to a clickable page; talk to Kariim in plain words.
 3. ~~Cinematic finish~~ **DONE** (Template F).
 4. ~~Full engine texture-bake set~~ **DONE** (Template G, F-52/F-53, P-17).
 5. ~~Draft/final tiers~~ **DONE** — documented in Template G (Cycles samples + res).
-6. **Photo/text → 3D.** Wire the sibling `omni3d` skill (AI image-to-3D). Needs a
-   GPU + multi-GB models — DEFER to Kariim's GPU / cloud; document + wire only.
+6. **Photo/text → 3D** — DOCUMENTED + WIRED (SKILL "#6 Image/photo → 3D — the
+   Hugging Face path"). Points to sibling `omni3d` for the pipeline + an HF model
+   (TRELLIS / Hunyuan3D-2 / TripoSR via `gradio_client`) for neural reconstruction,
+   using Kariim's HF Pro GPU quota. NOT run here (HF fully blocked on the cloud box,
+   F-45) — verify on the laptop, then paste the confirmed Space `api_name` back in.
+   Heavy use → a paid HF Inference Endpoint (Pro credits soften it).
 7. ~~Effects/sim~~ **DONE** — SKILL Template J: rigid-body sim + headless-safe
    `bake_sim_to_keyframes` (F-55: `bake_to_keyframes` poll-fails headless). Proven:
    14 bodies fall + settle → GIF + animated glb. Cloth/soft-body/smoke documented;

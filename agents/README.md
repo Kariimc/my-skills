@@ -1,6 +1,6 @@
 # Agents
 
-67 specialist subagents, one `.md` file each. Synced to `~/.claude/agents/` by the SessionStart hook (see the repo-root `README.md`), so they are callable from every project via the `Agent` tool.
+73 specialist subagents, one `.md` file each. Synced to `~/.claude/agents/` by the SessionStart hook (see the repo-root `README.md`), so they are callable from every project via the `Agent` tool.
 
 Each file is standard Claude Code subagent frontmatter — `name`, `description`, `tools`, `model` — followed by the agent prompt. Imported from [affaan-m/ECC](https://github.com/affaan-m/ECC) (MIT); see [`../skills/ATTRIBUTION.md`](../skills/ATTRIBUTION.md).
 
@@ -22,17 +22,21 @@ Each file is standard Claude Code subagent frontmatter — `name`, `description`
 | `csharp-reviewer` | Expert C# code reviewer specializing in .NET conventions, async patterns, security, nullable reference types, and performance.… |
 | `dart-build-resolver` | Dart/Flutter build, analysis, and dependency error resolution specialist. Fixes `dart analyze` errors, Flutter compilation fail… |
 | `database-reviewer` | PostgreSQL database specialist for query optimization, schema design, security, and performance. Use PROACTIVELY when writing S… |
+| `deliverable-verifier` | Independent finish-line verifier. Opens the ACTUAL deliverable the user will receive — the export, the built artifact, the live… |
 | `django-build-resolver` | Django/Python build, migration, and dependency error resolution specialist. Fixes pip/Poetry errors, migration conflicts, impor… |
 | `django-reviewer` | Expert Django code reviewer specializing in ORM correctness, DRF patterns, migration safety, security misconfigurations, and pr… |
 | `doc-updater` | Documentation and codemap specialist. Use PROACTIVELY for updating codemaps and documentation. Runs /update-codemaps and /updat… |
 | `docs-lookup` | When the user asks how to use a library, framework, or API or needs up-to-date code examples, use Context7 MCP to fetch current… |
 | `e2e-runner` | End-to-end testing specialist using Vercel Agent Browser (preferred) with Playwright fallback. Use PROACTIVELY for generating,… |
+| `env-scout` | Environment scout. PROVES what the current box can and cannot do — installed interpreters/modules, reachable hosts, disk, s… |
 | `fastapi-reviewer` | Reviews FastAPI applications for async correctness, dependency injection, Pydantic schemas, security, OpenAPI quality, testing,… |
+| `file-butler` | Laptop file organizer. Keeps Kariim's messy zones (Downloads, Desktop, and any dir he names) sorted automatically — moves on… |
 | `flutter-reviewer` | Flutter and Dart code reviewer. Reviews Flutter code for widget best practices, state management patterns, Dart idioms, perform… |
 | `fsharp-reviewer` | Expert F# code reviewer specializing in functional idioms, type safety, pattern matching, computation expressions, and performa… |
 | `gan-evaluator` | "GAN Harness — Evaluator agent. Tests the live running application via Playwright, scores against rubric, and provides actionab… |
 | `gan-generator` | "GAN Harness — Generator agent. Implements features according to the spec, reads evaluator feedback, and iterates until quality… |
 | `gan-planner` | "GAN Harness — Planner agent. Expands a one-line prompt into a full product specification with features, sprints, evaluation cr… |
+| `github-custodian` | GitHub portfolio custodian. Keeps ALL of Kariim's repos in order across BOTH namespaces (user Kariimc + org shift9-stu… |
 | `go-build-resolver` | Go build, vet, and compilation error resolution specialist. Fixes build errors, go vet issues, and linter warnings with minimal… |
 | `go-reviewer` | Expert Go code reviewer specializing in idiomatic Go, concurrency patterns, error handling, and performance. Use for all Go cod… |
 | `harmonyos-app-resolver` | HarmonyOS application development expert specializing in ArkTS and ArkUI. Reviews code for V2 state management compliance, Navi… |
@@ -63,6 +67,7 @@ Each file is standard Claude Code subagent frontmatter — `name`, `description`
 | `refactor-cleaner` | Dead code cleanup and consolidation specialist. Use PROACTIVELY for removing unused code, duplicates, and refactoring. Runs ana… |
 | `rust-build-resolver` | Rust build, compilation, and dependency error resolution specialist. Fixes cargo build errors, borrow checker issues, and Cargo… |
 | `rust-reviewer` | Expert Rust code reviewer specializing in ownership, lifetimes, error handling, unsafe usage, and idiomatic patterns. Use for a… |
+| `scribe` | Continuity keeper. Reconciles every handoff surface from ACTUAL state — PROGRESS.md, HANDOFF.md, README counts, ledger sync, re… |
 | `security-reviewer` | Security vulnerability detection and remediation specialist. Use PROACTIVELY after writing code that handles user input, authen… |
 | `seo-specialist` | SEO specialist for technical SEO audits, on-page optimization, structured data, Core Web Vitals, and content/keyword mapping. U… |
 | `silent-failure-hunter` | Review code for silent failures, swallowed errors, bad fallbacks, and missing error propagation |

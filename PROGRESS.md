@@ -1,6 +1,44 @@
 # PROGRESS — session handoff
 
 > Last updated: 2026-07-22.
+
+## Latest (2026-07-22, cloud) — free/no-GPU AAA path + HF research (3d-master-modeler)
+
+- **Goal set by Kariim:** AAA-cinematic 3D assets, fewest passes, quick, FREE, and he
+  has **no GPU yet** — workaround via HF's hosted GPUs. Now the skill's default path.
+- **Live-researched facts (baked into SKILL "AAA-cinematic … recipe"):**
+  - Best free image→3D 2026: **TRELLIS** (won ~68% head-to-head, cleanest topology) and
+    **Hunyuan3D-2.1/2.5** (native PBR, up to **8K textures**, <60s) — Hunyuan for "AAA in
+    one pass" (texture-ready → no separate texture pass), TRELLIS for topology.
+  - **HF Pro ZeroGPU = 1500 GPU-seconds/day (25 min) FREE**; charged on REQUESTED
+    duration (fails when remaining < requested); ~60–120s/gen → **~12–20 assets/day
+    free**; overflow **$1 per 10 GPU-min**. Generate hero assets in one sitting, iterate
+    free on CPU, don't re-roll the model.
+  - Fewest passes = ONE strong HF call (mesh+PBR) → skill lights+grades → deliver.
+- **Proven this session (no GPU):** fetched mesh → environment light + DOF + cinematic
+  grade → clean before/after on CPU alone. Artifact `ce222768-aaa2-49b0-bcd5-53edc77ff36f`.
+- HF fully blocked on this cloud box (step 1 verifies on the laptop); polish steps 2–9 +
+  browser WebGPU (10, free) verified CPU-only here.
+
+## Session-reflect (2026-07-22, local) - SHIFT-9 reference match
+
+**Phase 1 - durable facts:**
+- Image-match work must inspect the source file dimensions before setting the
+  camera; the SHIFT-9 source was 1408x768 even though the chat preview appeared
+  1366x768. The wrong width caused persistent crop and alignment errors.
+- For a single-image 3D reconstruction, preserve both deliverables: a physically
+  shaded scene for real 3D inspection and a camera-projected scene for a
+  pixel-faithful locked reference view.
+
+**Phase 2 - proposed rule (user approval needed):**
+1. When the user explicitly names a staged skill, execute every applicable phase
+   and gate in order; do not treat the skill as a menu of optional highlights.
+
+**Phase 3 - workflow worth keeping:**
+- Reference-match ritual: inspect native dimensions -> block out silhouette ->
+  audit meshes -> add PBR maps -> render hero/side/top -> cap procedural
+  corrections -> switch to camera projection when the locked view must be
+  pixel-faithful -> verify with a numeric image diff.
 > Read this first; if it conflicts with the code, the code wins.
 
 ## Session-reflect (2026-07-22, cloud) — Flow State cinema render (ended on a correction)
@@ -43,6 +81,26 @@ told to use the 3d-master-modeler skill's full capabilities and instead improvis
 
 **Phase 3 — workflow kept:** none new — the render → Read-PNG → A/B → fix loop is already
 the skill's own method; the lesson this session was fidelity to it, not a new recipe.
+
+## Latest (2026-07-22, cloud) — custom-image fix + HF image→3D (#6) wired
+
+- **"Stop fetching" mechanism corrected (was slightly wrong):** the cloud env's
+  **Setup script** field (environment settings dialog, web UI) runs once, then
+  Anthropic **snapshots the filesystem and reuses it for later sessions** (rebuilds
+  ~weekly or when the script/hosts change). So the deps persist across sessions —
+  that snapshot IS the "pre-baked image". The one manual step (web-UI only, can't
+  reach it from a session): paste `python3 -m pip install -q bpy==5.0.1 pillow numpy || true`
+  into the Setup script field. The SessionStart hook I committed stays as backup.
+  (Docs: code.claude.com/docs/en/claude-code-on-the-web → Setup scripts + caching.)
+- **#6 image/photo → 3D DOCUMENTED + WIRED (SKILL "#6 Hugging Face path"):** points
+  to sibling `omni3d` for the pipeline + an HF model (TRELLIS/Hunyuan3D-2/TripoSR via
+  `gradio_client`, Kariim's HF Pro = GPU quota) for neural reconstruction. NOT run
+  here — **HF is fully blocked on this cloud box** (probed: all HF hosts fail; the HF
+  connector is anonymous, not Pro). Verify on the laptop, then paste the confirmed
+  Space `api_name` back into the template. Heavy use → paid HF Inference Endpoint.
+- Did NOT bluff the exact gradio `api_name` (varies per Space) — template says read
+  the Space's "View API" tab. All 9 free upgrades now shipped or documented; #6 is
+  the only GPU-gated one and it now has an honest wired path.
 
 ## Session-reflect (2026-07-22, cloud) — 3d upgrades complete + deps auto-install
 
@@ -463,7 +521,8 @@ assessment, upgrade menu, next-agent handoff) and it dodged the plain-words wall
   `skills/TRIGGERLESS-REPORT.md`, `skills/OVERLAP-REPORT.md`, `nano/README.md`,
   `bin/apex-gates.sh`, and the historical `docs/plans/` handoffs were updated
   or annotated so stale 399/411/416 counts cannot be mistaken for current state.
-- **Audit state:** a bounded structural scan found 420 skills, 0 HARD issues,
+- **Audit state:** a bounded structural scan found 420 skills (count as of that
+  scan; the doctor gate reports the live number), 0 HARD issues,
   and 0 SOFT issues: every skill has `SKILL.md`, matching `name:`,
   `description:`, an explicit trigger clause, and description length under
   1024 characters.

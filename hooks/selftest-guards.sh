@@ -104,6 +104,59 @@ printf '%s' '{"stop_hook_active":false}' | bash ~/.claude/hooks/guard-fabricatio
   || { echo "FAIL fabrication catches committed TODO"; fails=$((fails+1)); }
 cd ~ && rm -rf "$tfr"
 
+# runcard-guard: 3D sessions must ship a completed run-card; everything else passes.
+rg=~/.claude/hooks/runcard-guard.sh
+if [ -f "$rg" ]; then
+  printf '%s' '{"stop_hook_active":true}' | bash "$rg" >/dev/null 2>&1
+  [ $? -eq 0 ] && echo "PASS runcard loop-guard" || { echo "FAIL runcard loop-guard"; fails=$((fails+1)); }
+  trc=$(mktemp -d)
+  echo 'no 3d work here' > "$trc/t.jsonl"
+  printf '{"stop_hook_active":false,"transcript_path":"%s/t.jsonl","cwd":"%s"}' "$trc" "$trc" \
+    | bash "$rg" >/dev/null 2>&1
+  [ $? -eq 0 ] && echo "PASS runcard skips non-3d session" || { echo "FAIL runcard skips non-3d session"; fails=$((fails+1)); }
+  echo 'mentions 3d-master-modeler in prose only' > "$trc/t.jsonl"
+  printf '{"stop_hook_active":false,"transcript_path":"%s/t.jsonl","cwd":"%s"}' "$trc" "$trc" \
+    | bash "$rg" >/dev/null 2>&1
+  [ $? -eq 0 ] && echo "PASS runcard ignores mere mention" || { echo "FAIL runcard ignores mere mention"; fails=$((fails+1)); }
+  echo '{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{"skill":"3d-master-modeler"}}]}}' > "$trc/t.jsonl"
+  printf '{"stop_hook_active":false,"transcript_path":"%s/t.jsonl","cwd":"%s"}' "$trc" "$trc" \
+    | bash "$rg" >/dev/null 2>&1
+  [ $? -eq 2 ] && echo "PASS runcard blocks 3d session without card" || { echo "FAIL runcard blocks 3d session without card"; fails=$((fails+1)); }
+  printf '| Phase | Proof |\n| 0 | done: routing.txt |\n' > "$trc/runcard-asset.md"
+  printf '{"stop_hook_active":false,"transcript_path":"%s/t.jsonl","cwd":"%s"}' "$trc" "$trc" \
+    | bash "$rg" >/dev/null 2>&1
+  [ $? -eq 0 ] && echo "PASS runcard allows completed card" || { echo "FAIL runcard allows completed card"; fails=$((fails+1)); }
+  rm -rf "$trc"
+fi
+
+# ledger-sentinel: informational only — must NEVER block a prompt (always exit 0).
+ls_hook=~/.claude/hooks/ledger-sentinel.sh
+if [ -f "$ls_hook" ]; then
+  printf '%s' '{"prompt":"use a multi-statement quoted shell script through a layered shell"}' \
+    | bash "$ls_hook" >/dev/null 2>&1
+  [ $? -eq 0 ] && echo "PASS sentinel never blocks" || { echo "FAIL sentinel never blocks"; fails=$((fails+1)); }
+  printf '%s' 'not json at all' | bash "$ls_hook" >/dev/null 2>&1
+  [ $? -eq 0 ] && echo "PASS sentinel fails open on garbage" || { echo "FAIL sentinel fails open on garbage"; fails=$((fails+1)); }
+fi
+
+# cant-guard: helpless reply without a library search blocks; searched or precise passes.
+cg=~/.claude/hooks/cant-guard.sh
+if [ -f "$cg" ]; then
+  printf '%s' '{"stop_hook_active":true}' | bash "$cg" >/dev/null 2>&1
+  [ $? -eq 0 ] && echo "PASS cant loop-guard" || { echo "FAIL cant loop-guard"; fails=$((fails+1)); }
+  tcg=$(mktemp -d)
+  echo '{"type":"assistant","message":{"content":[{"type":"text","text":"Sorry, I cannot do that — I do not have access to that system."}]}}' > "$tcg/t.jsonl"
+  printf '{"stop_hook_active":false,"transcript_path":"%s/t.jsonl"}' "$tcg" | bash "$cg" >/dev/null 2>&1
+  [ $? -eq 2 ] && echo "PASS cant blocks unsearched helplessness" || { echo "FAIL cant blocks unsearched helplessness"; fails=$((fails+1)); }
+  printf '%s\n%s\n' '{"type":"user","message":{"content":[{"type":"text","text":"ran find-skills.py earlier: NO SKILL MATCH"}]}}' '{"type":"assistant","message":{"content":[{"type":"text","text":"I cannot do this: no skill covers it and the GitHub token for that org is missing."}]}}' > "$tcg/t.jsonl"
+  printf '{"stop_hook_active":false,"transcript_path":"%s/t.jsonl"}' "$tcg" | bash "$cg" >/dev/null 2>&1
+  [ $? -eq 0 ] && echo "PASS cant allows searched refusal" || { echo "FAIL cant allows searched refusal"; fails=$((fails+1)); }
+  echo '{"type":"assistant","message":{"content":[{"type":"text","text":"Done — the export is verified and attached."}]}}' > "$tcg/t.jsonl"
+  printf '{"stop_hook_active":false,"transcript_path":"%s/t.jsonl"}' "$tcg" | bash "$cg" >/dev/null 2>&1
+  [ $? -eq 0 ] && echo "PASS cant ignores normal reply" || { echo "FAIL cant ignores normal reply"; fails=$((fails+1)); }
+  rm -rf "$tcg"
+fi
+
 echo "----"
 [ "$fails" -eq 0 ] && echo "ALL GUARDS VERIFIED" || echo "$fails FAILURE(S)"
 exit "$fails"

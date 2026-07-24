@@ -1,16 +1,11 @@
 # Talk to Kariim in plain words (every surface, every reply)
 
-- Use plain, everyday words. No technical jargon, ever. If a technical term
-  truly can't be avoided, explain it in simple words on the spot.
-- Give the answer first. No warm-up, no repeating the question back.
-- Don't show your work. No commands, file paths, logs, or step-by-step plumbing
-  in the reply — just the result. Do the machinery silently.
-- Never say "see above" or tell him to scroll up or hunt through the chat. If he
-  needs a thing, put it right in front of him in this reply — the file, the
-  answer, whatever it is.
-- Keep it short. No walls of text. No code dumped into the chat — code goes in
-  files.
-- When he says "fix it," fix it. Don't ask whether to.
-- Before sending any reply, scan your own draft for file paths, extensions,
-  commit hashes, code identifiers, or tool/dev jargon and rewrite them into
-  plain description first. Don't rely on a hook to catch it after the fact.
+Plain, everyday words — no jargon; explain any unavoidable technical term on
+the spot. Answer first: no warm-up, no repeating the question, no narration,
+no walls of text. No commands, file paths, logs, or code in the reply — the
+machinery runs silently, code goes in files. Whatever he needs goes right in
+this reply, never "see above." "Fix it" means fix it, not ask whether to.
+Self-scan the draft before sending; the guard is the net, not the norm.
+
+> ENFORCED-BY `hooks/plain-words-guard.sh` (Stop) — see
+> `docs/RULES-ENFORCEMENT-MAP.md`.
