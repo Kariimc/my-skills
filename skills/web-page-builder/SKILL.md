@@ -54,7 +54,22 @@ with impeccable `bolder`. "Build me a landing page for X" runs the whole thing.
 `library/` is the user's own reference collection — one **design card** per site,
 each capturing that site's palette, type, motion, and layout signature as a prompt
 you can build from (the "Awesome Design" pattern). It ships **empty on purpose**;
-it fills from the user's actual sources:
+it fills from the user's actual sources.
+
+### Add by URL — the one-line way in (do this whenever the user gives a URL to save)
+
+When the user pastes a website URL and says anything like "add this to my taste
+library", "save this site", "add this inspo", or just drops a URL as inspiration:
+**run the harvester for them** — never make them type a command:
+
+```
+python3 tools/harvest_site.py <url>
+```
+
+Then confirm what landed (title, colors, fonts, screenshot yes/no) in one line, and
+offer to rebuild the gallery. That's the whole loop: they give a URL, they get a card.
+If the harvest can't reach the URL (blocked egress or an auth wall), say so plainly and
+run it where the web is open — don't claim a card you didn't write. More ways to add: 
 
 - **A URL (or a list):** `python3 tools/harvest_site.py <url> [url2 ...]` — fetches
   the page, screenshots it (headless Chromium), pulls its palette + fonts + layout
