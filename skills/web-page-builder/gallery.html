@@ -37,6 +37,15 @@
   .sw{width:20px;height:20px;border-radius:5px;border:1px solid rgba(128,128,128,.35)}
   .fon{font-size:12.5px;color:var(--muted)}
   .url{font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .shot{display:block}
+  .row{display:flex;gap:8px;margin-top:4px}
+  .btn{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--fg);
+    border-radius:8px;padding:8px 11px;font-size:12.5px;text-decoration:none;text-align:center}
+  .btn.p{background:var(--accent);color:#fff;border-color:var(--accent);flex:1;font-weight:600}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--fg);
+    color:var(--bg);padding:9px 16px;border-radius:10px;font-size:13px;opacity:0;
+    transition:opacity .2s;pointer-events:none;z-index:20}
+  .toast.show{opacity:1}
   .empty{max-width:640px;margin:12vh auto;padding:0 24px;text-align:center;color:var(--muted)}
   .empty h2{color:var(--fg)}
   .empty pre{text-align:left;background:var(--card);border:1px solid var(--line);
@@ -46,8 +55,8 @@
 </head>
 <body>
 <header>
-  <h1>Taste Library</h1>
-  <span class="count">0 sites</span>
+  <h1>Taste Studio</h1>
+  <span class="count">0 looks · click ⚡ to build in a style</span>
   <span class="spacer"></span>
   <button class="themebtn" onclick="var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">theme</button>
 </header>
@@ -76,6 +85,13 @@ python3 tools/import_bookmarks.py bookmarks.html --harvest</pre>
       card.style.display=(!t||(' '+card.dataset.tags+' ').indexOf(' '+t+' ')>=0)?'':'none';
     });
   };});
+  function toast(m){var e=document.querySelector('.toast');e.textContent=m;e.classList.add('show');
+    clearTimeout(window._t);window._t=setTimeout(function(){e.classList.remove('show')},1800);}
+  function copyBrief(txt){var ok=function(){toast('Build brief copied — paste into Claude');};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok).catch(function(){fb(txt,ok)});}else{fb(txt,ok);}}
+  function fb(txt,ok){try{var t=document.createElement('textarea');t.value=txt;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();var d=document.execCommand('copy');document.body.removeChild(t);if(d){ok();return;}}catch(e){}window.prompt('Copy this, then paste into Claude:',txt);}
+  [].slice.call(document.querySelectorAll('[data-brief]')).forEach(function(b){b.onclick=function(){copyBrief(b.getAttribute('data-brief'));};});
 </script>
+<div class="toast"></div>
 </body>
 </html>

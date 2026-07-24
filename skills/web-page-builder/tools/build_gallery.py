@@ -37,6 +37,18 @@ def swatches(palette):
         for c in (palette or [])[:6])
 
 
+def build_brief(s):
+    """A ready-to-paste web-page-builder instruction derived from this look's
+    design SYSTEM (palette + fonts + title) — ideas, not copied pixels."""
+    pal = ", ".join(s.get("palette", [])[:6]) or "(harvest to fill)"
+    fonts = ", ".join(s.get("fonts", [])[:4]) or "(harvest to fill)"
+    return ("Use web-page-builder: build me a website taking its design direction from "
+            "the \"%s\" look in my taste library. Palette: %s. Font pairing: %s. "
+            "Commit a bold direction from these, build wide, then let me tweak. "
+            "Do NOT copy that site's content or images — use my own assets/Higgsfield; "
+            "this is style inspiration only." % (s.get("title", "Untitled"), pal, fonts))
+
+
 def card_html(s):
     uri = data_uri(s.get("screenshot", ""))
     if uri:
@@ -45,16 +57,19 @@ def card_html(s):
         media = '<div class="noshot">%s</div>' % esc(s.get("title", "site")[:2].upper())
     tags = " ".join(esc(t) for t in s.get("tags", []))
     fonts = ", ".join(esc(f) for f in s.get("fonts", [])[:3]) or "&mdash;"
-    return f"""<a class="card" href="{esc(s.get('url','#'))}" target="_blank" rel="noopener"
-      data-tags="{tags}">
-      <div class="shot">{media}</div>
+    brief = esc(build_brief(s))
+    return f"""<div class="card" data-tags="{tags}">
+      <a class="shot" href="{esc(s.get('url','#'))}" target="_blank" rel="noopener">{media}</a>
       <div class="meta">
         <div class="ttl">{esc(s.get('title','Untitled'))}</div>
         <div class="pal">{swatches(s.get('palette'))}</div>
         <div class="fon">{fonts}</div>
-        <div class="url">{esc(s.get('url',''))}</div>
+        <div class="row">
+          <button class="btn p" data-brief="{brief}">⚡ Build a site in this style</button>
+          <a class="btn" href="{esc(s.get('url','#'))}" target="_blank" rel="noopener">Visit</a>
+        </div>
       </div>
-    </a>"""
+    </div>"""
 
 
 def load_sites():
@@ -121,6 +136,15 @@ python3 tools/import_bookmarks.py bookmarks.html --harvest</pre>
   .sw{{width:20px;height:20px;border-radius:5px;border:1px solid rgba(128,128,128,.35)}}
   .fon{{font-size:12.5px;color:var(--muted)}}
   .url{{font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+  .shot{{display:block}}
+  .row{{display:flex;gap:8px;margin-top:4px}}
+  .btn{{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--fg);
+    border-radius:8px;padding:8px 11px;font-size:12.5px;text-decoration:none;text-align:center}}
+  .btn.p{{background:var(--accent);color:#fff;border-color:var(--accent);flex:1;font-weight:600}}
+  .toast{{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--fg);
+    color:var(--bg);padding:9px 16px;border-radius:10px;font-size:13px;opacity:0;
+    transition:opacity .2s;pointer-events:none;z-index:20}}
+  .toast.show{{opacity:1}}
   .empty{{max-width:640px;margin:12vh auto;padding:0 24px;text-align:center;color:var(--muted)}}
   .empty h2{{color:var(--fg)}}
   .empty pre{{text-align:left;background:var(--card);border:1px solid var(--line);
@@ -130,8 +154,8 @@ python3 tools/import_bookmarks.py bookmarks.html --harvest</pre>
 </head>
 <body>
 <header>
-  <h1>Taste Library</h1>
-  <span class="count">{count} site{'s' if count!=1 else ''}</span>
+  <h1>Taste Studio</h1>
+  <span class="count">{count} look{'s' if count!=1 else ''} · click ⚡ to build in a style</span>
   <span class="spacer"></span>
   <button class="themebtn" onclick="var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">theme</button>
 </header>
@@ -151,7 +175,14 @@ python3 tools/import_bookmarks.py bookmarks.html --harvest</pre>
       card.style.display=(!t||(' '+card.dataset.tags+' ').indexOf(' '+t+' ')>=0)?'':'none';
     }});
   }};}});
+  function toast(m){{var e=document.querySelector('.toast');e.textContent=m;e.classList.add('show');
+    clearTimeout(window._t);window._t=setTimeout(function(){{e.classList.remove('show')}},1800);}}
+  function copyBrief(txt){{var ok=function(){{toast('Build brief copied — paste into Claude');}};
+    if(navigator.clipboard&&navigator.clipboard.writeText){{navigator.clipboard.writeText(txt).then(ok).catch(function(){{fb(txt,ok)}});}}else{{fb(txt,ok);}}}}
+  function fb(txt,ok){{try{{var t=document.createElement('textarea');t.value=txt;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();var d=document.execCommand('copy');document.body.removeChild(t);if(d){{ok();return;}}}}catch(e){{}}window.prompt('Copy this, then paste into Claude:',txt);}}
+  [].slice.call(document.querySelectorAll('[data-brief]')).forEach(function(b){{b.onclick=function(){{copyBrief(b.getAttribute('data-brief'));}};}});
 </script>
+<div class="toast"></div>
 </body>
 </html>"""
     return doc
