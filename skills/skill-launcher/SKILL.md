@@ -45,5 +45,7 @@ so the launcher's link stays stable.
   common multi-skill flows there (name, chain, the prompt it copies).
 - **Goal classification** is keyword-scored in `GOAL_KEYWORDS`; adjust the keywords to
   re-balance the groups.
-- **Agents** (the 73 subagents) can be added as a second data source the same way skills are
-  — a natural v2.
+- **Agents** (the 73 subagents in `agents/`) are included alongside skills, tagged with an
+  `agent` badge and filterable via the All / Skills / Agents toggle. Their copy action gives a
+  "Use the <name> subagent to: " starter (agents aren't invoked with `/name`). `build_launcher.py`
+  scans `agents/*.md` the same way it scans skills.

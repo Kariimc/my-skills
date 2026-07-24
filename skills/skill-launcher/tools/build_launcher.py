@@ -101,7 +101,10 @@ def goal_for(category):
     return "More"
 
 
-def scan():
+AGENTS_DIR = os.path.join(REPO, "agents")
+
+
+def scan_skills():
     cats = readme_categories()
     items = []
     for name in sorted(os.listdir(SKILLS_DIR)):
@@ -111,9 +114,23 @@ def scan():
         n, d = frontmatter(sp)
         if not n:
             continue
-        category = cats.get(n, "Other")
-        items.append({"name": n, "desc": d, "category": category,
-                      "goal": classify(n, d)})
+        items.append({"name": n, "desc": d, "kind": "skill",
+                      "category": cats.get(n, "Other"), "goal": classify(n, d)})
+    return items
+
+
+def scan_agents():
+    items = []
+    if not os.path.isdir(AGENTS_DIR):
+        return items
+    for fn in sorted(os.listdir(AGENTS_DIR)):
+        if not fn.endswith(".md") or fn.upper().startswith("README"):
+            continue
+        n, d = frontmatter(os.path.join(AGENTS_DIR, fn))
+        if not n:
+            continue
+        items.append({"name": n, "desc": d, "kind": "agent",
+                      "category": "Agent", "goal": classify(n, d)})
     return items
 
 
@@ -154,6 +171,10 @@ h1{font-size:20px;margin:0 0 2px;font-weight:680;letter-spacing:.01em}
 .toast.show{opacity:1}
 .themebtn{position:fixed;top:14px;right:16px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:6px 12px;font-size:12px}
 .count{color:var(--muted);font-size:12px}
+.badge{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);border:1px solid var(--accent);border-radius:5px;padding:1px 5px}
+.kinds{display:flex;gap:8px;margin:12px 0 0}
+.kind{cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:5px 12px;font-size:12px}
+.kind.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 </style>
 <script>
 const SKILLS = __DATA__;
@@ -166,7 +187,7 @@ const RECIPES = [
   {name:"Simplify / de-bloat code", chain:["ponytail","simplify"], prompt:"Run ponytail on this — find the laziest solution that works and cut the bloat."},
 ];
 const GOAL_ORDER=["Build","Design","Fix & Debug","Research","Write","Automate & Loop","Manage repo & config","More"];
-let fav=new Set(), q="", goal="All";
+let fav=new Set(), q="", goal="All", kind="All";
 const $=s=>document.querySelector(s);
 function score(s,terms){let t=(s.name+" "+s.desc+" "+s.category).toLowerCase(),sc=0;
   for(const w of terms){if(!w)continue; if(s.name.toLowerCase().includes(w))sc+=6; const c=(t.split(w).length-1); sc+=c;} return sc;}
@@ -177,18 +198,21 @@ function fallbackCopy(txt,ok){try{var t=document.createElement("textarea");t.val
  window.prompt("Copy this, then paste into Claude:",txt);}
 function toast(m){let e=$(".toast");e.textContent=m;e.classList.add("show");clearTimeout(window._t);window._t=setTimeout(()=>e.classList.remove("show"),1600);}
 function card(s){const on=fav.has(s.name)?"on":"";const why=s._why?`<span class="why">${s._why}</span>`:"";
- return `<div class="card"><div class="top"><span class="nm">/${s.name}</span>${why}<button class="star ${on}" data-f="${s.name}">${fav.has(s.name)?"★":"☆"}</button></div>
- <div class="dsc">${esc(s.desc)}</div>
- <div class="row"><button class="btn p" data-c="/${s.name}">Copy /${s.name}</button>
- <button class="btn" data-c="Use the ${s.name} skill to: ">Copy starter prompt</button></div></div>`;}
+ const isA=s.kind==="agent";const label=isA?s.name:"/"+s.name;const badge=isA?`<span class="badge">agent</span>`:"";
+ const btns=isA
+   ? `<button class="btn p" data-c="Use the ${s.name} subagent to: ">Copy “use ${s.name}”</button>`
+   : `<button class="btn p" data-c="/${s.name}">Copy /${s.name}</button><button class="btn" data-c="Use the ${s.name} skill to: ">Copy starter prompt</button>`;
+ return `<div class="card"><div class="top"><span class="nm">${label}</span>${badge}${why}<button class="star ${on}" data-f="${s.name}">${fav.has(s.name)?"★":"☆"}</button></div>
+ <div class="dsc">${esc(s.desc)}</div><div class="row">${btns}</div></div>`;}
 function esc(x){return (x||"").replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 function render(){
  const terms=q.toLowerCase().split(/\s+/).filter(Boolean);
+ const pool=SKILLS.filter(s=>kind==="All"||(kind==="Skills"&&s.kind!=="agent")||(kind==="Agents"&&s.kind==="agent"));
  let html="";
- if(fav.size&&!terms.length&&goal==="All"){const fs=SKILLS.filter(s=>fav.has(s.name));
+ if(fav.size&&!terms.length&&goal==="All"){const fs=pool.filter(s=>fav.has(s.name));
    html+=`<div class="sec">★ Favorites</div><div class="grid">${fs.map(card).join("")}</div>`;}
  if(terms.length){
-   let ranked=SKILLS.map(s=>({...s,_sc:score(s,terms)})).filter(s=>s._sc>0).sort((a,b)=>b._sc-a._sc).slice(0,12);
+   let ranked=pool.map(s=>({...s,_sc:score(s,terms)})).filter(s=>s._sc>0).sort((a,b)=>b._sc-a._sc).slice(0,12);
    ranked.forEach((s,i)=>s._why=i===0?"top match":"");
    html+=`<div class="sec">Suggestions for “${esc(q)}” <span class="count">(${ranked.length})</span></div>`;
    html+= ranked.length?`<div class="grid">${ranked.map(card).join("")}</div>`:`<p class="hint">No match. Try simpler words, or browse by goal below.</p>`;
@@ -197,7 +221,7 @@ function render(){
    html+=RECIPES.map(r=>`<div class="recipe"><b>${esc(r.name)}</b><div class="chain">${r.chain.map(c=>"/"+c).join("  →  ")}</div>
      <button class="btn p" data-c="${esc(r.prompt).replace(/"/g,'&quot;')}">Copy recipe</button></div>`).join("");
    const goals=goal==="All"?GOAL_ORDER:[goal];
-   for(const g of goals){const gs=SKILLS.filter(s=>s.goal===g);if(!gs.length)continue;
+   for(const g of goals){const gs=pool.filter(s=>s.goal===g);if(!gs.length)continue;
      html+=`<div class="sec">${g} <span class="count">(${gs.length})</span></div><div class="grid">${gs.map(card).join("")}</div>`;}
  }
  $("#list").innerHTML=html;
@@ -205,11 +229,14 @@ function render(){
  document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{const n=b.dataset.f;fav.has(n)?fav.delete(n):fav.add(n);render();});
 }
 function boot(){
+ const nS=SKILLS.filter(x=>x.kind!=="agent").length,nA=SKILLS.filter(x=>x.kind==="agent").length;
  $("#app").innerHTML=`<button class="themebtn" onclick="var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">theme</button>
- <div class="wrap"><h1>Skill Launcher</h1><div class="sub">${SKILLS.length} skills. Type what you want to do, or browse by goal. Click to copy — paste into Claude.</div>
+ <div class="wrap"><h1>Skill Launcher</h1><div class="sub">${nS} skills · ${nA} agents. Type what you want to do, or browse by goal. Click to copy — paste into Claude.</div>
  <input class="search" placeholder="What do you want to do?  e.g. build a landing page, debug this, research a topic…">
- <div class="hint">Tip: pick a goal to narrow the list, ★ to favorite, or grab a Recipe to run several skills in order.</div>
- <div class="goals"></div><div id="list"></div></div><div class="toast"></div>`;
+ <div class="hint">Tip: pick a goal to narrow the list, switch Skills/Agents, ★ to favorite, or grab a Recipe to run several in order.</div>
+ <div class="kinds"></div><div class="goals"></div><div id="list"></div></div><div class="toast"></div>`;
+ const kindsEl=$(".kinds");["All","Skills","Agents"].forEach(k=>{const b=document.createElement("button");b.className="kind"+(k==="All"?" on":"");b.textContent=k;
+   b.onclick=()=>{kind=k;document.querySelectorAll(".kind").forEach(x=>x.classList.remove("on"));b.classList.add("on");render();};kindsEl.appendChild(b);});
  const goalsEl=$(".goals");["All",...GOAL_ORDER].forEach(g=>{const b=document.createElement("button");b.className="goal"+(g==="All"?" on":"");b.textContent=g;
    b.onclick=()=>{goal=g;document.querySelectorAll(".goal").forEach(x=>x.classList.remove("on"));b.classList.add("on");render();};goalsEl.appendChild(b);});
  const s=$(".search");s.oninput=()=>{q=s.value.trim();render();};s.focus();
@@ -220,14 +247,16 @@ boot();
 
 
 def build(out):
-    items = scan()
+    skills = scan_skills()
+    agents = scan_agents()
+    items = skills + agents
     doc = PAGE.replace("__DATA__", json.dumps(items))
     open(out, "w", encoding="utf-8").write(doc)
-    json.dump({"skills": items}, open(os.path.join(HERE, "..", "skills.json"), "w"), indent=2)
+    json.dump({"items": items}, open(os.path.join(HERE, "..", "skills.json"), "w"), indent=2)
     by = {}
     for it in items:
         by[it["goal"]] = by.get(it["goal"], 0) + 1
-    print("Wrote %s — %d skills" % (out, len(items)))
+    print("Wrote %s — %d skills + %d agents = %d" % (out, len(skills), len(agents), len(items)))
     print("by goal:", by)
 
 
