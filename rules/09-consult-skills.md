@@ -12,5 +12,19 @@ and then name the exact missing access (which token, connector, or surface).
 Trivial tasks skip this. Full protocol: the `finding-skills` skill.
 (Approved rule, 2026-07-22.)
 
+## Named skill = full fidelity — execute THAT, don't freelance (approved 2026-07-22)
+
+When Kariim names a skill/method ("use the `<X>` skill", "do it THIS way"),
+run its FULL method — every phase and every lever, quality levers default-ON —
+never substitute your own approach, quietly skip steps, or invent extras it
+never called for. Two drift tells, either one = STOP and re-read the method:
+inventing a step it never mentions, or skipping one it clearly specifies.
+Apply everything in ONE build before showing — never drip-feed a half-applied
+version and iterate the missing pieces in public. If a proper step breaks,
+fix the step — don't swap in a lazy stand-in. (Ledger F-58 is the full
+post-mortem this rule came from.)
+
 > ENFORCED-BY `hooks/cant-guard.sh` (Stop) + the `env-scout` capability
-> banner — see `docs/RULES-ENFORCEMENT-MAP.md`.
+> banner; the fidelity half by `hooks/runcard-guard.sh` (staged skills) +
+> the `agent-evaluator` fidelity-first axis — see
+> `docs/RULES-ENFORCEMENT-MAP.md`.
