@@ -1,6 +1,6 @@
 # Skills Catalog
 
-425 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
+426 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
 auto-loaded into every project via the SessionStart sync hook (see the repo
 root `README.md`). Claude invokes a skill automatically when your request
 matches its `description` — you can also force one with `/<skill-name>`.
@@ -39,6 +39,7 @@ imported in the ECC + ponytail batch (see [Imported batch](#-imported-batch--ecc
 | `session-start-hook` | Build Claude Code SessionStart hooks for web/remote environments. |
 | `codebase-memory` | Query the codebase knowledge graph (callers, call chains, impact analysis, dead code) via the codebase-memory MCP tools. |
 | `windows-env-repair` | Repair a broken Windows dev environment — OneDrive-redirected folders, lost project paths, broken git links, config drift. |
+| `skill-launcher` | ⭐ Visual launcher for the whole library — type a task, get ranked skill suggestions, browse by goal, one-click copy to run, and recipes that chain several skills. So you never have to remember commands. |
 
 ## 🌐 Web & Frontend
 | Skill | What it does |
