@@ -1,1 +1,3 @@
 .claude/env-facts.local.md
+__pycache__/
+*.pyc
