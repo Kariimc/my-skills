@@ -49,6 +49,10 @@ CATEGORIES = {
 }
 SORTED_DIR = "_Sorted"
 SKIP_SUFFIXES = {".crdownload", ".part", ".tmp", ".download"}
+# Launchers and OS bookkeeping — moving these empties the desktop of its icons
+# or breaks the folder's own settings. Never sorted, in any zone.
+NEVER_MOVE_SUFFIXES = {".lnk", ".url", ".desktop", ".webloc", ".bat", ".cmd"}
+NEVER_MOVE_NAMES = {"desktop.ini", "thumbs.db", "icon\r", ".ds_store"}
 MIN_AGE_SECONDS = 3600  # never move a file newer than 1 hour (may be in use)
 
 
@@ -93,6 +97,10 @@ def plan_zone(zone: Path):
             continue                       # hidden / office lock files
         if entry.suffix.lower() in SKIP_SUFFIXES:
             continue                       # in-flight download
+        if entry.suffix.lower() in NEVER_MOVE_SUFFIXES:
+            continue                       # shortcut / launcher — leave it where it is
+        if entry.name.lower() in NEVER_MOVE_NAMES:
+            continue                       # OS bookkeeping file
         try:
             if now - entry.stat().st_mtime < MIN_AGE_SECONDS:
                 continue                   # too fresh, may be in use
@@ -175,6 +183,8 @@ def deletion_candidates(zone: Path):
             continue
         for n in names:
             p = rootp / n
+            if p.suffix.lower() in NEVER_MOVE_SUFFIXES or p.name.lower() in NEVER_MOVE_NAMES:
+                continue                   # shortcuts / OS files are never deletion candidates
             if not p.name.startswith(".") and p.is_file():
                 files.append(p)
 
