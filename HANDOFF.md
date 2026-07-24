@@ -34,6 +34,36 @@ provable from the repo alone - fill them in, do not guess.
 
 ## Current state
 
+**2026-07-23 session (branch `file-butler-skip-launchers`, PR #66):** file-butler
+was in the repo but NOT synced to `~/.claude/skills/` — the `file-butler` agent
+correctly refused to hand-roll move logic and stopped. Fix: copied
+`skills/file-butler/` into `~/.claude/skills/`. Then a real dry-run exposed a
+genuine bug: sorting `~/Desktop` planned to move all 19 `.lnk` shortcuts into
+`_Sorted/Other`, i.e. wipe every icon off the screen.
+
+Change made in `skills/file-butler/tool/organize.py`: added `NEVER_MOVE_SUFFIXES`
+(`.lnk .url .desktop .webloc .bat .cmd`) and `NEVER_MOVE_NAMES` (`desktop.ini`,
+`thumbs.db`, `.DS_Store`), skipped in BOTH `plan_zone()` and the
+`--suggest-deletions` file walk (so a duplicate shortcut is never a deletion
+candidate either).
+
+Proof: scratch zone with 3 launchers + 3 real files → only the 3 real files
+planned; duplicated `.lnk` pair absent from deletion suggestions. Live: Desktop
+19 → 0 to sort, Downloads 169 → 168. Then `--apply` ran for real: 168 files
+moved into `~/Downloads/_Sorted/<Category>/`, Desktop untouched, undo manifest
+at `~/.file-butler/manifest-20260723-210017.jsonl`. All apex gates passed.
+
+Next steps: (1) merge PR #66 after review — needs Kariim's yes, master is gated.
+(2) The scheduled file-butler loop (`loops/file-butler.md`) is still NOT
+registered on the laptop — Downloads/Desktop are now confirmed-safe zones, so
+registering it is the natural follow-up, but auto-running tasks need an explicit
+yes. (3) One Downloads file (`Godot_v4.7-stable_win64.exe`) was skipped as
+younger than the 1-hour safety window; next run picks it up.
+
+Open decision: whether `.exe` on the Desktop should also be never-moved.
+Currently `.exe` still sorts into `Installers` — right for Downloads, arguably
+wrong for a Desktop where a portable app lives.
+
 **2026-07-22 session (branch `claude/harnesses-agents-suggestions-dqaas2`):** Added
 `docs/HARNESS-AGENT-ROADMAP.md` — a sharpened reusable prompt plus a ranked,
 evidence-cited roadmap of 8 new harnesses/agents (build-first: deliverable-verifier,
