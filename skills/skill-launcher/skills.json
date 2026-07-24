@@ -1254,6 +1254,13 @@
       "goal": "Build"
     },
     {
+      "name": "higgsfield-asset-ingest",
+      "desc": "Reliable intake workflow for Higgsfield website downloads and other generated media assets. Use when Codex, Claude Code, Claude Desktop, Google AI Studio/Antigravity, or another coding agent needs to find recently downloaded Higgsfield images/videos/audio, rename them, deduplicate them, write a manifest, and copy or move them directly into a project asset folder without Google Drive or manual file wrangling.",
+      "kind": "skill",
+      "category": "Other",
+      "goal": "Write"
+    },
+    {
       "name": "hipaa-compliance",
       "desc": "HIPAA-specific entrypoint for healthcare privacy and security work. Use when a task is explicitly framed around HIPAA, PHI handling, covered entities, BAAs, breach posture, or US healthcare compliance requirements.",
       "kind": "skill",
