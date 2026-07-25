@@ -1,6 +1,6 @@
 # Skills Catalog
 
-426 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
+427 skills, organized by domain. Each lives in `skills/<name>/SKILL.md` and is
 auto-loaded into every project via the SessionStart sync hook (see the repo
 root `README.md`). Claude invokes a skill automatically when your request
 matches its `description` — you can also force one with `/<skill-name>`.
@@ -52,6 +52,7 @@ imported in the ECC + ponytail batch (see [Imported batch](#-imported-batch--ecc
 | `accessibility` | WCAG 2.2 AA/AAA, ARIA, keyboard nav, automated a11y CI testing. |
 | `visual-prototype` | High-fidelity single-file interactive UI mockups with a built-in "Tweak & Comment" review overlay (click-to-pin feedback, markdown export). |
 | `neon-forge-ui` | Expert agent for the Neon Forge UI library (React 19 + TanStack Start + Tailwind v4 dark-mode component workbench) — add components, preview, deploy. |
+| `scroll-world` | Scroll-scrubbed "fly through the world" hero (vendored from `oso95/scroll-world`, MIT) — generates cohesive scenes + seamless camera clips via Higgsfield and wires a framework-agnostic scroll-scrub engine. |
 
 ## 🎨 Design & Creative
 | Skill | What it does |
