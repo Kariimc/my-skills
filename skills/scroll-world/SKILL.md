@@ -2,13 +2,14 @@
 name: scroll-world
 description: >
   Build a scroll-scrubbed "fly through the world" landing page for any industry or
-  brand using Higgsfield. As the visitor scrolls, a pre-rendered camera flies from
-  outside each scene into its interior, then on to the next with NO cuts — one
-  continuous connected flight (isometric clay diorama, or any art direction you pick).
-  Interviews the user for topic, story beats and brand kit, then generates cohesive
-  scenes + seamless camera clips and wires a portable, framework-agnostic scroll-scrub
-  engine. Use when the user wants a "3D world" or "browse-through-the-industry" hero,
-  a scroll cinematic, a diorama landing, or to turn a business into a scrollable world.
+  brand. As the visitor scrolls, a pre-rendered camera flies from outside each scene
+  into its interior, then on to the next with NO cuts — one continuous connected
+  flight. Scenes come from Higgsfield or from your own photos/renders; the camera
+  clips are generated either way. Interviews the user for topic, story beats and brand
+  kit, then wires a portable, framework-agnostic scroll-scrub engine. Use for a "3D
+  world" or "browse-through-the-industry" hero, a scroll cinematic, a diorama landing,
+  turning a business into a scrollable world, or a fly-through built from images you
+  already have.
 allowed-tools: Bash, Read, Write, Edit, AskUserQuestion, Skill
 source: oso95/scroll-world
 license: MIT
@@ -141,8 +142,13 @@ default. Cover:
      Draft doubles as the previz path: run the whole chain cheap, approve the
      journey, re-render final legs on Standard (pipeline.md Notes) — suggest it
      unprompted when the balance reads tight.
-   - **Stills source** (only offer if the Codex CLI is present, Step 0.4):
-     Higgsfield `gpt_image_2` (spends credits) vs **Codex `image_gen`** — the same
+   - **Stills source — ask first whether the user already has images.** Photos or
+     renders of the real place/product replace Step 2 entirely and drop the `N
+     stills` term from the estimate above; the `(2N−1)` videos are unaffected. See
+     the boxed option at the head of Step 2 for what it changes (notably: only
+     architecture B uses every supplied still verbatim). Otherwise, generated —
+     default Higgsfield `gpt_image_2` (spends credits); offer the alternative below
+     **only if the Codex CLI is present** (Step 0.4): **Codex `image_gen`**, the same
      gpt-image-2 model billed to the ChatGPT subscription (zero credits; counts
      toward Codex usage limits; 1536×1024 output — exactly 3:2, slightly under
      Higgsfield's 2k). Stills are plain PNGs handed to `--start-image`, so the
@@ -169,6 +175,45 @@ See `references/prompts.md` for the intake checklist and copy structure.
 ---
 
 ## Step 2 — Generate the scene stills
+
+> ### Option: bring your own stills (skip generation entirely)
+>
+> **Ask this before generating anything.** If the user already has photos or renders
+> of the real place/product, those become the scene stills and Step 2's image spend
+> drops to zero. The video chain only ever receives **local image files** on
+> `--start-image` / `--end-image` (Step 0.5), so it cannot tell a generated still from
+> a photograph. What changes:
+>
+> - **Only images are free — the flight is still generated.** The dives, glides and
+>   connectors are rendered clips, so `(2N−1)` video gens (×2 with mobile) still get
+>   spent and still need the Step 1.6 budget approval. Recompute the estimate without
+>   the `N stills` term and state it.
+> - **Which architecture actually uses all of them (Step 4).** Under **B** (dive-in +
+>   connector) every still starts its own dive — all N images appear as given. Under
+>   **A** (continuous forward take) only still 0 seeds the chain; each later leg starts
+>   from the *previous leg's real last frame*, so stills 1..N−1 act as prompt targets
+>   the camera flies toward, not as frames that appear verbatim. **Say this out loud
+>   before the user picks** — "use my photos" usually means B, while realism usually
+>   means A, and those pull in opposite directions. If they want both, offer B, or A
+>   with the photos as the per-leg prompt reference and accept invented in-betweens.
+> - **Cohesion is now curation, not regeneration.** The Step 2 review below still
+>   applies — one angle, one light, one palette — but the fix for an off-style shot is
+>   re-shoot, re-crop, colour-match, or generate a single replacement in the house
+>   style. Mixed-source stills read as style drift for the same reason mixing image
+>   models does. Flag a mismatched set *before* any video spend, not after.
+> - **Geometry.** Landscape stills want ~3:2; anything else gets cropped to it. A
+>   native 9:16 mobile chain (Step 1.5) needs its own portrait set — a centre-crop of
+>   the landscape photos is the explicitly-labelled stopgap, not the default.
+> - **Step 3 knockout does not apply** to photographs. The flood-fill assumes a flat
+>   solid background; on a real photo it will not cut cleanly. Skip floating and match
+>   the page background to the images instead.
+> - Everything downstream is unchanged: the stills still double as video posters and
+>   lazy-load fallbacks (Step 3), the model roster rule still holds (Step 4), and
+>   Steps 5–8 are untouched.
+>
+> Mixed sets are fine — supply the scenes you have, generate the ones you don't, but
+> generate them *from* an approved photo passed as `--image` so the style locks to
+> your material rather than the other way round.
 
 One image per section, **all sharing the same style preamble** for cohesion. Default
 model **`gpt_image_2`** (crisp, great at isometric illustration; returns a solid/white
