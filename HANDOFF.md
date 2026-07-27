@@ -78,6 +78,24 @@ can regenerate `~/.claude` without losing it.
 - `README.md` / `ARCHITECTURE.md` — count drift auto-fixed by the skill-doctor
   gate (429 skills, 74 agents).
 
+### Follow-up the same day — allowlist conflict resolved
+
+Kariim spotted that `permissions.additionalDirectories` (which says "Claude may
+work here") and the guard's outside-project-root block are two hand-maintained
+lists that can drift apart. The my-skills carve-out already existed and worked,
+but it was hardcoded. The guard now **reads `additionalDirectories` from
+settings.json** and allows exactly those directories, plus its short built-in
+list (`~/bin`, `~/.claude`, `~/.gitignore_global`, `/tmp`, the session
+scratchpad). One source of truth; nothing wider. Unreadable settings fail
+CLOSED — a broken settings file cannot silently disable the guard.
+
+Proved three ways: a real Edit into my-skills succeeded while the working
+directory was a different project; a real Write to `~/Documents` from that same
+project was blocked and left no file; and in an isolated fake HOME, a directory
+listed ONLY in `additionalDirectories` was allowed, an unlisted one was blocked,
+and removing the setting made the previously-allowed path blocked again.
+Kariim's real settings were never modified during the test.
+
 ### Machine-level changes (outside this repo, for the record)
 
 Long paths + developer mode enabled in the registry; `core.longpaths` on;

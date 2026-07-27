@@ -17,6 +17,8 @@
 #   * 8 consecutive blocks in one session releases the gate with a warning
 #   * VERIFY_SKIP=1 in the environment disables it outright
 #   * every unexpected condition fails OPEN (exit 0)
+#
+# Run it by hand from any project with:  verify
 
 set -u
 

@@ -10,6 +10,12 @@
 # interpreter (a single one) when the payload could actually match a guarded
 # pattern. Windows process spawns cost ~0.5-1.2s each, so every avoided spawn
 # is real latency saved on every single tool call.
+#
+# Outside-the-project-root writes: blocked, EXCEPT for a short built-in list
+# (this repo, ~/bin, ~/.claude, /tmp, the session scratchpad) plus every path in
+# permissions.additionalDirectories from settings.json. That setting means
+# "Claude may work here", so the guard reads it rather than keeping a second
+# hand-maintained copy that can drift out of step with it.
 
 input="$(cat)"
 
@@ -158,6 +164,21 @@ if tool != "Bash":
         home + "/.gitignore_global",
         "/tmp/",
     ]
+
+    # permissions.additionalDirectories in settings.json literally means "Claude
+    # may work in this directory". A guard that blocks writes there contradicts
+    # the setting, so the two are read from ONE source instead of being kept in
+    # step by hand. Only directories listed there are added - nothing wider.
+    try:
+        with open(os.path.join(os.path.expanduser("~"), ".claude", "settings.json"),
+                  encoding="utf-8") as fh:
+            for d in (json.load(fh).get("permissions", {}) or {}).get("additionalDirectories", []) or []:
+                d = str(d).replace("\\", "/").rstrip("/").lower()
+                if d:
+                    ALLOW.append(d + "/")
+    except Exception:
+        pass                          # unreadable settings must not weaken the guard
+
     allowed = any(low.startswith(a) for a in ALLOW) or "/temp/claude/" in low
 
     if cwd and not allowed and not low.startswith(cwd + "/") and low != cwd:
