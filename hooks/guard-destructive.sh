@@ -18,6 +18,13 @@ input="$(cat)"
 GUARD_MODE=""
 case "$input" in
   *'"tool_name":"Bash"'*|*'"tool_name": "Bash"'*) GUARD_MODE=bash ;;
+  # Write-ish tools always get inspected: they are the only ones that can put a
+  # file outside the project root or clobber a credential. Reads stay on the
+  # cheap path below and are never blocked by the new checks.
+  *'"tool_name":"Write"'*|*'"tool_name": "Write"'*) GUARD_MODE=write ;;
+  *'"tool_name":"Edit"'*|*'"tool_name": "Edit"'*) GUARD_MODE=write ;;
+  *'"tool_name":"MultiEdit"'*|*'"tool_name": "MultiEdit"'*) GUARD_MODE=write ;;
+  *'"tool_name":"NotebookEdit"'*|*'"tool_name": "NotebookEdit"'*) GUARD_MODE=write ;;
   *CLAUDE.md*|*.claude*) GUARD_MODE=write ;;
   *) exit 0 ;;
 esac
@@ -26,6 +33,8 @@ esac
 if [ "$GUARD_MODE" = bash ]; then
   case "$input" in
     *rm\ *|*'git push'*|*'git reset'*|*'git clean'*|*'git checkout'*|*'git restore'*|*DROP\ *|*drop\ *|*TRUNCATE*|*truncate*|*Set-Content*|*Out-File*|*'bash -c'*|*'bash.exe -c'*|*'python -c'*|*'python3 -c'*|*'node -e'*) ;;
+    # added: branch deletion, credential paths, database destruction
+    *'git branch'*|*'.env'*|*'.ssh'*|*id_rsa*|*id_ed25519*|*credential*|*'.aws'*|*'.pem'*|*'.npmrc'*|*'.netrc'*|*'.pgpass'*|*dropDatabase*) ;;
     *) exit 0 ;;
   esac
 fi
@@ -50,7 +59,7 @@ fi
 # Single interpreter pass: parse, match, decide. Input goes via argv because
 # the heredoc already occupies stdin.
 "$GUARD_PY" - "$input" <<'PY'
-import json, sys, re
+import json, sys, re, os
 
 try:
     data = json.loads(sys.argv[1])
@@ -59,6 +68,24 @@ except (ValueError, IndexError):
 
 tool = data.get("tool_name", "")
 ti = data.get("tool_input", {}) or {}
+
+WRITE_TOOLS = {"Write", "Edit", "MultiEdit", "NotebookEdit"}
+
+def block(msg):
+    print(f"GUARDRAIL BLOCKED: {msg}", file=sys.stderr)
+    print(f"GUARDRAIL BLOCKED: {msg}")
+    sys.exit(2)
+
+# Credential paths. .env.example / .sample / .template are templates, not
+# secrets, and are deliberately allowed.
+CRED_RE = re.compile(
+    r'(?:^|/)\.env(?!\.example|\.sample|\.template)(?:\.[\w-]+)?$'
+    r'|(?:^|/)\.(?:npmrc|netrc|pgpass|git-credentials)$'
+    r'|(?:^|/)id_(?:rsa|dsa|ecdsa|ed25519)(?:\.pub)?$'
+    r'|(?:^|/)credentials(?:\.json|\.yml|\.yaml)?$'
+    r'|/\.ssh/|/\.aws/|/\.gnupg/'
+    r'|\.(?:pem|p12|pfx|keystore|jks)$',
+    re.IGNORECASE)
 
 # ── Generated-path guard (any write-ish tool, incl. MCP file writers) ────────
 # ~/.claude is BUILD OUTPUT. session-start.sh regenerates CLAUDE.md from
@@ -100,6 +127,46 @@ if tool != "Bash":
             print(f"GUARDRAIL BLOCKED: {msg}", file=sys.stderr)
             print(f"GUARDRAIL BLOCKED: {msg}")
             sys.exit(2)
+
+    # ── Everything below applies to WRITE tools only. Reads pass through. ────
+    if tool not in WRITE_TOOLS or not norm:
+        sys.exit(0)
+
+    # ── Credential guard ────────────────────────────────────────────────────
+    if CRED_RE.search(norm):
+        block(
+            f"'{path}' is a credential file. Writing secrets through a tool "
+            "leaks them into the transcript and often into git. Put the value "
+            "in the real secret store, or have Kariim paste it himself. "
+            "(.env.example / .sample / .template are allowed.)")
+
+    # ── Outside-the-project-root guard ──────────────────────────────────────
+    # A write that lands outside the project you are working in is almost
+    # always a mistake or a scope escape. A short allowlist covers the places
+    # that legitimately live outside a project.
+    if os.environ.get("GUARD_ALLOW_OUTSIDE"):
+        sys.exit(0)
+
+    cwd = str(data.get("cwd") or "").replace("\\", "/").rstrip("/").lower()
+    home = os.path.expanduser("~").replace("\\", "/").rstrip("/").lower()
+    low = norm.lower()
+
+    ALLOW = [
+        home + "/dev/my-skills/",     # control-plane SOURCE (edit here, not ~/.claude)
+        home + "/bin/",               # hand-maintained commands
+        home + "/.claude/",           # config; generated paths already blocked above
+        home + "/.gitignore_global",
+        "/tmp/",
+    ]
+    allowed = any(low.startswith(a) for a in ALLOW) or "/temp/claude/" in low
+
+    if cwd and not allowed and not low.startswith(cwd + "/") and low != cwd:
+        block(
+            f"'{path}' is outside the current project root ({data.get('cwd')}). "
+            "Writes belong inside the project you are working in. If this is "
+            "deliberate machine-level work, run it with GUARD_ALLOW_OUTSIDE=1 "
+            "set, and say in your reply that you wrote outside the project.")
+
     sys.exit(0)
 
 cmd = ti.get("command", "")
@@ -143,12 +210,51 @@ HARD = [
      "- proven dead 4x (ledger F-35, F-49). Quoting gets mangled and the command "
      "silently half-runs. Write the script to a file, then run it as two plain "
      "tokens: bash /c/path/to/script.sh"),
+
+    # ── force push via refspec (--force is caught above; +ref is the sneaky one)
+    (r'(?:^|[;&|])\s*git\s+push\b[^;&|]*\s\+[A-Za-z0-9._/-]+(?::|\s|$)',
+     "'git push origin +branch' is a force push wearing a disguise - blocked. "
+     "Use --force-with-lease, or ask Kariim before overwriting remote history."),
+
+    # ── branch deletion (local and remote) ──────────────────────────────────
+    (r'(?:^|[;&|])\s*git\s+branch\s+(?:-[a-zA-Z]*[dD]|--delete)\b',
+     "Deleting a branch throws away every commit that is not merged elsewhere - "
+     "blocked. Confirm the work is merged or pushed, then Kariim deletes it."),
+    (r'(?:^|[;&|])\s*git\s+push\b[^;&|]*\s(?:--delete|-d)(?:\s|$)',
+     "'git push --delete' removes a branch from the remote for everyone - "
+     "blocked. Ask Kariim first."),
+    (r'(?:^|[;&|])\s*git\s+push\b[^;&|]*\s:[A-Za-z0-9._/-]+',
+     "'git push origin :branch' deletes the remote branch - blocked. "
+     "Ask Kariim first."),
+    (r'(?:^|[;&|])\s*git\s+worktree\s+remove\b[^;&|]*--force',
+     "Force-removing a worktree discards uncommitted work in it - blocked."),
+
+    # ── credential files: reading them leaks, writing them destroys ──────────
+    (r'(?:^|[;&|])\s*(?:cat|type|less|more|head|tail|Get-Content|rm|mv|cp|tee|chmod|chown)\b[^;&|]*'
+     r'(?:/\.ssh/|/\.aws/|/\.gnupg/|\bid_(?:rsa|dsa|ecdsa|ed25519)\b|\.git-credentials\b|\.pgpass\b|\.netrc\b|\.npmrc\b|\.pem\b|\.p12\b|\.pfx\b)',
+     "That command touches a credential file. Reading one dumps the secret into "
+     "the transcript; writing or deleting one can lock Kariim out. Blocked. "
+     "If a secret is genuinely needed, ask him for it in one line."),
+    (r'(?:^|[;&|])\s*(?:cat|type|less|more|head|tail|Get-Content|rm|mv|tee)\b[^;&|]*'
+     r'(?<![\w.-])\.env(?!\.example|\.sample|\.template)(?:\.[\w-]+)?(?:\s|$|;|&|\|)',
+     "That command touches a .env file, which holds live secrets - blocked. "
+     "(.env.example / .sample / .template are fine.)"),
+
+    # ── dropping or truncating a database (was a warning; now a block) ───────
+    (r'\bDROP\s+(?:TABLE|DATABASE|SCHEMA)\b',
+     "DROP TABLE / DATABASE / SCHEMA destroys data irreversibly - blocked. "
+     "Kariim confirms data loss and a backup before this runs."),
+    (r'\bTRUNCATE\s+(?:TABLE\b|[A-Za-z_"`\[])',
+     "TRUNCATE empties a table irreversibly - blocked. "
+     "Kariim confirms data loss and a backup before this runs."),
+    (r'\bdb\.\w+\.drop\(\)|\bdropDatabase\s*\(',
+     "Dropping a MongoDB collection or database destroys data irreversibly - "
+     "blocked. Kariim confirms data loss and a backup before this runs."),
+    (r'(?:^|[;&|])\s*truncate\s+(?:-[a-zA-Z]+\s+)*-s\s*0\b',
+     "'truncate -s 0' empties a file irreversibly - blocked."),
 ]
 
-WARN = [
-    (r'\b(DROP\s+TABLE|DROP\s+DATABASE|TRUNCATE\s+TABLE)\b',
-     "Destructive SQL detected — confirm data loss is intentional and a backup exists."),
-]
+WARN = []
 
 for pattern, msg in HARD:
     if re.search(pattern, cmd, re.IGNORECASE | re.MULTILINE):

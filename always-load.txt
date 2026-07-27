@@ -6,6 +6,7 @@
 # (safe fallback). Add a name here to make an on-demand skill permanent.
 
 # --- keep an agent in check / stop drift ---
+intent-lock
 plan-gate
 scope-fence
 tests-bite
@@ -40,6 +41,7 @@ context-budget
 web-page-builder
 impeccable
 visual-prototype
+preview
 screen-eyes
 plain-language
 stop-slop
