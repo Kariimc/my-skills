@@ -34,8 +34,8 @@ provable from the repo alone - fill them in, do not guess.
 
 ## Current state
 
-**2026-07-27 session (branch `claude/machine-setup-2026-07-27`, NOT pushed, NOT
-merged):** one-time setup of Kariim's local Windows laptop (HP EliteBook 840 G9,
+**2026-07-27 session (branch `claude/machine-setup-2026-07-27` — PUSHED to
+origin, NOT merged, no PR opened yet):** one-time setup of Kariim's local Windows laptop (HP EliteBook 840 G9,
 `S-5CG3262FQB`). Fifteen steps, all completed and proven with real command
 output. Machine-level changes live outside this repo; everything that belongs to
 the control plane was added HERE, on the source side, so the session-start sync
@@ -165,9 +165,11 @@ nothing destructive is allowlisted — the guard stays authoritative.
 
 ### Exact next steps
 
-1. **Decide on the branch.** `claude/machine-setup-2026-07-27` has two commits and
-   is neither pushed nor merged. Pushing and opening a PR needs a word from
-   Kariim; merging to `master` always needs a fresh yes.
+1. **Open the PR, then decide on the merge.** `claude/machine-setup-2026-07-27`
+   is pushed to origin and tracking it. `master` is untouched at both ends and
+   nothing from this branch is merged into it. GitHub offered the PR link on
+   push; opening the PR was not requested, so it was not done. **Merging to
+   `master` always needs a fresh yes from Kariim.**
 2. **Watch the outside-project-root guard.** It is the new rule most likely to
    block legitimate work. Allowlist today: this repo, `~/bin`, `~/.claude`,
    `~/.gitignore_global`, temp dirs. Escape hatch is `GUARD_ALLOW_OUTSIDE=1`.
