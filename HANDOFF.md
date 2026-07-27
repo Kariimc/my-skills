@@ -34,6 +34,111 @@ provable from the repo alone - fill them in, do not guess.
 
 ## Current state
 
+**2026-07-27 session (branch `claude/machine-setup-2026-07-27`, NOT pushed, NOT
+merged):** one-time setup of Kariim's local Windows laptop (HP EliteBook 840 G9,
+`S-5CG3262FQB`). Fifteen steps, all completed and proven with real command
+output. Machine-level changes live outside this repo; everything that belongs to
+the control plane was added HERE, on the source side, so the session-start sync
+can regenerate `~/.claude` without losing it.
+
+### What changed in this repo this session
+
+- `skills/preview/` (+ `tool/start-dev.ps1`) — new. Starts a project's own dev
+  server on a free port in 5173-5250 with **no visible console window** (F-38),
+  polls until it truly answers (45s cap, prints the server's own stderr and stops
+  on timeout), then drives Playwright for 1280/768/390 screenshots into
+  `.preview/` plus chrome-devtools console errors. Server is left running.
+- `skills/intent-lock/` — new. Four plain questions before any task touching more
+  than two files; writes `INTENT.md` at the project root. Explicitly hands off to
+  the existing `intent-driven-development` skill for security/data/migration work
+  rather than duplicating its `AC-NNN` method.
+- `agents/verifier.md` — new. Adversarial diff reviewer; sees only the diff and
+  the stated requirements, never the reasoning. Reports correctness/requirement
+  gaps only. Reads `INTENT.md` as requirements of record.
+- `hooks/verify-gate.sh` — new. Runs typecheck → lint → build → test (skipping
+  what a project lacks), exits non-zero on first failure. Registered as a **Stop
+  hook**, so a turn cannot end while a project is failing. Cheap by design: exits
+  instantly if not a git repo or the tree is clean, and caches a pass fingerprint.
+  Cannot deadlock — 8 consecutive blocks releases it, `VERIFY_SKIP=1` disables it,
+  everything unexpected fails open. Also runnable by hand with `--run`.
+- `hooks/guard-destructive.sh` — **extended, not rewritten**; fast pre-filter
+  design kept. Added blocks for: force-push via `+refspec`, branch deletion (local
+  and remote), writes outside the current project root, credential files
+  (`.env`, `~/.ssh`, `~/.aws`, keys, `.npmrc`, `.netrc`, `.pgpass`, certs), and
+  `DROP`/`TRUNCATE`/`dropDatabase`. DB destruction was promoted from warning to
+  block. `.env.example`/`.sample`/`.template` stay allowed; reads are never
+  blocked by the new rules; `--force-with-lease` still passes.
+- `rules/15-verification.md` — new. Four standing rules: preview instead of
+  deploying to look; deploy only on Kariim's word; no "done" without pasted
+  verify output; every paste-able instruction names surface/repo/branch/folder/
+  where-to-paste/on-screen choices by name/what done looks like, and says so
+  explicitly when a field does not apply.
+- `always-load.txt` — `preview` and `intent-lock` added to the tier-1 core
+  (40 → 42).
+- `README.md` / `ARCHITECTURE.md` — count drift auto-fixed by the skill-doctor
+  gate (429 skills, 74 agents).
+
+### Machine-level changes (outside this repo, for the record)
+
+Long paths + developer mode enabled in the registry; `core.longpaths` on;
+CurrentUser execution policy set to RemoteSigned. Baseline tools installed via
+winget/npm (ripgrep, jq, fd, 7-Zip, CMake, turbo, vercel; git/gh/node/python/uv/
+pnpm were already present). `~/bin` created and added to the user PATH, holding
+`sk.cmd` (refuses to launch Claude outside a repo, off a repo root, or on
+main/master; otherwise prints repo/folder/branch/remote and launches with the
+skills repo added), `verify.cmd`, and `preflight.ps1` (doctor / install / ledger,
+writes `~/.claude/stack-state.json` every run). `@playwright/mcp` and
+`chrome-devtools-mcp` installed globally with a local chromium and registered at
+user scope pointing at the installed binaries — both Connected. Global gitignore
+now covers `.preview/` and `.playwright-mcp/`. Permission allowlist of 54 safe
+entries added (package scripts, safe git verbs, test runners, browser MCPs);
+nothing destructive is allowlisted — the guard stays authoritative.
+
+### Proven, not assumed
+
+- Guard selftest: the 8 `guard-destructive` checks pass. Two failures exist
+  (`runcard blocks 3d session without card`, `cant blocks unsearched
+  helplessness`) — **pre-existing**, proven by stashing the guard change and
+  seeing the identical two failures on the untouched file. Not caused here, and
+  not fixed here.
+- Verify gate: broken a throwaway project → hook exit 2 with the real failure
+  output; reverted → hook exit 0. Done twice, in two separate projects.
+- Six newly-blocked commands each produced their block message; four legitimate
+  cases (`--force-with-lease`, writing `.env.example`, writing inside the project,
+  reading a credential path) still pass.
+- All four `sk` branches exercised, including the success path.
+- Only ONE copy of this repo exists on disk. Two extra hits under
+  `.claude/worktrees/` share the same `git-common-dir` — they are worktrees, not
+  clones. Do not re-flag them as duplicates.
+
+### Exact next steps
+
+1. **Decide on the branch.** `claude/machine-setup-2026-07-27` has two commits and
+   is neither pushed nor merged. Pushing and opening a PR needs a word from
+   Kariim; merging to `master` always needs a fresh yes.
+2. **Watch the outside-project-root guard.** It is the new rule most likely to
+   block legitimate work. Allowlist today: this repo, `~/bin`, `~/.claude`,
+   `~/.gitignore_global`, temp dirs. Escape hatch is `GUARD_ALLOW_OUTSIDE=1`.
+   Widen the list rather than removing the rule.
+3. **Leave the scratch projects alone** — `C:\scratch-skilltest\{gate-demo,
+   sk-demo,guard-demo}` are the gate/guard/sk evidence and were left in place
+   deliberately.
+
+### Open decisions
+
+- **Unreal MCP:** no `unreal-mcp` package exists on PyPI (verified — uvx resolves
+  to "not found in the package registry"), and only the Epic launcher is
+  installed, not the engine. `preflight.ps1` registers nothing for Unreal and
+  rolls back any creative-app server that fails to connect. Revisit if a real
+  package appears.
+- **Unity and Blender MCP servers** (`uvx unity-mcp-server`, `uvx blender-mcp`)
+  are registered and Connected, but have not been exercised on a real project yet.
+- **7-Zip is not on PATH** (installs to Program Files without one). Detection
+  falls back to the known path so doctor and install agree; left as-is rather than
+  growing the PATH.
+
+---
+
 **2026-07-23 session (branch `file-butler-skip-launchers`, PR #66):** file-butler
 was in the repo but NOT synced to `~/.claude/skills/` — the `file-butler` agent
 correctly refused to hand-roll move logic and stopped. Fix: copied
