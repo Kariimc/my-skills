@@ -131,8 +131,84 @@ EOF
   fi
 fi
 
+# ── Machine files: things that live OUTSIDE ~/.claude and are not synced ─────
+# sk, verify, preflight and the global gitignore are real files on the machine,
+# not build output, so the sync never touches them. Without this section they
+# exist on exactly one laptop and are lost with it. Idempotent: identical files
+# are left alone, and the PATH gains one entry no matter how often this runs.
+install_machine_files() {
+  local src="$REPO/machine"
+  [ -d "$src" ] || { echo "  (no machine/ folder in this clone - skipping)"; return 0; }
+
+  local bin="$HOME/bin"
+  mkdir -p "$bin"
+
+  # sk.cmd and verify.cmd MUST be CRLF or cmd.exe mis-parses them. .gitattributes
+  # checks them out that way, but a clone made with odd settings might not, so
+  # normalise on write rather than trusting the checkout.
+  local f base dest
+  for f in "$src"/*.cmd; do
+    [ -e "$f" ] || continue
+    base="$(basename "$f")"; dest="$bin/$base"
+    if [ -f "$dest" ] && cmp -s "$f" "$dest"; then
+      echo "  $base: already identical - unchanged"
+    else
+      sed 's/\r*$/\r/' "$f" > "$dest"
+      echo "  $base: written to $dest (CRLF)"
+    fi
+  done
+
+  for f in "$src"/*.ps1; do
+    [ -e "$f" ] || continue
+    base="$(basename "$f")"
+    # add-bin-to-path.ps1 is this installer's own helper, not a user command.
+    [ "$base" = "add-bin-to-path.ps1" ] && continue
+    dest="$bin/$base"
+    if [ -f "$dest" ] && cmp -s "$f" "$dest"; then
+      echo "  $base: already identical - unchanged"
+    else
+      cp "$f" "$dest"
+      echo "  $base: written to $dest"
+    fi
+  done
+
+  # Global gitignore. Merge line-by-line so a machine's own entries survive.
+  if [ -f "$src/gitignore_global" ]; then
+    local gi="$HOME/.gitignore_global" added=0
+    touch "$gi"
+    while IFS= read -r line || [ -n "$line" ]; do
+      [ -z "$line" ] && continue
+      if ! grep -qxF "$line" "$gi"; then printf '%s\n' "$line" >> "$gi"; added=$((added+1)); fi
+    done < "$src/gitignore_global"
+    git config --global core.excludesFile "$(to_win "$gi")"
+    if [ "$added" -eq 0 ]; then echo "  gitignore: all entries already present - unchanged"
+    else echo "  gitignore: added $added entr(y/ies) to $gi"; fi
+  fi
+
+  # PATH. Windows only, and via a real script FILE - never a quoted multi-statement
+  # command through a layered shell (that road is in the failure ledger).
+  if [ -f "$src/add-bin-to-path.ps1" ]; then
+    local ps=""
+    for cand in "$SYSTEMROOT/System32/WindowsPowerShell/v1.0/powershell.exe" \
+                "/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"; do
+      [ -x "$cand" ] && ps="$cand" && break
+    done
+    if [ -n "$ps" ]; then
+      "$ps" -NoProfile -ExecutionPolicy RemoteSigned -File "$(to_win "$src/add-bin-to-path.ps1")"
+    else
+      echo "  PATH: not Windows (or no powershell.exe) - add $bin to your PATH by hand"
+    fi
+  fi
+}
+
+echo ""
+echo "Installing machine files (sk, verify, preflight, global gitignore)..."
+install_machine_files
+
 # Run the sync once right now so you do not have to restart to see your skills.
 bash "$HOOK" "$REPO" >/dev/null 2>&1 || true
 
+echo ""
 echo "Done. All skills/rules/commands/agents are now synced to ~/.claude/"
 echo "From now on they load automatically in every project, every session."
+echo "sk, verify and preflight are in ~/bin and on your PATH."

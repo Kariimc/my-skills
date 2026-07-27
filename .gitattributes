@@ -1,0 +1,6 @@
+# Windows batch files MUST keep CRLF line endings. With LF only, cmd.exe
+# mis-parses them - it chops the first characters off lines and the script
+# fails in a confusing way rather than erroring cleanly. Checked out with CRLF
+# on every platform so machine/sk.cmd survives a fresh clone.
+*.cmd text eol=crlf
+*.bat text eol=crlf

@@ -96,6 +96,40 @@ listed ONLY in `additionalDirectories` was allowed, an unlisted one was blocked,
 and removing the setting made the previously-allowed path blocked again.
 Kariim's real settings were never modified during the test.
 
+### Second follow-up the same day — orphan files are no longer orphans
+
+`sk.cmd`, `verify.cmd`, `preflight.ps1` and `.gitignore_global` existed on ONE
+laptop and in no repo. They now live in `machine/` here, and **`install-global.sh`
+was extended** (not replaced - it is still the only installer) with an
+`install_machine_files` step that recreates all four in their correct places and
+puts `~/bin` on the user PATH.
+
+Details worth not rediscovering:
+
+- `.gitattributes` was added forcing `*.cmd` / `*.bat` to `eol=crlf`. A batch
+  file with LF endings makes cmd.exe chop the first characters off lines - it
+  fails confusingly rather than cleanly. The installer ALSO normalises to CRLF
+  on write, so a clone made with odd settings still produces a working `sk`.
+- PATH is set from `machine/add-bin-to-path.ps1`, called as a real script FILE.
+  Not a quoted multi-statement command through a layered shell (ledger F-35/F-49),
+  and not `setx` - setx truncates a PATH over 1024 chars and would destroy it.
+- The gitignore merge is line-by-line, so a machine's own entries survive.
+- `add-bin-to-path.ps1` is skipped when copying `*.ps1` to `~/bin` - it is the
+  installer's helper, not a user command.
+
+Proved: installer run twice on this machine - files unchanged, PATH stayed at
+exactly one `bin` entry. Then run against an empty fake HOME - all four
+recreated, byte-identical to the originals, `sk.cmd` still 70 CRLF lines, helper
+not leaked. Fake home deleted afterwards.
+
+Also: PowerShell 7.6.4 installed at user scope; Windows PowerShell 5.1 left in
+place and still working. It was never part of the original baseline list.
+
+And the sync-survival claim from earlier was actually tested rather than
+asserted: two back-to-back syncs, all seven rebuilt files present and
+byte-identical to their sources afterwards (CLAUDE.md checked by content - all
+18 rule sections present).
+
 ### Machine-level changes (outside this repo, for the record)
 
 Long paths + developer mode enabled in the registry; `core.longpaths` on;
