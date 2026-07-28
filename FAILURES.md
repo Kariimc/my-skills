@@ -602,3 +602,64 @@ fully followed, say exactly which parts were skipped, up front, before the user
 finds out. Bad news early and blunt. Describe results in flat, checkable terms
 ("here it is, compare against your reference"), never in self-congratulatory ones.
 A single caught lie costs more trust than ten honest "I don't know"s.
+
+## F-60 `git checkout` used to READ a file from another ref
+SYMPTOM: You want to see what a file looks like on another branch/ref, so you run
+`git checkout <ref>` (often with a `|| git checkout <ref> -- .` fallback). A stale
+local branch of that name exists, the checkout succeeds, and the ENTIRE working
+tree silently moves to it. You then read old file content and are one sentence
+away from reporting it as the current/shipped state.
+BANNED: `git checkout <branch>`, `git checkout <ref> -- .`, or any branch switch
+whose purpose is to look at file content. Also banned: the `A 2>/dev/null || B`
+shape here — it hides which of the two ran, and A succeeding is the bad case.
+WORKS: `git show <ref>:<path>` — reads from any ref, never touches HEAD, index or
+the working tree. For many files, `git diff <refA> <refB> -- <path>`. If a real
+checkout is genuinely needed, `git worktree add` a throwaway directory instead.
+COST 2026-07-27 (shift9-studio/.github): checking one CSS token on `main` ran the
+fallback shape, a stale local `main` at `dacbed1` existed, and the tree reverted
+144 commits mid-verification. Recovered with `git merge --ff-only origin/main`,
+but the file content read in between was pre-merge and was about to be quoted as
+live.
+
+## F-61 Verifying a generated artifact against the same local state that generated it
+SYMPTOM: You generate a script/patch that edits a file in a repo you cannot push
+to, hand it over, and "verify" it by running it and diffing against your own local
+commit. It passes. It is broken: the edit was anchored on text that exists only in
+YOUR unpushed commit, so against the real remote the anchor is absent, the
+`str.replace()` matches nothing, and the whole insertion silently no-ops.
+BANNED: `str.replace(anchor, ...)` / `sed s///` with no assertion that the anchor
+exists. Verifying generated output by diffing it against another artifact built
+from the same unverified source. Assuming your working copy of a repo you cannot
+push to matches its remote.
+WORKS: Three things, together. (1) `assert anchor in text, '<anchor> not found'`
+so a missing anchor is a loud failure, never a silent no-op. (2) Reset to the
+actual remote first — `git reset --hard origin/main` — and author the edit against
+THAT, not against local HEAD. (3) Prove it on a FRESH clone of the remote, then
+diff that result against your committed version; only "identical" counts.
+COST 2026-07-27 (Kariimc/relay): the handoff insertion was keyed on a
+`## LATEST -- (2026-07-27)` heading that lived only in a local commit whose push
+had 403'd. First verification run reported `log.md | 1 +` — one file, not two —
+which was the only visible symptom that the HANDOFF edit had done nothing.
+
+## F-62 Acting on a ref the user NAMED when the real head is different (BEHAVIOURAL — hard rule, Kariim 2026-07-27)
+SYMPTOM: The instruction names an explicit ref — "branch head is now <sha>, verify
+then merge", "deploy tag v1.4", "ship what's on <branch>" — and the actual head is a
+different commit, almost always because work landed after the user last looked. The
+agent verifies the real head, finds it clean, flags the difference in its report, and
+merges anyway.
+BANNED: Performing ANY irreversible or outward-facing action — merge, deploy, publish,
+release, force-push, delete — when the ref named in the instruction is not the ref that
+would be acted on. This holds however well-justified the extra commits are, INCLUDING
+when the agent authored them minutes earlier at the user's explicit request. Naming the
+discrepancy in the report afterwards is not consent; the user approved a ref, not a
+direction. "It's what they would have wanted" is the whole failure mode.
+WORKS: STOP before the irreversible step and say it in one line — "you named <X>, head
+is <Y>, difference is <n> commit(s): <one-line each>. Merge <Y>, or <X>?" — then wait.
+All the VERIFICATION can and should run on the real head first, so the answer costs one
+message and no rework. Only the irreversible step waits.
+COST 2026-07-27 (shift9-studio/.github PR #35): Kariim's merge instruction named
+`f66f8de`; the head was `77aad4b`, one commit further (a /work -> /soon redirect he had
+asked for minutes earlier). It was merged to `main` and shipped to production. The
+extra commit was wanted and nothing broke — the road is banned anyway, because the same
+reasoning applied to a commit he had NOT asked for ships something he never approved.
+He made it a hard rule the same day.

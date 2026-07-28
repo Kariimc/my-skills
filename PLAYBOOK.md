@@ -203,3 +203,86 @@ code-first, exportable family. See 3d-master-modeler Template K.
 PROOF: 9 visibly distinct barrel-props (varying height, facets, colour, metal/paint,
 bands, bolts, cap) from one generator in a single render, Blender 5.0.1 headless
 2026-07-22. Clickable proof page.
+
+## P-21 Measuring video behaviour in a sandbox with no codec
+WHEN: Verifying playback-driven logic (autoplay gating, scroll-triggered clips) in
+a cloud box whose Chromium cannot decode the format — confirm with
+`document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E")`
+returning `""`. There, `play()` always rejects and `video.paused` is always true,
+so every naive probe reports "nothing is playing" no matter what the code does.
+DO: stop measuring playback, measure INTENT. Before any page script runs:
+`await page.addInitScript(() => { window.__intent = new WeakMap();
+  const p = HTMLMediaElement.prototype.play, q = HTMLMediaElement.prototype.pause;
+  HTMLMediaElement.prototype.play = function(){ window.__intent.set(this,'playing');
+    return p.apply(this, arguments).catch(()=>{}); };
+  HTMLMediaElement.prototype.pause = function(){ window.__intent.set(this,'paused');
+    return q.apply(this, arguments); }; })`
+then assert on `window.__intent.get(v) === 'playing'`. Whether the app ASKS is
+exactly what the code controls and is fully observable; whether the box can decode
+is not. The `.catch(()=>{})` matters — without it every rejected play() floods the
+console and masks real errors.
+PROOF: shift9.dev /studio reel, 2026-07-27. The `!video.paused` probe reported
+playing=0 at every sample both before and after the fix — no signal at all. The
+intent probe measured 48 dead beats over 80 samples before, 0 after.
+
+## P-22 Probing a scroll-driven pinned reel (continuous travel, not jump sampling)
+WHEN: Measuring a sticky/pinned scroll experience that uses IntersectionObserver,
+warm-ahead, or lazy mounting — anything whose state depends on how you ARRIVED at
+a scroll position.
+DO: travel it the way a reader does. Fixed small steps —
+`for (let y = start; y < H - tail; y += 260) { await page.evaluate(v =>
+scrollTo(0, v), y); await page.waitForTimeout(70); /* sample */ }` — never
+`scrollTo(H * fraction)` at a handful of fractions.
+PROOF: shift9.dev /studio, 2026-07-27. Jump-sampling at ten fractions of page
+height skipped the warm-ahead chain entirely and reported dead beats that were
+artifacts of the probe. The 260px continuous probe found the real defect (48 dead
+beats over 80 samples) and confirmed 0 after the fix.
+
+## P-23 Dry-run a merge and PROVE the working tree is untouched
+WHEN: Asked to test-merge before merging, especially when the answer must include
+"and nothing was left behind."
+DO: `git merge-tree --write-tree --messages <base> <head>` — exit 0 is a clean
+merge, exit 1 lists conflicts, and it writes a tree object without ever touching
+HEAD, the index, or the working tree. So there is nothing to abort. Prove the tree
+is unchanged by fingerprinting it either side:
+`find . -path ./.git -prune -o -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum`
+Never `git merge --no-commit` + `git merge --abort` — that mutates the tree and
+its cleanliness afterwards is a claim, not evidence.
+PROOF: shift9-studio/.github PR #35, 2026-07-27. Exit 0, no conflicts; fingerprint
+`df34514e6f6a6849bd5b2ce53274aa662b7abc8e` identical before and after.
+
+## P-24 Verifying a LIVE Vercel site when egress blocks its domain
+WHEN: A cloud sandbox's allowlist 403s the production domain — `curl https://<site>`
+returns HTTP 000 and `curl -sS "$HTTPS_PROXY/__agentproxy/status"` shows
+`connect_rejected` for it. `*.vercel.app` is usually blocked too, so the preview
+URL is no help either.
+DO: use the Vercel MCP, which fetches server-side. `list_deployments` /
+`get_deployment` gives `state`, `target`, `meta.githubCommitSha` and the `alias`
+array — that is how you prove production was built from the merge commit and not a
+stale one. `web_fetch_vercel_url` returns the real response for any path, including
+`status`, `location` and `x-matched-path` (which is how you verify a redirect
+landed on the right route rather than guessing from the body). `get_runtime_errors`
+with `since: "1h"` catches server-side breakage after a deploy.
+Pair it with a local `next start` on the same commit's build output for the things
+the MCP cannot do — console errors, failed requests, viewport widths.
+PROOF: shift9.dev, 2026-07-27. Both `shift9.dev` and `*.vercel.app` returned HTTP
+000 through the proxy. The MCP confirmed `dpl_HcMaZCp7…` READY, target production,
+sha `9555209`, aliased to shift9.dev/www.shift9.dev; `/work/omni-3d` returning
+`x-matched-path: /soon`; and zero runtime errors in the first hour.
+
+## P-25 Assert on rendered COPY, not just on status codes
+WHEN: A conditional picks user-visible text — a label, CTA, status, empty state —
+especially one branching on a URL, a slug, or an id.
+DO: after the build, curl the SSR HTML and assert the COUNT of the expected string
+against the number of items that should carry it:
+`test "$(grep -o 'Project page coming soon' page.html | wc -l)" -eq 10`
+and assert the wrong branch's output is absent. Build, typecheck, HTTP 200,
+zero-console-errors and even a screenshot all pass with the wrong words on screen —
+none of them read the copy.
+PROOF: shift9.dev /studio, 2026-07-27. The label was chosen by `href === "/soon"`,
+but every card stamps its own number on the URL (`/soon?from=05`) so the way back
+can restore scroll position. The equality matched NONE of the ten cards it was
+written for; all ten had been shipping "Open <project> →" — a link promising a
+project page and delivering a coming-soon sign, the exact thing the check existed
+to prevent. It survived several commits of route-status and console-error checks
+and was found only when the copy itself was counted: 0/10 before, 10/10 after.
