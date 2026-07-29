@@ -65,6 +65,29 @@ cause was delivery, not the model.
   `.claude/` while naming that same file as the source to edit (#73); the archive
   hook could file a non-session into `raw/inputs/` (#74).
 
+### Closing state, and two things I got wrong doing it
+
+- **Every session now states whether the rules reached it** (#80). `env-scout.sh`
+  prints `RULES: DELIVERED` with the byte count, hook count and
+  agents-carrying-rules count and where they came from — or `RULES: NOT DELIVERED`
+  with an instruction to say exactly that in the first reply. It **reports only**;
+  it installs nothing. That was the actual disease: a session running blind and
+  never mentioning it.
+- **F-64 — I wrote a hook that installed the control plane by itself** when it
+  found it missing, and only scoped it after the fact. Removed before merge.
+  Installing without an explicit yes is a standing no, and re-fetching over a
+  working install risks trading it for a half-download. Report and stop.
+- **F-65 — three fired sessions, zero reports.** Verifying a fresh box by firing
+  a session and waiting for it to report back does not work: a fired session has
+  no repositories attached, so every GitHub write is refused, and there is no way
+  to read its transcript. The method is dead; do not try a fourth channel.
+- **What is proven, and what is not.** `bootstrap.sh` installs the whole control
+  plane onto a virgin HOME — measured twice, 37176B of rules / 41 skills / 73
+  agents / 73-of-73 carrying the rules / 15 guards, in ~3.5s. What is NOT proven
+  from inside a container: whether the environment's setup-script field is saved,
+  because a running box cannot see its own startup config. Kariim says he set it.
+  The next fresh session answers it out loud by itself — that is what #80 is for.
+
 ## Latest (2026-07-22, cloud) — free/no-GPU AAA path + HF research (3d-master-modeler)
 
 - **Goal set by Kariim:** AAA-cinematic 3D assets, fewest passes, quick, FREE, and he
