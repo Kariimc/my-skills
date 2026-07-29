@@ -734,3 +734,19 @@ is out of reach instead of chasing it.
     counts or NOT DELIVERED at every session start, so the answer arrives on
     its own the next time it matters.
 Two strikes killed the method here; the third attempt was already a violation.
+
+## F-66 A generator that defaults its output to the caller's cwd
+SYMPTOM: you rebuild a committed index/manifest, the tool prints a healthy
+"indexed 429 -> index.json", and the thing you just added is still invisible.
+`skills/finding-skills/tool/build-index.py` defaulted `out_path` to a bare
+`index.json`, so running it from the repo root wrote a stray file THERE while
+`find-skills.py` kept reading the real, stale index beside itself. This is the
+mechanism behind playbook P-12 — the fix there was "remember to rebuild", which
+never addressed why a rebuild silently missed.
+BANNED ROAD: trusting a generator's success line without checking the path it
+printed, and "just remember to run it from the right directory".
+THE ROAD THAT WORKS: a generator writes beside the thing it feeds, derived from
+`__file__`, never from the cwd. Then prove the round trip, not the exit code —
+rebuild, then query for the new entry and see it come back. Fixed 2026-07-29:
+the default is now `os.path.dirname(...__file__...)/index.json`, and `fusion`
+was confirmed findable immediately after the rebuild.

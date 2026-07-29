@@ -34,6 +34,30 @@ provable from the repo alone - fill them in, do not guess.
 
 ## Current state
 
+**2026-07-29 session (branch `claude/codex-fusion-setup-gc1j09`): fusion shipped.**
+Kariim asked whether "codex fusion" had ever been set up — it had not. Built it on top
+of `council-moa` rather than as a new engine: `skills/fusion/SKILL.md` is the front
+door, all code lives in `skills/council-moa/scripts/council.py`.
+
+What it does: one question, every seat on a different company's model. Advisors dealt
+round-robin across Claude / GPT / Gemini, Arbiter on the strongest reachable brain,
+Adversary always on a **different** brand, Hugging Face open models as the rate-limit
+reserve (model chosen live from `router.huggingface.co/v1/models`, never hard-coded).
+Keys live in `~/.claude/fusion.env`, outside every repo.
+
+Run it: `python3 skills/council-moa/scripts/council.py "Q" --provider fusion --depth deep`.
+See the roster free: `... --brains`.
+
+Proof: `skills/council-moa/scripts/selftest_fusion.py`, 42/42, no keys or network needed;
+bite-tested by forcing same-brand verification (3 checks go red).
+**Not proven:** no live multi-brain call has run — this box holds no OpenAI/Gemini/HF key.
+Model ids come from vendor docs, not from a response.
+
+Also fixed here: `skills/finding-skills/tool/build-index.py` wrote `index.json` into the
+caller's cwd by default, so rebuilding from the repo root left the real index stale and
+new skills invisible to `find-skills.py` (the cause behind playbook P-12). It now defaults
+beside the finder.
+
 **2026-07-23 session (branch `file-butler-skip-launchers`, PR #66):** file-butler
 was in the repo but NOT synced to `~/.claude/skills/` — the `file-butler` agent
 correctly refused to hand-roll move logic and stopped. Fix: copied
@@ -132,6 +156,10 @@ the source of truth is `rules/`, and that is where the contract now lives.
 
 ## Exact next steps
 
+- **Fusion needs its first live run.** Kariim adds whichever keys he holds to
+  `~/.claude/fusion.env` (Anthropic / OpenAI / Google AI Studio / HF), then
+  `council.py --brains` confirms the roster and one real `--provider fusion` run proves
+  the model ids. Until that happens the model ids are doc-verified only.
 - **Awaiting Kariim's yes** to merge `claude/failure-ledger` → `master` and push, so the
   contract propagates to the other surfaces (cloud, cowork, steamdeck). Default branch is
   `master`; merge-to-master is the one git gate.

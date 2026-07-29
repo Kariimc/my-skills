@@ -15,6 +15,16 @@
       "verifier": "claude-opus-4-8"
     }
   },
+  "_example_fusion_multi_brain": {
+    "_note": "Claude + GPT + Gemini on one question; the Adversary is always a different brand than the Arbiter. Keys go in ~/.claude/fusion.env. Run: council.py \"Q\" --provider fusion",
+    "provider": "fusion",
+    "depth": "deep",
+    "brain_order": ["claude", "gpt", "gemini", "hf"],
+    "brain_models": {
+      "gpt": {"aggregator": "gpt-5.6-sol", "proposer": "gpt-5.6-terra"},
+      "gemini": {"proposer": "gemini-3.6-flash"}
+    }
+  },
   "_example_openrouter_diversity": {
     "provider": "openrouter",
     "models": {

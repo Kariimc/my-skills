@@ -328,3 +328,27 @@ PROOF: 2026-07-29. From a completely empty `HOME` with no clone on the box:
 ledger-sentinel, guard-destructive, runcard-guard, cant-guard, archive-session).
 Refresh proven both ways: a 13h-old stamp re-fetched in ~10s, a fresh one did not,
 zero runaway processes. Tarball is 7.3 MB in 2.6s.
+
+## P-28 Cross-BRAND verification, not cross-model
+WHEN: an answer matters enough to be checked by a second model, and you hold keys
+to more than one company (Anthropic / OpenAI / Google AI Studio / Hugging Face).
+DO: put the synthesizer on one company's model and the adversary that attacks it
+on ANOTHER company's model. Two models from the same lab share their lab's blind
+spots, so same-brand review reliably passes answers a rival would reject. Deal the
+advisor seats round-robin across brands as well, and re-deal them AFTER the
+council is chosen — dealing over the full roster up front lets a whole brand end
+up with no advisor seated. In `skills/council-moa/scripts/council.py`:
+`council.py "Q" --provider fusion`; `--brains` shows the seating for free.
+PROOF: 2026-07-29, 42/42 checks in `selftest_fusion.py` with no keys and no
+network; forcing the adversary onto the arbiter's brand turns 3 checks red.
+
+## P-29 Pick a fallback model from the provider's LIVE catalogue
+WHEN: writing a fallback path to a model you do not control the naming of
+(Hugging Face router, OpenRouter, any aggregator whose slugs rotate).
+DO: hard-code an ordered ladder of name SUBSTRINGS, not model ids, then match it
+against `GET <base_url>/models` at run time and take the first hit. A renamed or
+retired model then costs nothing. Say out loud which model was chosen, and when
+the catalogue is unreachable say the literal fallback is unverified rather than
+letting it look deliberate.
+PROOF: 2026-07-29, `hf_best_model()` — ladder match, no-match, and unreachable-
+catalogue paths all covered in `selftest_fusion.py`.

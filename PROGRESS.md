@@ -2,10 +2,45 @@
 
 > Last updated: 2026-07-29.
 
-## Latest (2026-07-29, cloud) — commands menu fix + cloud transcripts finally reach the brain
+## Latest (2026-07-29, cloud) — fusion: several companies' models on one question
+
+- **Answering Kariim's question directly: no, "codex fusion" had never been set up.**
+  Recon found no fusion skill, no multi-provider run path, and no keys on any box.
+  What existed was `council-moa`, a single-provider council, plus ledger entry F-16
+  parking the AI Studio key path. Library is **429 skills** / 73 agents.
+- **New `skills/fusion`** — the same council pipeline with every seat on a different
+  company's model: advisors dealt round-robin across Claude / GPT / Gemini, the Arbiter
+  on the strongest brain, and the Adversary **deliberately on a rival brand** so the
+  check does not share the Arbiter's blind spots.
+- **Engine changes, all in `skills/council-moa/scripts/council.py`:** seat-aware calls
+  (`_invoke`, backward compatible with callers that never heard of seats), `fusion_call`,
+  `detect_brains`, `fusion_seating`, `describe_fusion`, a `--brains` probe, `--provider
+  fusion`, and `~/.claude/fusion.env` as the one place keys live (outside every repo).
+  Seats are **re-dealt** once triage picks the council — without that, a whole brand
+  could end up with no advisor.
+- **Rate-limit failover** — a limited brain hands its seat to the next brain, then to the
+  smartest open model the Hugging Face router will serve, looked up **live** via
+  `router.huggingface.co/v1/models` so a renamed model cannot strand a run. A real error
+  (bad key, bad request) is never mistaken for a rate limit.
+- **Nothing degrades quietly** (Kariim's explicit ask): every fallback prints — brain
+  handover, keyfile entry overridden by the environment, advisor that never answered,
+  verification that did not run (answer labelled UNVERIFIED), refinement that failed to
+  fix the Adversary's issues, JSON-mode rejection, single-brain run pretending to be
+  fusion.
+- **Fixed en route:** `build-index.py` defaulted its output to the caller's cwd, so
+  running it from the repo root wrote a stray `index.json` there and left the real index
+  stale — new skills stayed invisible to `find-skills.py`. That is playbook P-12's cause,
+  now removed; it defaults beside the finder.
+- **Proof:** `skills/council-moa/scripts/selftest_fusion.py`, 42/42 green, no keys and no
+  network. Bite-tested: forcing the Adversary onto the Arbiter's brand turns 3 checks red.
+- **NOT proven:** no live 3-brain call has ever run. This box holds no OpenAI, Gemini or
+  HF key, so the model ids (`gpt-5.6-sol/terra/luna`, `gemini-3.6-flash`) are verified
+  from vendor docs, not from a response. First real run is the remaining proof.
+
+## Earlier (2026-07-29, cloud) — commands menu fix + cloud transcripts finally reach the brain
 
 - **`/pull-skill` and `/session-reflect` are now both a command and a skill** (PR #72,
-  merged to master at `9746c6e`). Each was half-present before. Library is **428 skills**
+  merged to master at `9746c6e`). Each was half-present before. Library is **429 skills**
   / 73 agents; `pull-skill` joined `always-load.txt`.
 - **New `hooks/archive-session.sh` (Stop)** — the cloud box is wiped between sessions
   (measured: every `~/.claude` path carried the container-start timestamp and
