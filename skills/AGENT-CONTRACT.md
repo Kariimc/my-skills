@@ -1,5 +1,13 @@
 # Worker contract — prepend to every dispatched subagent prompt
 
+> **Relationship to the per-agent block (2026-07-29).** Every `agents/*.md` now
+> carries its own `OPERATING-RULES` block, written by `bin/agent-contract-sync.sh`
+> and gated by `skill-doctor`. That block covers agents dispatched by NAME, which
+> this file never reached. This file stays the contract a harness prepends to a
+> worker prompt built on the fly. They overlap on purpose; if you change a rule,
+> change it in BOTH or they drift.
+
+
 Every harness that dispatches worker subagents prepends this block verbatim to
 each worker's prompt, so no worker starts cold on the operating rules
 (enforcement plan item #3 — subagents never saw the global CLAUDE.md).

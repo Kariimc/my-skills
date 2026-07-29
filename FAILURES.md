@@ -663,3 +663,25 @@ asked for minutes earlier). It was merged to `main` and shipped to production. T
 extra commit was wanted and nothing broke — the road is banned anyway, because the same
 reasoning applied to a commit he had NOT asked for ships something he never approved.
 He made it a hard rule the same day.
+
+## F-63 Assuming the operating rules reached a session because they exist in the repo
+SYMPTOM: Sessions produce walls of jargon, skip proof, hand back legwork — the
+exact things the rules forbid — and the agent keeps insisting the rules are
+loaded because `rules/*.md` is right there in `my-skills`. Kariim reported it
+repeatedly before anyone checked delivery instead of authorship.
+BANNED ROAD: Treating "the rule is written" as "the rule was delivered", and
+answering a complaint about rule-breaking by re-reading the rules. Also banned:
+`~/.claude/CLAUDE.md` is NOT a fact about every surface. It does not carry over
+to a cloud session at all (Anthropic's own "What carries over from your setup"
+table lists it as a hard No), and a subagent never inherits it on any surface.
+THE ROAD THAT WORKS: Prove delivery, per surface, before defending the content.
+  - Session rules: `wc -c ~/.claude/CLAUDE.md` and
+    `grep -c session-start.sh ~/.claude/settings.json`. On a cloud box working
+    on any repo other than my-skills, both were effectively zero on 2026-07-29 —
+    the rules were present only because my-skills happened to BE the working
+    directory. Fixed by `bootstrap.sh` in the environment's setup script.
+  - Agent rules: `bin/agent-contract-sync.sh --check`. 0 of 73 agents carried a
+    rule before this existed; a dispatched agent starts with only its own job
+    description. Now HARD-gated by `skill-doctor`.
+The general form: when behaviour contradicts a rule, the first hypothesis is
+that the rule never arrived — not that the model ignored it.
