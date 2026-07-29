@@ -42,9 +42,14 @@ cause was delivery, not the model.
   repo started with zero rules, zero guard hooks, zero skills — and said nothing.
   → `bootstrap.sh` (#75): installs rules + guards from GitHub over plain HTTPS, no
   clone and no auth. One line in the cloud environment's **Setup script** field
-  covers every repo, including ones created later. **That paste is the one manual
-  step left — there is no API to set it** (searched twice). Kariim has exactly one
-  environment ("Default"), so it is one action, once.
+  covers every repo, including ones created later. There is no API to set it
+  (searched twice), so it was the one manual step — and **Kariim has already done
+  it** (2026-07-29). He has exactly one environment ("Default"), so that one action
+  covers everything from here.
+  Unverified from the session that shipped it: this container started before the
+  paste, so the setup script never ran here. It confirms itself on the next fresh
+  cloud session — `~/.my-skills` present and `~/.claude/CLAUDE.md` non-empty in a
+  repo that is not my-skills.
   → `session-start.sh` (#76): a tarball install can't `git pull`, and the
   environment snapshot only rebuilds every ~7 days, so a fleet-wide rule fix would
   sit unseen. Re-fetches in the background when the copy is over 12h old.
