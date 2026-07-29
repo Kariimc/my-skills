@@ -46,7 +46,7 @@ PAT_ASSIGN="${KEYWORD}[\"' ]*[:=][\"' ]*${VALUE}"
 NOT_A_SECRET='process\.env|os\.environ|import\.meta\.env|System\.getenv|getenv\(|ENV\[|\$\{|\$\(|YOUR[_-]|<[A-Za-z]|change[_-]?me|example|placeholder|redacted|your[_-]|[_-]here|xxxxx|dummy|sample|\bfake\b|\btest|\.\.\.|insert[_-]|replace[_-]'
 # A bare 40-hex run is ALSO a public git commit SHA / SRI hash — benign when the
 # line names it as one.
-GIT_SHA_CONTEXT='\b(sha|sha1|commit|revision|rev|head|checkout|digest|integrity|blob|tree|parent|pin(ned)?|gitsha|content[_-]?hash)\b|github\.com/[^ ]+/(commit|tree|blob)/'
+GIT_SHA_CONTEXT='\b(sha|sha1|commit|revision|rev|head|checkout|digest|integrity|blob|tree|parent|pin(ned)?|gitsha|content[_-]?hash|fingerprint(ed|s)?|checksum(s)?|sha1sum|sha256sum|md5sum)\b|github\.com/[^ ]+/(commit|tree|blob)/'
 
 # ── Pathspecs: exclude self, binaries, and hash-bearing lockfiles/fonts/media
 #    (they carry legitimate 40-hex content-hashes and would false-positive). git
