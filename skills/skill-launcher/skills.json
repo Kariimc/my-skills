@@ -1051,6 +1051,13 @@
       "goal": "Fix & Debug"
     },
     {
+      "name": "fusion",
+      "desc": "Run a question through a crew of the smartest models, each on the job it is best at \u2014 Sonnet 5 researches and plans, Opus 5 builds, a partner model (GPT-5.6 Sol or Gemini) builds and synthesizes, Fable 5 verifies and sets the bar the others are held to next time. All at high reasoning effort. Use when the user says \"fusion\", \"use all the brains\", \"two brains\", \"three brains\", \"Claude and GPT and Gemini\", \"cross-check this with another model\", \"second opinion from a different model\", or wants the strongest possible answer on a hard or hard-to-reverse question. NOT for lookups or routine work \u2014 it costs many model calls.",
+      "kind": "skill",
+      "category": "Other",
+      "goal": "Build"
+    },
+    {
       "name": "game-art",
       "desc": "Lead Concept Artist and Technical Artist for game asset production. Creates art bibles, asset spec sheets, visual mood guides, character breakdowns, tileset lists, VFX art specs, PBR texture standards, LOD design rules, style documentation, and engine import checklists. Also generates AI image prompts (Midjourney/Stable Diffusion), debugs shader/material issues, and directs art pipeline integration (Unity HDRP/URP, Unreal 5 Nanite). Use when the user wants to design game art assets, establish a visual style guide, create a character or environment spec, define PBR standards, plan LOD budgets, debug a shader, run an art direction review, or generate AI art prompts for game concepts.",
       "kind": "skill",
@@ -2094,6 +2101,13 @@
       "goal": "Fix & Debug"
     },
     {
+      "name": "pull-skill",
+      "desc": "Load an on-demand skill from the Kariimc/my-skills library into this session. The session-start sync only auto-loads the always-load.txt core; use this to pull any of the other library skills when a task needs one. Triggers on \"pull skill\", \"load the <name> skill\", \"get me the <name> skill\", or any task where a library skill exists but is not currently loaded.",
+      "kind": "skill",
+      "category": "Other",
+      "goal": "Manage repo & config"
+    },
+    {
       "name": "python-patterns",
       "desc": "Pythonic idioms, PEP 8 standards, type hints, and best practices for building robust, efficient, and maintainable Python applications. Use when the user wants to write, review, or refactor Python code, apply PEP 8 idioms and type hints, or design Python packages and modules.",
       "kind": "skill",
@@ -2358,6 +2372,13 @@
       "kind": "skill",
       "category": "Other",
       "goal": "Research"
+    },
+    {
+      "name": "scroll-world",
+      "desc": "> Build a scroll-scrubbed \"fly through the world\" landing page for any industry or brand. As the visitor scrolls, a pre-rendered camera flies from outside each scene into its interior, then on to the next with NO cuts \u2014 one continuous connected flight. Scenes come from Higgsfield or from your own photos/renders; the camera clips are generated either way. Interviews the user for topic, story beats and brand kit, then wires a portable, framework-agnostic scroll-scrub engine. Use for a \"3D world\" or \"browse-through-the-industry\" hero, a scroll cinematic, a diorama landing, turning a business into a scrollable world, or a fly-through built from images you already have.",
+      "kind": "skill",
+      "category": "Web & Frontend",
+      "goal": "Design"
     },
     {
       "name": "search-first",

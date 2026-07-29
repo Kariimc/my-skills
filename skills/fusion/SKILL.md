@@ -21,6 +21,13 @@ Every model runs at **high** reasoning effort. There are no budget tiers
 anywhere — no Haiku, no Luna, no mini or nano. When a model is unavailable its
 job goes to the next *smartest* model, never a cheaper one.
 
+## The board
+
+`board.html` beside this file is a live duty board — flip the keys you hold and
+it reassigns the crew using these exact rules, and knocking a model out shows
+who covers it. Publish it with the Artifact tool when you want a clickable copy;
+it is self-contained, so opening the file in a browser works too.
+
 ## Run it
 
     python3 skills/council-moa/scripts/council.py "<the question>" --provider fusion --depth deep
