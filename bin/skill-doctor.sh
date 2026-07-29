@@ -175,6 +175,23 @@ if [ "$FIX" = "1" ] && [ "$STAGED" = "0" ]; then
   echo "FIX   wrote $report (${#triageless[@]} skills to triage)"
 fi
 
+# ── 5: every agent carries the operating rules ───────────────────────────────
+# A subagent does not inherit ~/.claude/CLAUDE.md, so the rules have to live in
+# the agent file itself. Before this check, 0 of 73 agents carried a single one.
+# HARD, because a blind agent is exactly how walls of jargon and unproven
+# "done" claims reach Kariim — and --fix repairs it in place, so it never
+# blocks anyone for longer than one command.
+if [ -x bin/agent-contract-sync.sh ]; then
+  if [ "$FIX" = "1" ]; then
+    bin/agent-contract-sync.sh | sed 's/^/    /'
+  fi
+  if ! bin/agent-contract-sync.sh --check >/tmp/agent-contract.out 2>&1; then
+    sed 's/^/    /' /tmp/agent-contract.out
+    echo "HARD  agent(s) missing the operating-rules block — run bin/agent-contract-sync.sh"
+    hard=$((hard+1))
+  fi
+fi
+
 # ── Summary ─────────────────────────────────────────────────────────────────
 echo "─────────────────────────────────────────────"
 echo "skill-doctor: ${actual_skills} skills, ${actual_agents} agents | HARD=$hard SOFT=$soft"
