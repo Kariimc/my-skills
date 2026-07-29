@@ -7,7 +7,7 @@ the implementation, so a gate listed here that loses its code is itself a failur
 
 | Gate | Implementation | Prevents (real mistake from the record) | commit | push | CI |
 |---|---|---|:--:|:--:|:--:|
-| Metadata integrity | `gate_doctor` | stale counts, trigger-less skills, name≠folder, overlap | ✓ | ✓ | ✓ |
+| Metadata integrity | `gate_doctor` | stale counts, trigger-less skills, name≠folder, overlap, **an agent with no operating rules** | ✓ | ✓ | ✓ |
 | Hook safety | `gate_hooklint` | broken hooks, the heredoc-ate-stdin router bug | ✓ | ✓ | ✓ |
 | Secret hygiene | `gate_secrets` | credentials / keys committed to history | ✓ | ✓ | ✓ |
 | Self-integrity | `gate_selfintegrity` | the guards being deleted, gutted, or un-wired | ✓ | ✓ | ✓ |
@@ -22,6 +22,14 @@ move that metadata, so doctor is **skipped** for it (the run prints
 `doctor … skipped`). This is not a bypass — doctor runs the instant a skill or
 agent is touched, and every other gate always runs. It exists so doc-only
 commits don't wait minutes for a check that can't fail.
+
+**Agents carry the rules (HARD, inside `gate_doctor`).** A subagent does not
+inherit `~/.claude/CLAUDE.md`; before 2026-07-29, 0 of 73 agent definitions
+carried a single operating rule. `bin/agent-contract-sync.sh` writes a marked
+block into every `agents/*.md` and is the SINGLE writer for it — hand-editing
+that block reads as drift. The doctor runs `--check` and HARD-fails on a
+missing or stale one; `skill-doctor.sh --fix` repairs in place, so it never
+blocks anyone for longer than one command.
 
 ## Enforcement points
 - **pre-commit** (`.githooks/pre-commit`) — auto-heals safe drift, then runs the

@@ -286,3 +286,45 @@ written for; all ten had been shipping "Open <project> →" — a link promising
 project page and delivering a coming-soon sign, the exact thing the check existed
 to prevent. It survived several commits of route-status and console-error checks
 and was found only when the copy itself was counted: 0/10 before, 10/10 after.
+
+## P-26 Idempotent "append if missing" across MULTIPLE identified blocks
+WHEN: A script appends more than one identified block — ledger ids, migrations,
+changelog stanzas, config sections — to a file it may be run against more than once,
+or that a previous draft of the same script may already have written to.
+DO: key the presence test on EVERY id, never on one of them. Parse the payload into
+`{id: block}`, then `missing = [i for i in ids if heading(i) not in text]`, append only
+those, and print added-vs-skipped per id so the output itself proves what landed:
+`for i in ids: print(f"  {i}: {'added' if i in missing else 'already present'}")`
+A single-sentinel gate (`if '## F-60' not in text`) is a whole-file skip wearing the
+costume of an idempotency check: the moment one id is present and another is not, it
+silently drops the missing one and reports success.
+PROOF: 2026-07-27, record-session.sh. The first draft gated an eight-entry append on
+`'## F-60' not in text`. Running the earlier draft (F-60, F-61) and then the final one
+(which added F-62) would have found F-60 present, skipped the whole file, and dropped
+F-62 while printing "already recorded, skipped". Caught only by cloning the remote and
+testing each id separately. The per-id rewrite, run against the already-recorded
+remote, reported 8 of 8 already present and appended P-26 alone.
+
+## P-27 Install the whole control plane onto a box that has no clone
+WHEN: A session needs the rules, guards and skills but the box has no `my-skills`
+checkout and no git auth to make one — every cloud container working on some other
+repo, and any fresh machine. `install-global.sh` assumes you are already standing
+inside a clone, so it cannot help here.
+DO: fetch the repo as a tarball over plain HTTPS and hand off to the existing
+installer. No auth, no clone, works on an allowlist box where only GitHub and PyPI
+answer:
+`curl -fsSL https://raw.githubusercontent.com/Kariimc/my-skills/master/bootstrap.sh | bash`
+Put that ONE line in the cloud environment's **Setup script** field (claude.ai/code →
+the cloud button above the message box → hover the environment → gear). It runs before
+Claude Code launches and is snapshot-cached, so it covers every repo in that
+environment, including ones created later. There is no API to set it — that paste is
+the only manual step, and one environment covers everything.
+Because the snapshot is only rebuilt when the script changes or the cache expires
+(~7 days), `session-start.sh` re-fetches a tarball install in the background once it
+is over 12h old, or a fleet-wide rule fix sits unseen for a week.
+PROOF: 2026-07-29. From a completely empty `HOME` with no clone on the box:
+`bootstrap: CLAUDE.md 37176 bytes | 41 skills | 15 hooks`, and the fresh
+`settings.json` carried every guard (session-start, env-scout, harness-router,
+ledger-sentinel, guard-destructive, runcard-guard, cant-guard, archive-session).
+Refresh proven both ways: a 13h-old stamp re-fetched in ~10s, a fresh one did not,
+zero runaway processes. Tarball is 7.3 MB in 2.6s.
