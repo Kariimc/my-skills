@@ -71,6 +71,36 @@ mkdir -p "$ROOT/.claude" 2>/dev/null
   [ -d "$ROOT/skills" ] && NLIB=$(find "$ROOT/skills" -maxdepth 2 -name 'SKILL.md' 2>/dev/null | wc -l | tr -d ' ')
   LIB_NOTE=""
   [ "$NLIB" -gt "$NSK" ] && LIB_NOTE=" — plus the FULL $NLIB-skill library in this repo's skills/ (auto-load is the core tier only; pull any other via /pull-skill or the finder)"
+  # ── Rules-delivery verdict (F-63: never assume the rules arrived) ─────────
+  # The whole failure this closes is a session running with no rules and never
+  # saying so. This measures delivery on THIS box and states it in the banner,
+  # so a silent miss becomes impossible: it is either a PASS line with numbers,
+  # or a capitalised failure the session cannot help but see.
+  RULES_BYTES=0
+  [ -f "$HOME/.claude/CLAUDE.md" ] && RULES_BYTES=$(wc -c < "$HOME/.claude/CLAUDE.md" | tr -d ' ')
+  NHOOK=$(ls "$HOME/.claude/hooks"/*.sh 2>/dev/null | wc -l | tr -d ' ')
+  NAGR=0
+  [ -n "$AG_DIR" ] && NAGR=$(grep -l 'OPERATING-RULES:BEGIN' "$AG_DIR"/*.md 2>/dev/null | wc -l | tr -d ' ')
+  if [ -d "$HOME/.my-skills" ]; then SRC="the environment setup script (bootstrap.sh)"
+  elif [ -d "$ROOT/rules" ]; then SRC="this repo's own SessionStart hook — you are INSIDE my-skills, which is not proof it works elsewhere"
+  else SRC="unknown"; fi
+  echo
+  if [ "$RULES_BYTES" -ge 1000 ] && [ "$NHOOK" -ge 10 ]; then
+    echo "## RULES: DELIVERED — ${RULES_BYTES}B of CLAUDE.md, ${NHOOK} guard hooks, ${NAGR}/${NAG} agents carry the rules. Source: $SRC"
+  else
+    # REPORT ONLY — never install. An earlier draft of this fetched and
+    # installed the control plane when it was missing. That was wrong twice
+    # over: installing software on a machine without an explicit yes is a
+    # standing no, and a fetch-and-replace on a box that already has a working
+    # copy risks trading it for a half-download. The session states the gap and
+    # stops; Kariim decides.
+    echo "## RULES: **NOT DELIVERED** — CLAUDE.md is ${RULES_BYTES}B and only ${NHOOK} guard hooks are installed."
+    echo "   You are running with NO operating rules. Say exactly that in your FIRST reply,"
+    echo "   and do not work as if they are loaded. Nothing was installed for you."
+    echo "   The one line that fixes it, once Kariim says go:"
+    echo "   curl -fsSL https://raw.githubusercontent.com/Kariimc/my-skills/master/bootstrap.sh | bash"
+  fi
+  echo
   echo "## YOU HAVE (verified just now — never claim otherwise without searching)"
   echo "- $NSK skills live at ${SK_DIR:-'(none found — name that gap, do not guess)'}$LIB_NOTE — search BEFORE building or refusing: python3 skills/finding-skills/tool/find-skills.py \"<task>\""
   echo "- $NAG agents at ${AG_DIR:-'(none found)'} — dispatchable via the Agent tool"
