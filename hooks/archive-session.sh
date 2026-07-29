@@ -29,8 +29,12 @@
 #     is untouched.
 #   - Opt out for a session with CLAUDE_NO_SESSION_ARCHIVE=1.
 #
-# Never leaves anything stale or incorrect — the four ways it could, and the
+# Never leaves anything stale or incorrect — the five ways it could, and the
 # guard for each:
+#   0. A path that is not a transcript. The destination is named from the
+#      source's basename, so a stray path would file a non-session into
+#      raw/inputs/ under a bogus name. Only ~/.claude/projects/*/*.jsonl is
+#      accepted.
 #   1. A torn read. The transcript is being appended to while we copy it, so the
 #      last line can be half-written. Any trailing incomplete line is dropped,
 #      so what lands is always valid JSONL.
@@ -105,6 +109,15 @@ if [ ! -f "$transcript" ]; then
   transcript="$(ls -t "$CLAUDE_DIR"/projects/*/*.jsonl 2>/dev/null | head -1)"
 fi
 [ -f "$transcript" ] || exit 0
+
+# The destination is named from this file's basename, so anything outside the
+# transcripts directory would file itself under a bogus session name. A real
+# transcript always lives there; refusing everything else keeps raw/inputs/ free
+# of entries that are not sessions. (One landed exactly this way during testing.)
+case "$transcript" in
+  "$CLAUDE_DIR"/projects/*/*.jsonl) ;;
+  *) exit 0 ;;
+esac
 
 # ── 5. Clone, or bring the existing clone back to a known-clean state ────────
 if [ -d "$BRAIN/.git" ]; then
