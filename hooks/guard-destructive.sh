@@ -50,7 +50,7 @@ fi
 # Single interpreter pass: parse, match, decide. Input goes via argv because
 # the heredoc already occupies stdin.
 "$GUARD_PY" - "$input" <<'PY'
-import json, sys, re
+import json, sys, re, os
 
 try:
     data = json.loads(sys.argv[1])
@@ -95,6 +95,15 @@ if tool != "Bash":
          "~/.claude/hooks/ is synced from my-skills/hooks/. "
          "Edit my-skills/hooks/<name>.sh instead."),
     ]
+    # Scope: ONLY ~/.claude is build output. The my-skills repo carries its own
+    # `.claude/hooks/session-start.sh` — that file is the SOURCE this mirror is
+    # generated from, and an unanchored `/\.claude/hooks/` match blocked editing
+    # it, telling the agent to "edit the source" it was already editing. Any
+    # `.claude/` inside a project checkout is a real source tree; leave it alone.
+    home = os.path.expanduser("~").replace("\\", "/").rstrip("/")
+    if not norm.lower().startswith((home + "/.claude/").lower()):
+        GENERATED = []
+
     for pattern, msg in GENERATED:
         if re.search(pattern, norm, re.IGNORECASE):
             print(f"GUARDRAIL BLOCKED: {msg}", file=sys.stderr)
