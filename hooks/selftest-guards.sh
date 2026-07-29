@@ -1,5 +1,5 @@
 #!/bin/bash
-# selftest-guards.sh — proves the five guardrail hooks block/allow correctly.
+# selftest-guards.sh — proves the guardrail hooks block/allow correctly.
 # Run any time: bash ~/.claude/hooks/selftest-guards.sh
 cd ~ || exit 1
 fails=0
@@ -156,6 +156,26 @@ if [ -f "$cg" ]; then
   [ $? -eq 0 ] && echo "PASS cant ignores normal reply" || { echo "FAIL cant ignores normal reply"; fails=$((fails+1)); }
   rm -rf "$tcg"
 fi
+
+# ── guard-destructive: generated-path rules are anchored to $HOME/.claude ────
+# ~/.claude is build output and must stay blocked. A project's OWN .claude/ is a
+# real source tree — the unanchored pattern used to block editing
+# my-skills/.claude/hooks/session-start.sh, the very file the message told you
+# to edit. Both directions are asserted so neither half can regress.
+t "mirror hooks blocked"       "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$HOME/.claude/hooks/x.sh\"}}" guard-destructive.sh 2
+t "mirror skills blocked"      "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$HOME/.claude/skills/a/SKILL.md\"}}" guard-destructive.sh 2
+t "repo .claude allowed"       '{"tool_name":"Edit","tool_input":{"file_path":"/src/my-skills/.claude/hooks/session-start.sh"}}' guard-destructive.sh 0
+t "repo hooks allowed"         '{"tool_name":"Edit","tool_input":{"file_path":"/src/my-skills/hooks/archive-session.sh"}}' guard-destructive.sh 0
+# ── archive-session: inert without a session git proxy (i.e. on the laptop) ──
+# The live archive path is not exercised here — it pushes to a real repo. What
+# must never regress is that a box WITHOUT the proxy stays silent and creates no
+# state; GIT_CONFIG_GLOBAL=/dev/null simulates that box.
+before=$(ls -A "$HOME/.claude" 2>/dev/null | wc -l)
+out=$(GIT_CONFIG_GLOBAL=/dev/null printf '%s' '{"hook_event_name":"Stop"}' | GIT_CONFIG_GLOBAL=/dev/null bash "$HOME/.claude/hooks/archive-session.sh" 2>&1); code=$?
+if [ "$code" -eq 0 ] && [ -z "$out" ]; then echo "PASS archive-session inert+silent off-proxy"
+else echo "FAIL archive-session inert+silent off-proxy exit=$code out=$out"; fails=$((fails+1)); fi
+if [ "$(ls -A "$HOME/.claude" 2>/dev/null | wc -l)" = "$before" ]; then echo "PASS archive-session created no state off-proxy"
+else echo "FAIL archive-session created state off-proxy"; fails=$((fails+1)); fi
 
 echo "----"
 [ "$fails" -eq 0 ] && echo "ALL GUARDS VERIFIED" || echo "$fails FAILURE(S)"
