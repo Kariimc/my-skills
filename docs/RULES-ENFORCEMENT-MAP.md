@@ -23,6 +23,7 @@
 | Skills/connectors before "can't" (09-consult-skills) | `hooks/cant-guard.sh` (Stop) — helpless reply without a library/connector search is blocked; env-scout prints the capability inventory each session | HOOK |
 | Never repeat a banned road (11-failure-ledger) | `hooks/ledger-sentinel.sh` (UserPromptSubmit) — matching F/P entries injected at plan time | HOOK |
 | Staged skill = every phase, never a menu (3D) | `hooks/runcard-guard.sh` (Stop) + `skills/3d-master-modeler/runcard.md` | HOOK |
+| Cloud sessions reach the brain (07-progress, ledger) | `hooks/archive-session.sh` (Stop) — 15-min heartbeat pushes the live transcript to `Kariimc/brain`; inert off an ephemeral box | HOOK |
 | Harness routing / proportionality | `hooks/harness-router.sh` (UserPromptSubmit) | HOOK |
 | Repo/commit hygiene, counts, secrets, gate integrity | apex suite (`bin/apex-gates.sh`, pre-commit/pre-push/CI) | GATE |
 | Every mistake gated once (03-apex ratchet) | `bin/apex-ratchet.sh` → `apex/checks/` — behavioral lane included (see GATES.md) | GATE |

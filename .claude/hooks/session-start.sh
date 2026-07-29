@@ -297,7 +297,8 @@ fi
 # ledger-sentinel  → UserPromptSubmit (injects matching FAILURES/PLAYBOOK entries)
 # runcard-guard    → Stop            (3D sessions must ship a completed run-card)
 # env-scout        → SessionStart    (probed environment fact sheet into context)
-for SPEC in "ledger-sentinel.sh:UserPromptSubmit" "runcard-guard.sh:Stop" "cant-guard.sh:Stop" "env-scout.sh:SessionStart"; do
+# archive-session  → Stop            (ephemeral-box transcript archive; inert on the laptop)
+for SPEC in "ledger-sentinel.sh:UserPromptSubmit" "runcard-guard.sh:Stop" "cant-guard.sh:Stop" "env-scout.sh:SessionStart" "archive-session.sh:Stop"; do
   H_NAME="${SPEC%%:*}"; H_EVENT="${SPEC##*:}"
   H_PATH="$CLAUDE_DIR/hooks/$H_NAME"
   if command -v python3 >/dev/null 2>&1 && [ -f "$H_PATH" ]; then

@@ -1,6 +1,34 @@
 # PROGRESS — session handoff
 
-> Last updated: 2026-07-22.
+> Last updated: 2026-07-29.
+
+## Latest (2026-07-29, cloud) — commands menu fix + cloud transcripts finally reach the brain
+
+- **`/pull-skill` and `/session-reflect` are now both a command and a skill** (PR #72,
+  merged to master at `9746c6e`). Each was half-present before. Library is **428 skills**
+  / 73 agents; `pull-skill` joined `always-load.txt`.
+- **New `hooks/archive-session.sh` (Stop)** — the cloud box is wiped between sessions
+  (measured: every `~/.claude` path carried the container-start timestamp and
+  `~/.claude/projects/` held only the live session's transcript), so a *scheduled* daily
+  archive could never work — it wakes on a fresh empty container. The hook archives the
+  live transcript to `Kariimc/brain` on a 15-minute heartbeat instead, so an abandoned
+  tab still lands. Inert anywhere without the session git proxy, so the laptop is
+  untouched. Registered via the 6b2 loop in `.claude/hooks/session-start.sh`.
+  Proof: 15/15 checks in the suite — pushed (local == origin/master), archived blob is
+  valid JSONL and an exact prefix of the live transcript, throttle holds, a truncated
+  source cannot shrink the archive, a stuck rebase self-heals, and the laptop case exits
+  silently touching nothing.
+- **Two gate fixes forced along the way.**
+  - `apex/checks/no-plaintext-secrets-in-brain.sh` was HARD-blocking **every** commit on
+    a false positive: the sha1sum in PLAYBOOK.md P-23 read as a bare 40-hex token. Its
+    benign-hash context list now covers `fingerprint`/`checksum`/`sha1sum`/`sha256sum`/
+    `md5sum`. The filter is **line-scoped** — keep a context word on the same line as any
+    hash you write, or the gate blocks you.
+  - `hooks/guard-destructive.sh` blocked editing the repo's OWN
+    `.claude/hooks/session-start.sh`, telling the agent to edit the source it was already
+    editing. The generated-path patterns are now anchored to `$HOME/.claude` only.
+- **CI reminder:** run `bin/skill-doctor.sh --fix` and commit before pushing any skill
+  add/remove — `skills/TRIGGERLESS-REPORT.md` is regenerated too and failed the first run.
 
 ## Latest (2026-07-22, cloud) — free/no-GPU AAA path + HF research (3d-master-modeler)
 
