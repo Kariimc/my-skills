@@ -581,6 +581,10 @@ def fusion_call(brains: Optional[list] = None, models: Optional[dict] = None,
     reserve = [b for b in (order or BRAIN_ORDER)
                if b not in brains and any(os.environ.get(e) for e in BRAINS[b]["env"])]
     plan["reserve"] = reserve
+    # Say which models are NOT taking part and why. A brain that is missing must be
+    # reported by name — never just quietly absent from the roster.
+    for m in missing_brains(plan):
+        print(f"[fusion] {m}", file=sys.stderr)
     if on_plan:
         on_plan(plan)
 
@@ -618,6 +622,19 @@ def fusion_call(brains: Optional[list] = None, models: Optional[dict] = None,
     call.plan = plan          # readable by the CLI for the roster line
     call.seat_council = seat_council
     return call
+
+
+def missing_brains(plan: dict) -> list:
+    """Every brain NOT taking part, and the reason. A model that cannot be used is
+    reported by name — never just absent from the roster."""
+    in_play = set(plan["brains"]) | set(plan.get("reserve") or [])
+    out = []
+    for b in BRAIN_ORDER:
+        if b in in_play:
+            continue
+        out.append(f"{BRAINS[b]['label']} — NOT USED: no key found "
+                   f"(looked for {' or '.join(BRAINS[b]['env'])})")
+    return out
 
 
 def describe_fusion(plan: dict) -> str:
@@ -749,7 +766,11 @@ def main(argv=None):
                   "\n  OPENAI_API_KEY=...      (GPT / Codex)"
                   "\n  GEMINI_API_KEY=...      (Google AI Studio)")
             return 1
-        print(describe_fusion(fusion_seating(live)))
+        plan = fusion_seating(live)
+        plan["reserve"] = []
+        print(describe_fusion(plan))
+        for m in missing_brains(plan):
+            print(f"  {m}")
         return 0
 
     question = args.question or (sys.stdin.read().strip() if not sys.stdin.isatty() else None)

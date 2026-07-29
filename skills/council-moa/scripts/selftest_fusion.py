@@ -238,6 +238,23 @@ def t_loud():
     finally:
         C._brain_caller = real
 
+    for v in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY", "GOOGLE_API_KEY",
+              "HF_TOKEN", "HUGGINGFACE_API_KEY"):
+        os.environ.pop(v, None)
+    os.environ["ANTHROPIC_API_KEY"] = "k"
+    real = C._brain_caller
+    try:
+        C._brain_caller = lambda b, m=None: (lambda *a, **k: "x")
+        out = stderr_of(lambda: C.fusion_call())
+        for brand, envvar in (("GPT / Codex (OpenAI)", "OPENAI_API_KEY"),
+                              ("Gemini (Google AI Studio)", "GEMINI_API_KEY"),
+                              ("Hugging Face (open models)", "HF_TOKEN")):
+            check(f"an unusable model is named: {brand}",
+                  f"{brand} — NOT USED: no key found" in out and envvar in out,
+                  next((l.strip() for l in out.splitlines() if brand in l), "not mentioned at all"))
+    finally:
+        C._brain_caller = real
+
     def dead_verifier(role, system, user, want_json=False, grounded=False):
         if role == "verifier":
             raise RuntimeError("verifier exploded")
