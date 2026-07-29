@@ -30,6 +30,36 @@
 - **CI reminder:** run `bin/skill-doctor.sh --fix` and commit before pushing any skill
   add/remove — `skills/TRIGGERLESS-REPORT.md` is regenerated too and failed the first run.
 
+### The real finding of the day: the rules were not reaching most sessions
+
+Kariim's complaint — walls of jargon, rules broken outright — was correct, and the
+cause was delivery, not the model.
+
+- **`~/.claude/CLAUDE.md` does not reach a cloud session.** Confirmed in the docs'
+  "What carries over from your setup" table. On this box the rules existed only
+  because my-skills happened to be the working directory; `~/.claude/settings.json`
+  contained **0** references to `session-start.sh`. Any cloud session on another
+  repo started with zero rules, zero guard hooks, zero skills — and said nothing.
+  → `bootstrap.sh` (#75): installs rules + guards from GitHub over plain HTTPS, no
+  clone and no auth. One line in the cloud environment's **Setup script** field
+  covers every repo, including ones created later. **That paste is the one manual
+  step left — there is no API to set it** (searched twice). Kariim has exactly one
+  environment ("Default"), so it is one action, once.
+  → `session-start.sh` (#76): a tarball install can't `git pull`, and the
+  environment snapshot only rebuilds every ~7 days, so a fleet-wide rule fix would
+  sit unseen. Re-fetches in the background when the copy is over 12h old.
+- **Subagents inherit nothing.** 0 of 73 agent definitions carried a single rule;
+  only the 6 harnesses handed workers a contract.
+  → `bin/agent-contract-sync.sh` (#77): writes the rules into every agent file and
+  is the single writer for that block. `skill-doctor` HARD-fails an agent missing
+  or stale; `--fix` repairs. Proven by exit code: 1 with a blind agent, 0 after.
+- **Per-repo files were the wrong shape** and Kariim caught it: backfilling 29
+  repos does nothing for repo #30. The environment is the only layer above the
+  repo. Not done, deliberately.
+- Also fixed: `hooks/guard-destructive.sh` was blocking edits to a project's OWN
+  `.claude/` while naming that same file as the source to edit (#73); the archive
+  hook could file a non-session into `raw/inputs/` (#74).
+
 ## Latest (2026-07-22, cloud) — free/no-GPU AAA path + HF research (3d-master-modeler)
 
 - **Goal set by Kariim:** AAA-cinematic 3D assets, fewest passes, quick, FREE, and he
