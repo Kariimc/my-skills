@@ -177,6 +177,15 @@ else echo "FAIL archive-session inert+silent off-proxy exit=$code out=$out"; fai
 if [ "$(ls -A "$HOME/.claude" 2>/dev/null | wc -l)" = "$before" ]; then echo "PASS archive-session created no state off-proxy"
 else echo "FAIL archive-session created state off-proxy"; fails=$((fails+1)); fi
 
+# A transcript path outside ~/.claude/projects/ must be refused outright — the
+# destination name is derived from the basename, so a stray path would file a
+# non-session into raw/inputs/ (one did, during testing).
+printf 'x\n' > "$HOME/.claude/.selftest-stray.jsonl"
+out=$(printf '%s' "{\"transcript_path\":\"$HOME/.claude/.selftest-stray.jsonl\"}" | bash "$HOME/.claude/hooks/archive-session.sh" 2>&1); code=$?
+if [ "$code" -eq 0 ] && [ -z "$out" ]; then echo "PASS archive-session refuses a non-transcript path"
+else echo "FAIL archive-session refuses a non-transcript path exit=$code out=$out"; fails=$((fails+1)); fi
+rm -f "$HOME/.claude/.selftest-stray.jsonl"
+
 echo "----"
 [ "$fails" -eq 0 ] && echo "ALL GUARDS VERIFIED" || echo "$fails FAILURE(S)"
 exit "$fails"
