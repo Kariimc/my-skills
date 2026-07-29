@@ -685,3 +685,52 @@ THE ROAD THAT WORKS: Prove delivery, per surface, before defending the content.
     description. Now HARD-gated by `skill-doctor`.
 The general form: when behaviour contradicts a rule, the first hypothesis is
 that the rule never arrived — not that the model ignored it.
+
+## F-64 A hook that installs software to "fix itself"
+SYMPTOM: A guard hook finds the control plane missing and, rather than saying
+so, fetches and runs an installer. It reads as helpfulness — the session repairs
+itself, nobody is bothered. Kariim's response was immediate and correct: "Why
+the fuck would you do something like that?"
+BANNED ROAD: Any hook, script, or agent that installs, downloads, or replaces
+software without an explicit yes. Two separate faults, either one fatal:
+  1. Installing on a machine without being asked. It is a standing no, and a
+     hook is the worst place for that decision — it runs silently, on whatever
+     box it lands on, including one Kariim owns.
+  2. Re-fetching over an install that already works. That trades a known-good
+     copy for whatever the download turns out to be. Nothing meant to persist
+     should be replaced automatically to fix a problem it does not have.
+Also banned: noticing fault 1 and bolting a scope check onto the installer.
+That keeps the wrong thing and adds a way for the guard to be wrong.
+THE ROAD THAT WORKS: Report the gap and stop. `hooks/env-scout.sh` prints what
+is missing, tells the session to say so in its FIRST reply, and prints the one
+line that fixes it — for a human to run. Verified: on a bare box it reports and
+afterwards ~/.claude still has 0 files and ~/.my-skills is still absent.
+The general form: a guard's job is to make a problem impossible to miss, never
+to take an action the user did not authorise.
+
+## F-65 Verifying a fresh cloud session by firing one and waiting for its report
+SYMPTOM: You need to know whether something is true on a NEW box — an
+environment setup script, a snapshot, a first-boot install. You fire a fresh
+session with `create_trigger` + `create_new_session_on_fire` and tell it to
+report back. Nothing ever arrives, and you sit there saying "still waiting".
+BANNED ROAD: Firing a fresh session as a measurement instrument. Tried three
+times on 2026-07-29 with three different report channels — push to the relay,
+`add_repo` then push, and `create_trigger` back into the parent session. All
+three fired (`ended_reason: run_once_fired`); not one produced output. A fired
+session starts with NO repositories attached, so every GitHub write is refused,
+and it may not carry the MCP tools needed to schedule a message either. There
+is no tool to read another session's transcript, so a fired session that fails
+is indistinguishable from one still running.
+Also banned: promising the user you will "watch for the verdict" — there is
+nothing to watch, and it hands them a wait instead of an answer.
+THE ROAD THAT WORKS: Measure what you can reach yourself, and say plainly what
+is out of reach instead of chasing it.
+  - Reproduce the mechanism locally: `env -i HOME=/tmp/blank PATH="$PATH" bash
+    bootstrap.sh` proves the installer end to end on a virgin HOME in seconds,
+    with real numbers, and needs nobody.
+  - For the part that genuinely cannot be observed from inside a container —
+    an account-level setting a running box never sees — do not build a spy.
+    Make the system announce it. `env-scout.sh` now prints DELIVERED with the
+    counts or NOT DELIVERED at every session start, so the answer arrives on
+    its own the next time it matters.
+Two strikes killed the method here; the third attempt was already a violation.
