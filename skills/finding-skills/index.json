@@ -751,7 +751,7 @@
  },
  {
   "name": "fusion",
-  "description": "Put Claude, GPT/Codex, and Gemini (Google AI Studio) on the SAME question at once — each answers independently, they read each other and revise, one brand synthesizes the final answer and a RIVAL brand tries to tear it down. Falls back to open models on Hugging Face when a brain is rate-limited. Use when the user says \"fusion\", \"use all the brains\", \"two brains\", \"three brains\", \"ask Claude and GPT and Gemini\", \"cross-check this with another model\", \"get a second opinion from a different model\", or wants the strongest possible answer on a hard, expensive, or hard-to-reverse decision. Do NOT use for quick lookups or routine work — it costs several model calls.",
+  "description": "Run a question through a crew of the smartest models, each on the job it is best at — Sonnet 5 researches and plans, Opus 5 builds, a partner model (GPT-5.6 Sol or Gemini) builds and synthesizes, Fable 5 verifies and sets the bar the others are held to next time. All at high reasoning effort. Use when the user says \"fusion\", \"use all the brains\", \"two brains\", \"three brains\", \"Claude and GPT and Gemini\", \"cross-check this with another model\", \"second opinion from a different model\", or wants the strongest possible answer on a hard or hard-to-reverse question. NOT for lookups or routine work — it costs many model calls.",
   "path": "skills/fusion/SKILL.md"
  },
  {

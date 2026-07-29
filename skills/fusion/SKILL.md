@@ -1,6 +1,6 @@
 ---
 name: fusion
-description: Run a question through a crew of the smartest models, each on the job it is best at — Sonnet 5 researches and writes the plan, Opus 5 builds, a partner model (GPT-5.6 Sol or Gemini) builds and synthesizes, and Fable 5 verifies and sets the standard the others are held to next time. All at high reasoning effort, with automatic cover when a model is rate-limited or retired. Use when the user says "fusion", "use all the brains", "two brains", "three brains", "use Claude and GPT and Gemini", "cross-check this with another model", "get a second opinion from a different model", or wants the strongest possible answer on a hard, expensive, or hard-to-reverse question. Do NOT use for quick lookups or routine work — it costs many model calls.
+description: Run a question through a crew of the smartest models, each on the job it is best at — Sonnet 5 researches and plans, Opus 5 builds, a partner model (GPT-5.6 Sol or Gemini) builds and synthesizes, Fable 5 verifies and sets the bar the others are held to next time. All at high reasoning effort. Use when the user says "fusion", "use all the brains", "two brains", "three brains", "Claude and GPT and Gemini", "cross-check this with another model", "second opinion from a different model", or wants the strongest possible answer on a hard or hard-to-reverse question. NOT for lookups or routine work — it costs many model calls.
 metadata:
   engine: skills/council-moa/scripts/council.py
 ---
