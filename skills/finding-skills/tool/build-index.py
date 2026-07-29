@@ -25,7 +25,11 @@ def frontmatter(text):
 
 def main():
     root = sys.argv[1] if len(sys.argv) > 1 else "skills"
-    out_path = sys.argv[2] if len(sys.argv) > 2 else "index.json"
+    # Default beside the finder, NOT in the caller's cwd — a stray index.json at
+    # the repo root looks like success while find-skills.py keeps reading the old
+    # one, which is exactly how new skills went missing before (playbook P-12).
+    out_path = sys.argv[2] if len(sys.argv) > 2 else \
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "index.json")
     rows = []
     for d in sorted(os.listdir(root)):
         p = os.path.join(root, d, "SKILL.md")

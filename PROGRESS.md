@@ -2,10 +2,57 @@
 
 > Last updated: 2026-07-29.
 
-## Latest (2026-07-29, cloud) — commands menu fix + cloud transcripts finally reach the brain
+## Latest (2026-07-29, cloud) — fusion: a crew of the smartest models, each on its own job
+
+- **Answering Kariim's question directly: no, "codex fusion" had never been set up.**
+  Recon found no fusion skill, no multi-provider run path, and no keys on any box.
+  What existed was `council-moa`, a single-provider council. Library is **429 skills**
+  / 73 agents.
+- **`skills/fusion`** — one question, four jobs, four models, exactly as Kariim
+  assigned them: **Sonnet 5** researches and writes the plan, **Opus 5** builds, the
+  **partner** (GPT-5.6 Sol, else Gemini 3.6 Flash) builds a second answer and
+  synthesizes them all, **Fable 5** verifies. Every model at **high** reasoning
+  effort — extended thinking on Anthropic, `reasoning_effort` on OpenAI-compatible
+  endpoints, and a model that refuses high effort says so instead of quietly
+  answering at default.
+- **No budget tiers anywhere.** Each job carries a chain of models, smartest first;
+  the entries below the owner are cover for when a model is rate-limited or retired,
+  never a cheaper option. Haiku and Luna were removed outright.
+- **The crew notebook — learning in both directions.** After every run,
+  `~/.claude/fusion-lessons.md` gets (1) Fable 5's rulings, marked binding, and
+  (2) what each model actually brought, attributed BY MODEL with the Synthesist's
+  score and the blind spot it named. Every model — Fable included — reads the whole
+  notebook before it writes a word on the next run. Stated honestly in the skill and
+  the code: this is carried context, not training; it raises the floor of the work,
+  not the ceiling of any model.
+- **Two failures, two different moves, both printed:** a *retired* model passes its
+  job to the next model in the chain (retrying the same one can never help); a
+  *rate-limited* model does the same, ending at the smartest open model the Hugging
+  Face router will serve, looked up live from its catalogue. A bad key or malformed
+  request is neither and stops the run with its real message.
+- **Nothing degrades quietly** (Kariim's explicit ask, twice). Every model NOT taking
+  part is named with the reason and the exact key that was looked for; so are a job
+  handed to cover, no partner reachable, a keyfile entry the environment overrode, a
+  builder that never answered, a verification that did not run (answer labelled
+  UNVERIFIED), a refinement that failed, and a notebook that could not be written.
+- **Fixed en route:** `build-index.py` defaulted its output to the caller's cwd, so
+  running it from the repo root wrote a stray `index.json` there and left the real
+  index stale — new skills stayed invisible to `find-skills.py`. That is playbook
+  P-12's cause, now removed (FAILURES F-66).
+- **Proof:** `skills/council-moa/scripts/selftest_fusion.py`, **76/76 green**, no keys
+  and no network. Bite-tested three ways: taking Fable 5 off verification turns 3
+  checks red, collapsing the two builders onto one model turns 4 red, cutting the
+  notebook out of the prompts turns 4 red.
+- **NOT proven:** no live run has happened. This box holds no API key at all, so
+  every model id (`claude-opus-5` / `claude-fable-5` / `claude-sonnet-5`,
+  `gpt-5.6-sol`, `gemini-3.6-flash`) is verified from vendor documentation, not from
+  a response. First real run on the laptop is the remaining proof — queued to
+  code-local via the relay.
+
+## Earlier (2026-07-29, cloud) — commands menu fix + cloud transcripts finally reach the brain
 
 - **`/pull-skill` and `/session-reflect` are now both a command and a skill** (PR #72,
-  merged to master at `9746c6e`). Each was half-present before. Library is **428 skills**
+  merged to master at `9746c6e`). Each was half-present before. Library is **429 skills**
   / 73 agents; `pull-skill` joined `always-load.txt`.
 - **New `hooks/archive-session.sh` (Stop)** — the cloud box is wiped between sessions
   (measured: every `~/.claude` path carried the container-start timestamp and

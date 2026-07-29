@@ -750,6 +750,11 @@
   "path": "skills/fsharp-testing/SKILL.md"
  },
  {
+  "name": "fusion",
+  "description": "Run a question through a crew of the smartest models, each on the job it is best at — Sonnet 5 researches and plans, Opus 5 builds, a partner model (GPT-5.6 Sol or Gemini) builds and synthesizes, Fable 5 verifies and sets the bar the others are held to next time. All at high reasoning effort. Use when the user says \"fusion\", \"use all the brains\", \"two brains\", \"three brains\", \"Claude and GPT and Gemini\", \"cross-check this with another model\", \"second opinion from a different model\", or wants the strongest possible answer on a hard or hard-to-reverse question. NOT for lookups or routine work — it costs many model calls.",
+  "path": "skills/fusion/SKILL.md"
+ },
+ {
   "name": "game-art",
   "description": "Lead Concept Artist and Technical Artist for game asset production. Creates art bibles, asset spec sheets, visual mood guides, character breakdowns, tileset lists, VFX art specs, PBR texture standards, LOD design rules, style documentation, and engine import checklists. Also generates AI image prompts (Midjourney/Stable Diffusion), debugs shader/material issues, and directs art pipeline integration (Unity HDRP/URP, Unreal 5 Nanite). Use when the user wants to design game art assets, establish a visual style guide, create a character or environment spec, define PBR standards, plan LOD budgets, debug a shader, run an art direction review, or generate AI art prompts for game concepts.",
   "path": "skills/game-art/SKILL.md"
@@ -1493,6 +1498,11 @@
   "name": "prompt-optimizer",
   "description": ">- Analyze raw prompts, identify intent and gaps, match ECC components (skills/commands/agents/hooks), and output a ready-to-paste optimized prompt. Advisory only — never executes the task itself. TRIGGER when the user says \"optimize prompt\", \"improve my prompt\", \"how to write a prompt for\", \"help me prompt\", \"rewrite this prompt\", or Chinese equivalents (\"优化prompt\", \"改进prompt\", \"怎么写prompt\"). DO NOT TRIGGER when the user wants the task executed directly (\"just do it\"), or says \"optimize performance\" / \"optimize this code\" / \"优化代码\" — those are refactoring tasks, not prompt optimization.",
   "path": "skills/prompt-optimizer/SKILL.md"
+ },
+ {
+  "name": "pull-skill",
+  "description": "Load an on-demand skill from the Kariimc/my-skills library into this session. The session-start sync only auto-loads the always-load.txt core; use this to pull any of the other library skills when a task needs one. Triggers on \"pull skill\", \"load the <name> skill\", \"get me the <name> skill\", or any task where a library skill exists but is not currently loaded.",
+  "path": "skills/pull-skill/SKILL.md"
  },
  {
   "name": "python-patterns",
