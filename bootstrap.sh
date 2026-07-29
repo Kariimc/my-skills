@@ -55,7 +55,14 @@ chmod +x "$DEST"/install-global.sh "$DEST"/bin/*.sh "$DEST"/hooks/*.sh \
          "$DEST"/.claude/hooks/*.sh 2>/dev/null || true
 
 echo "bootstrap: installing from $DEST"
-bash "$DEST/install-global.sh"
+MY_SKILLS_BOOTSTRAPPING=1 bash "$DEST/install-global.sh"
+
+# Freshness stamp lives OUTSIDE $DEST, which this script replaces wholesale.
+# session-start.sh reads it to decide when a tarball install has gone stale
+# enough to re-fetch. Keeping it inside $DEST would wipe it on every run, so
+# every session would re-download.
+mkdir -p "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+date +%s > "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.bootstrap-fetched"
 
 # Prove it, rather than announcing it. A silent no-op here is the exact failure
 # this script exists to end.

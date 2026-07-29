@@ -28,6 +28,23 @@ PROJECT_DIR="${1:-${CLAUDE_PROJECT_DIR:-$(pwd)}}"
 # only, so a pull-only clone can never hit a merge conflict or block the session.
 if git -C "$PROJECT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   git -C "$PROJECT_DIR" pull --ff-only >/dev/null 2>&1 || true
+elif [ -f "$PROJECT_DIR/bootstrap.sh" ]; then
+  # Not a git checkout -> this is a bootstrap.sh tarball install (a cloud box
+  # with no clone). `git pull` can't refresh it, and the environment snapshot
+  # that holds it is only rebuilt when the setup script changes or the cache
+  # expires (~7 days). Without this, a fleet-wide rule fix would sit unseen for
+  # a week. Re-fetch when the copy is over 12h old; never block the session.
+  # MY_SKILLS_BOOTSTRAPPING guards the cycle: bootstrap.sh calls
+  # install-global.sh, which calls THIS script. Without it that recurses.
+  stamp="$HOME/.claude/.bootstrap-fetched"
+  now=$(date +%s)
+  last=0
+  [ -f "$stamp" ] && last=$(cat "$stamp" 2>/dev/null)
+  case "$last" in ''|*[!0-9]*) last=0 ;; esac
+  if [ -z "${MY_SKILLS_BOOTSTRAPPING:-}" ] && [ "$(( now - last ))" -ge 43200 ]; then
+    ( MY_SKILLS_DIR="$PROJECT_DIR" MY_SKILLS_BOOTSTRAPPING=1 \
+        bash "$PROJECT_DIR/bootstrap.sh" >/dev/null 2>&1 || true ) &
+  fi
 fi
 
 CLAUDE_DIR="$HOME/.claude"
