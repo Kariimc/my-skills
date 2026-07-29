@@ -1,28 +1,31 @@
 {
-  "_help": "Edit this to change how the council runs, then: python council.py \"your question\" --config council.config.json  (or use run.ps1 / run.sh). The Claude-only inline method does NOT use this file. provider options: ollama (free, local, no key) | groq | openrouter | gemini (free cloud keys) | openai | anthropic | auto.",
-  "provider": "ollama",
+  "_help": "Edit this to change how the council runs, then: python council.py \"your question\" --config council.config.json  (or use run.ps1 / run.sh). The Claude-only inline method does NOT use this file. provider options: fusion (the named crew, recommended) | ollama (free, local, no key) | groq | openrouter | gemini | openai | anthropic | auto.",
+  "provider": "fusion",
   "depth": "deep",
   "grounded": null,
-  "model": "llama3.1",
+  "model": null,
   "models": null,
+
+  "_example_fusion_crew": {
+    "_note": "The default crew. Each job lists its owner FIRST, then who covers it if that model is rate-limited or retired — always the next smartest, never a cheaper tier. Omit `crew` entirely to use these built-in defaults. Every model runs at high reasoning effort.",
+    "provider": "fusion",
+    "depth": "deep",
+    "brain_order": ["claude", "gpt", "gemini", "hf"],
+    "crew": {
+      "researcher": ["claude-sonnet-5", "claude-opus-5", "gpt-5.6-sol", "gemini-3.6-flash"],
+      "builder": ["claude-opus-5", "gpt-5.6-sol", "gemini-3.6-flash", "claude-fable-5"],
+      "partner": ["gpt-5.6-sol", "gemini-3.6-flash", "claude-opus-5", "claude-sonnet-5"],
+      "verifier": ["claude-fable-5", "claude-opus-5", "gpt-5.6-sol", "gemini-3.6-flash"]
+    }
+  },
 
   "_example_mixed_tier_anthropic": {
     "provider": "anthropic",
     "models": {
-      "triage": "claude-haiku-4-5-20251001",
-      "proposer": "claude-sonnet-5",
-      "aggregator": "claude-opus-4-8",
-      "verifier": "claude-opus-4-8"
-    }
-  },
-  "_example_fusion_multi_brain": {
-    "_note": "Claude + GPT + Gemini on one question; the Adversary is always a different brand than the Arbiter. Keys go in ~/.claude/fusion.env. Run: council.py \"Q\" --provider fusion",
-    "provider": "fusion",
-    "depth": "deep",
-    "brain_order": ["claude", "gpt", "gemini", "hf"],
-    "brain_models": {
-      "gpt": {"aggregator": "gpt-5.6-sol", "proposer": "gpt-5.6-terra"},
-      "gemini": {"proposer": "gemini-3.6-flash"}
+      "triage": "claude-sonnet-5",
+      "proposer": "claude-opus-5",
+      "aggregator": "claude-opus-5",
+      "verifier": "claude-fable-5"
     }
   },
   "_example_openrouter_diversity": {
