@@ -248,8 +248,8 @@ is unchanged by fingerprinting it either side:
 `find . -path ./.git -prune -o -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum`
 Never `git merge --no-commit` + `git merge --abort` — that mutates the tree and
 its cleanliness afterwards is a claim, not evidence.
-PROOF: shift9-studio/.github PR #35, 2026-07-27. Exit 0, no conflicts; fingerprint
-`df34514e6f6a6849bd5b2ce53274aa662b7abc8e` identical before and after.
+PROOF: shift9-studio/.github PR #35, 2026-07-27. Exit 0, no conflicts; tree
+fingerprint `df34514e6f6a6849bd5b2ce53274aa662b7abc8e` identical before and after.
 
 ## P-24 Verifying a LIVE Vercel site when egress blocks its domain
 WHEN: A cloud sandbox's allowlist 403s the production domain — `curl https://<site>`

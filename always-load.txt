@@ -28,6 +28,7 @@ ponytail-help
 # --- efficiency / control-plane ---
 relay
 apex
+pull-skill
 skill-ship
 project-context-loader
 config-gc

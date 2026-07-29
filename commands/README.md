@@ -9,6 +9,8 @@ works in every project, not just this repo.
 | `/new-skill <name>` | Scaffold a new skill in `skills/<name>/SKILL.md` with correct frontmatter. |
 | `/sync-skills` | Push `skills/`, `rules/`, `commands/` into `~/.claude/` right now (no restart). |
 | `/skill-audit` | Report frontmatter/name/overlap issues across all skills (read-only). |
+| `/pull-skill <name>` | Load an on-demand skill from the library into this session (`--all` for everything). |
+| `/session-reflect` | End-of-session retrospective: durable facts, corrections → proposed rules, workflows worth keeping. |
 
 ## Anatomy of a command file
 ```markdown
