@@ -88,27 +88,17 @@ mkdir -p "$ROOT/.claude" 2>/dev/null
   if [ "$RULES_BYTES" -ge 1000 ] && [ "$NHOOK" -ge 10 ]; then
     echo "## RULES: DELIVERED — ${RULES_BYTES}B of CLAUDE.md, ${NHOOK} guard hooks, ${NAGR}/${NAG} agents carry the rules. Source: $SRC"
   else
-    # SELF-HEAL, do not report and wait. A missing control plane is not news to
-    # hand Kariim — it is a ~10s fetch this hook can just do. Synchronous on
-    # purpose: the files must be on disk before the session starts working, and
-    # this branch only runs on a box that has nothing, which is never the norm.
-    echo "## RULES: NOT DELIVERED on this box — installing them now, this takes about ten seconds."
-    if command -v curl >/dev/null 2>&1 \
-       && curl -fsSL -m 180 https://raw.githubusercontent.com/Kariimc/my-skills/master/bootstrap.sh 2>/dev/null | bash >/dev/null 2>&1; then
-      RULES_BYTES=0
-      [ -f "$HOME/.claude/CLAUDE.md" ] && RULES_BYTES=$(wc -c < "$HOME/.claude/CLAUDE.md" | tr -d ' ')
-      NHOOK=$(ls "$HOME/.claude/hooks"/*.sh 2>/dev/null | wc -l | tr -d ' ')
-    fi
-    if [ "$RULES_BYTES" -ge 1000 ]; then
-      echo "## RULES: REPAIRED — ${RULES_BYTES}B of CLAUDE.md and ${NHOOK} guard hooks installed just now."
-      echo "   They landed AFTER your prompt was built, so they are not in your context yet."
-      echo "   **Read \`~/.claude/CLAUDE.md\` before you do anything else** — it is the operating law and it outranks your defaults."
-      echo "   The guard hooks arm themselves on the next session; this session has the rules but not the guards."
-    else
-      echo "## RULES: **STILL MISSING and the self-repair FAILED** — CLAUDE.md is ${RULES_BYTES}B, ${NHOOK} guard hooks."
-      echo "   You are running with NO operating rules. Say exactly that in your FIRST reply and do not pretend otherwise."
-      echo "   The fetch of raw.githubusercontent.com/Kariimc/my-skills failed — check egress before anything else."
-    fi
+    # REPORT ONLY — never install. An earlier draft of this fetched and
+    # installed the control plane when it was missing. That was wrong twice
+    # over: installing software on a machine without an explicit yes is a
+    # standing no, and a fetch-and-replace on a box that already has a working
+    # copy risks trading it for a half-download. The session states the gap and
+    # stops; Kariim decides.
+    echo "## RULES: **NOT DELIVERED** — CLAUDE.md is ${RULES_BYTES}B and only ${NHOOK} guard hooks are installed."
+    echo "   You are running with NO operating rules. Say exactly that in your FIRST reply,"
+    echo "   and do not work as if they are loaded. Nothing was installed for you."
+    echo "   The one line that fixes it, once Kariim says go:"
+    echo "   curl -fsSL https://raw.githubusercontent.com/Kariimc/my-skills/master/bootstrap.sh | bash"
   fi
   echo
   echo "## YOU HAVE (verified just now — never claim otherwise without searching)"
