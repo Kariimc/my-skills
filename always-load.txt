@@ -48,6 +48,10 @@ git-workflow
 github-ops
 debugger
 
+# --- the model crew (always available, only spends when you run it) ---
+fusion
+council-moa
+
 # --- harnesses (scale deliberately) ---
 harness-build
 harness-quality

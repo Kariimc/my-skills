@@ -1,0 +1,460 @@
+<title>Taste Library — intake</title>
+<style>
+/* Palette inherited from skills/web-page-builder/gallery.html so the intake and
+   the gallery it feeds read as one thing. Mono is the material here: these are
+   URLs and records, not prose. */
+:root{
+  --bg:#faf9f7; --fg:#16161a; --muted:#6b7280; --card:#ffffff; --line:#e6e4df;
+  --accent:#e8482b; --ready:#0f7a5f; --ready-bg:#e7f2ee; --need:#a2650f; --need-bg:#faf0dd;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0b0b0f;--fg:#f4f3ee;--muted:#8a8f98;--card:#15151b;--line:#26262e;
+  --accent:#ff5a3c;--ready:#4ecfa5;--ready-bg:#0f231d;--need:#e0a44b;--need-bg:#241c10;}}
+:root[data-theme="dark"]{--bg:#0b0b0f;--fg:#f4f3ee;--muted:#8a8f98;--card:#15151b;
+  --line:#26262e;--accent:#ff5a3c;--ready:#4ecfa5;--ready-bg:#0f231d;--need:#e0a44b;--need-bg:#241c10;}
+:root[data-theme="light"]{--bg:#faf9f7;--fg:#16161a;--muted:#6b7280;--card:#fff;
+  --line:#e6e4df;--accent:#e8482b;--ready:#0f7a5f;--ready-bg:#e7f2ee;--need:#a2650f;--need-bg:#faf0dd;}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--sans)}
+.wrap{max-width:62rem;margin:0 auto;padding:2rem 1.25rem 5rem;display:flex;flex-direction:column;gap:1.75rem}
+.eyebrow{font-family:var(--mono);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(1.5rem,1.1rem+1.8vw,2.1rem);margin:.3rem 0 0;font-weight:650;letter-spacing:-.015em;text-wrap:balance}
+h2{font-size:.95rem;margin:0;font-weight:640}
+p{margin:0;color:var(--muted);max-width:62ch}
+b{color:var(--fg);font-weight:640}
+hr{border:0;border-top:1px solid var(--line);margin:0}
+section{display:flex;flex-direction:column;gap:.75rem}
+
+textarea{width:100%;min-height:7rem;resize:vertical;background:var(--card);color:var(--fg);
+  border:1px solid var(--line);border-radius:10px;padding:.85rem 1rem;font:13px/1.6 var(--mono)}
+textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.bar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+button{cursor:pointer;font:inherit;font-size:.82rem;border:1px solid var(--line);
+  background:var(--card);color:var(--fg);border-radius:8px;padding:.5rem .85rem}
+button:hover{border-color:var(--muted)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.p{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+button.p:hover{filter:brightness(1.07)}
+.tally{font-family:var(--mono);font-size:.75rem;color:var(--muted);margin-left:auto;
+  font-variant-numeric:tabular-nums}
+.tally .rd{color:var(--ready)} .tally .nd{color:var(--need)}
+
+.list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.row{display:grid;grid-template-columns:1fr;gap:.5rem;padding:.8rem 1rem;background:var(--card);
+  border-bottom:1px solid var(--line);border-left:3px solid var(--need)}
+.row:last-child{border-bottom:0}
+.row.ready{border-left-color:var(--ready)}
+@media(min-width:48rem){.row{grid-template-columns:15rem 1fr;gap:1rem;align-items:start}}
+.nm{font-weight:640;font-size:.9rem;display:flex;flex-direction:column;gap:.2rem}
+.feed{font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.fields{display:flex;flex-direction:column;gap:.45rem;min-width:0}
+input[type=url],input[type=text]{width:100%;background:transparent;color:var(--fg);
+  border:1px solid var(--line);border-radius:7px;padding:.4rem .6rem;font:12.5px/1.5 var(--mono)}
+input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+input.note{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:.3rem}
+.tag{font-size:.68rem;padding:.2rem .5rem;border-radius:999px;border:1px solid var(--line);
+  background:transparent;color:var(--muted);cursor:pointer;line-height:1.4}
+.tag[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.st{font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--need);align-self:start}
+.row.ready .st{color:var(--ready)}
+.kill{border:0;background:transparent;color:var(--muted);font-size:.95rem;padding:0 .2rem;line-height:1}
+.kill:hover{color:var(--accent)}
+.hd{display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
+
+.cmd{font-family:var(--mono);font-size:.78rem;background:var(--card);border:1px solid var(--line);
+  border-radius:8px;padding:.7rem .9rem;overflow-x:auto;white-space:pre;color:var(--fg)}
+.callout{border-left:3px solid var(--accent);background:var(--card);border:1px solid var(--line);
+  border-left-width:3px;border-radius:8px;padding:.85rem 1rem;display:flex;flex-direction:column;gap:.45rem}
+.toast{position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%);background:var(--fg);
+  color:var(--bg);padding:.55rem 1rem;border-radius:9px;font-size:.82rem;opacity:0;
+  transition:opacity .2s;pointer-events:none;z-index:20}
+.toast.show{opacity:1}
+.empty{padding:2rem 1rem;text-align:center;color:var(--muted);background:var(--card);font-size:.88rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">web-page-builder · taste library</div>
+  <h1>Intake</h1>
+  <p style="margin-top:.7rem">Drop URLs in. They become records the harvester can run against on
+  a machine with open web access — which is where the screenshot, palette and fonts get filled in.
+  This page collects; it does not fetch.</p>
+</header>
+
+<section>
+  <div class="hd"><h2>Paste anything with links in it</h2></div>
+  <textarea id="paste" placeholder="https://by-kin.com/&#10;Lama Lama — https://lamalama.nl&#10;&#10;Or paste a whole page of text and every URL in it gets pulled out."></textarea>
+  <div class="bar">
+    <button class="p" id="add">Add these</button>
+    <button id="importBtn">Import a saved library</button>
+    <span class="tally" id="tally"></span>
+  </div>
+  <p style="font-size:.82rem">A line like <b>Name — url</b> keeps the name. A bare URL takes its
+  domain as the name. Duplicates are dropped on the way in.</p>
+</section>
+
+<section>
+  <div class="hd">
+    <h2>The library</h2>
+    <div class="bar" style="gap:.4rem">
+      <button id="onlyNeed">Show only the ones missing a URL</button>
+      <button id="clear">Empty it</button>
+    </div>
+  </div>
+  <div class="list" id="list"></div>
+</section>
+
+<section>
+  <div class="hd"><h2>Take it back to the machine that can fetch</h2></div>
+  <div class="bar">
+    <button class="p" id="save">Download candidates.json</button>
+    <button id="copy">Copy it instead</button>
+  </div>
+  <p>Drop that file at <b>skills/web-page-builder/library/candidates.json</b>, then:</p>
+  <div class="cmd">python3 tools/harvest_site.py --pending
+python3 tools/build_gallery.py</div>
+  <p>The harvester walks every record that has a URL and is still pending, pulls the screenshot,
+  palette and fonts, and rebuilds the gallery from what it found.</p>
+</section>
+
+<section>
+  <div class="callout">
+    <b>Why there are no thumbnails here</b>
+    <p>A published page can't reach other websites — no fetching, no remote images. So this page
+    can't screenshot anything, and any preview it showed you would be invented. Collecting is the
+    half that works here; fetching is the half that works on your laptop. Nothing is stored on a
+    server either — <b>download the file when you're done</b>, and import it to pick up later.</p>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+</div>
+
+<script>
+"use strict";
+// Genre families from skills/taste/references/genre-taxonomy.md — the same labels
+// the taste skill uses, so a tag set here means something downstream.
+const GENRES = ["ethereal","hyperpop-y2k","dark-occult","retro-print",
+                "organic-textural","systemic-data","cultural-kitsch"];
+
+const SEED = [
+ {
+  "name": "Messenger (WebGL planet)",
+  "url": "",
+  "feed": "awwwards_soty_2025",
+  "note": "Awwwards Site of the Year 2025 — tiny WebGL planet, browser deliveries.",
+  "tags": []
+ },
+ {
+  "name": "Bruno Simon 2025 portfolio",
+  "url": "https://bruno-simon.com/",
+  "feed": "awwwards_sotm",
+  "note": "Site of the Month Jan 2026. Known stable URL.",
+  "tags": []
+ },
+ {
+  "name": "By-Kin",
+  "url": "https://by-kin.com/",
+  "feed": "awwwards_sotd",
+  "note": "UK studio; SOTD + Developer Award + FWA + CSSDA. Next.js/GSAP/Strapi, editorial type, weighted smooth scroll.",
+  "tags": []
+ },
+ {
+  "name": "Jeton",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "Fintech; scroll-based movement, morphing desktop-to-mobile. SOTD.",
+  "tags": []
+ },
+ {
+  "name": "OceanX",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Feb 23 2026.",
+  "tags": []
+ },
+ {
+  "name": "Art Here 2025 — Richard Mille",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Feb 12 2026.",
+  "tags": []
+ },
+ {
+  "name": "Shopify Live Globe 2025",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Jan 19 2026.",
+  "tags": []
+ },
+ {
+  "name": "Dragonfly Redux",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Jul 23 2026.",
+  "tags": []
+ },
+ {
+  "name": "Lacoste — Polo Factory",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Jul 22 2026.",
+  "tags": []
+ },
+ {
+  "name": "Lama Lama",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Jul 21 2026.",
+  "tags": []
+ },
+ {
+  "name": "Glitch&Grit",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Jul 20 2026.",
+  "tags": []
+ },
+ {
+  "name": "IZANAMI",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Jul 19 2026.",
+  "tags": []
+ },
+ {
+  "name": "Hiroto Sato",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Jul 18 2026.",
+  "tags": []
+ },
+ {
+  "name": "CoffeeTech",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Jul 17 2026.",
+  "tags": []
+ },
+ {
+  "name": "RISK",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Jul 16 2026.",
+  "tags": []
+ },
+ {
+  "name": "House of Honey",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Jul 15 2026.",
+  "tags": []
+ },
+ {
+  "name": "Longbow",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Jul 13 2026.",
+  "tags": []
+ },
+ {
+  "name": "Vectr",
+  "url": "",
+  "feed": "awwwards_sotd",
+  "note": "SOTD Jul 12 2026.",
+  "tags": []
+ }
+];
+
+let items = [];
+let onlyNeed = false;
+const $ = id => document.getElementById(id);
+
+/* localStorage is a quiet convenience: if the sandbox allows it the list comes
+   back on reload, and if it doesn't the page never mentions it. The download is
+   the promise; this is not. */
+const store = {
+  read(){ try{ return JSON.parse(localStorage.getItem("taste-intake")||"null"); }catch(e){ return null; } },
+  write(v){ try{ localStorage.setItem("taste-intake", JSON.stringify(v)); }catch(e){} }
+};
+
+function slugName(u){
+  try{ return new URL(u).hostname.replace(/^www\./,""); }catch(e){ return u; }
+}
+function normalise(u){
+  u = u.trim().replace(/[),.;]+$/,"");
+  if(!/^https?:\/\//i.test(u)) u = "https://" + u;
+  try{ const p = new URL(u); return p.origin + (p.pathname==="/"?"":p.pathname); }
+  catch(e){ return null; }
+}
+function parse(text){
+  const out = [];
+  for(const raw of text.split(/\n+/)){
+    const line = raw.trim();
+    if(!line) continue;
+    const urls = line.match(/https?:\/\/[^\s<>"')]+|\b[a-z0-9-]+(\.[a-z0-9-]+)+(\/[^\s<>"')]*)?/gi) || [];
+    for(const u of urls){
+      const url = normalise(u);
+      if(!url) continue;
+      // "Name — url" / "Name - url" / "Name: url" keeps the name
+      const before = line.slice(0, line.indexOf(u)).replace(/[—\-:•·|]+\s*$/,"").trim();
+      out.push({name: before || slugName(url), url, feed:"", note:"", tags:[]});
+    }
+  }
+  return out;
+}
+
+function add(list){
+  const seen = new Set(items.map(i => i.url).filter(Boolean));
+  let added = 0, dupe = 0;
+  for(const it of list){
+    if(it.url && seen.has(it.url)){ dupe++; continue; }
+    if(it.url) seen.add(it.url);
+    items.push(it); added++;
+  }
+  render();
+  toast(added + " added" + (dupe ? " · " + dupe + " already in the list" : ""));
+}
+
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+function render(){
+  const ready = items.filter(i => i.url).length;
+  $("tally").innerHTML = `<span class="rd">${ready} ready</span> · ` +
+                         `<span class="nd">${items.length-ready} need a URL</span> · ${items.length} total`;
+  $("onlyNeed").textContent = onlyNeed ? "Show all" : "Show only the ones missing a URL";
+
+  const shown = items.map((it,i)=>({it,i})).filter(({it}) => !onlyNeed || !it.url);
+  const list = $("list");
+  if(!shown.length){
+    list.innerHTML = `<div class="empty">${items.length
+      ? "Everything here has a URL — nothing left to fill in."
+      : "Nothing in the library yet. Paste some links above."}</div>`;
+    store.write(items); return;
+  }
+  list.innerHTML = shown.map(({it,i}) => `
+    <div class="row ${it.url?"ready":""}">
+      <div class="nm">
+        <span>${esc(it.name)}</span>
+        ${it.feed?`<span class="feed">${esc(it.feed)}</span>`:""}
+        <span class="st">${it.url?"ready to harvest":"needs a URL"}</span>
+      </div>
+      <div class="fields">
+        <input type="url" data-i="${i}" data-f="url" value="${esc(it.url)}"
+               placeholder="https://… — paste the address and this one goes green" spellcheck="false">
+        <input type="text" class="note" data-i="${i}" data-f="note" value="${esc(it.note)}"
+               placeholder="what you like about it">
+        <div class="tags">
+          ${GENRES.map(g=>`<button class="tag" data-i="${i}" data-g="${g}"
+            aria-pressed="${it.tags.includes(g)}">${g}</button>`).join("")}
+          <button class="kill" data-kill="${i}" title="remove" aria-label="remove ${esc(it.name)}">✕</button>
+        </div>
+      </div>
+    </div>`).join("");
+  store.write(items);
+}
+function esc(s){ return String(s||"").replace(/[&<>"]/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function payload(){
+  return {
+    note: "Collected in the taste intake page. Harvest on a machine with open web access: " +
+          "python3 tools/harvest_site.py --pending",
+    candidates: items.map(i => {
+      const c = {name: i.name, source_feed: i.feed || "intake", note: i.note, status: "pending"};
+      if(i.url) c.url = i.url;
+      if(i.tags.length) c.tags = i.tags;
+      return c;
+    })
+  };
+}
+
+document.addEventListener("input", e=>{
+  const t = e.target;
+  if(t.dataset && t.dataset.f !== undefined){
+    const it = items[+t.dataset.i];
+    if(t.dataset.f === "url"){
+      const u = t.value.trim() ? normalise(t.value) : "";
+      it.url = u || "";
+      t.closest(".row").classList.toggle("ready", !!it.url);
+      t.closest(".row").querySelector(".st").textContent = it.url ? "ready to harvest" : "needs a URL";
+      const ready = items.filter(x=>x.url).length;
+      $("tally").innerHTML = `<span class="rd">${ready} ready</span> · ` +
+        `<span class="nd">${items.length-ready} need a URL</span> · ${items.length} total`;
+      store.write(items);
+    } else { it.note = t.value; store.write(items); }
+  }
+});
+
+document.addEventListener("click", e=>{
+  const tag = e.target.closest(".tag");
+  if(tag){
+    const it = items[+tag.dataset.i], g = tag.dataset.g;
+    const on = it.tags.includes(g);
+    it.tags = on ? it.tags.filter(x=>x!==g) : it.tags.concat(g);
+    tag.setAttribute("aria-pressed", String(!on));
+    store.write(items); return;
+  }
+  const k = e.target.closest("[data-kill]");
+  if(k){ items.splice(+k.dataset.kill,1); render(); return; }
+});
+
+$("add").onclick = ()=>{
+  const found = parse($("paste").value);
+  if(!found.length) return toast("no links found in that");
+  add(found); $("paste").value = "";
+};
+$("onlyNeed").onclick = ()=>{ onlyNeed = !onlyNeed; render(); };
+$("clear").onclick = ()=>{
+  if(!items.length) return;
+  if(confirm("Empty the whole library? Download it first if you want to keep it.")){
+    items = []; render(); toast("emptied");
+  }
+};
+$("importBtn").onclick = ()=>{
+  const raw = prompt("Paste a candidates.json here:");
+  if(!raw) return;
+  try{
+    const d = JSON.parse(raw);
+    const rows = (d.candidates || d).map(c=>({
+      name: c.name || slugName(c.url||""), url: c.url||"", feed: c.source_feed||"",
+      note: c.note||"", tags: c.tags||[]}));
+    add(rows);
+  }catch(err){ toast("that isn't valid JSON"); }
+};
+$("copy").onclick = async ()=>{
+  const text = JSON.stringify(payload(), null, 2);
+  try{ await navigator.clipboard.writeText(text); toast("copied"); }
+  catch(err){
+    const ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); toast("copied"); }
+    catch(e2){ toast("couldn't copy — use Download instead"); }
+    ta.remove();
+  }
+};
+$("save").onclick = async ()=>{
+  if(!items.length) return toast("nothing to save yet");
+  const data = JSON.stringify(payload(), null, 2);
+  if(!(window.claude && window.claude.downloads)) return toast("downloads aren't available here — use Copy");
+  try{
+    await window.claude.downloads.save({filename:"candidates.json", data});
+    toast("saved");
+  }catch(err){
+    toast(err && err.code === "user_rejected" ? "download declined" : "download failed — use Copy");
+  }
+};
+
+items = store.read() || SEED.slice();
+render();
+</script>

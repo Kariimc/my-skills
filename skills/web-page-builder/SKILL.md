@@ -83,6 +83,19 @@ run it where the web is open — don't claim a card you didn't write. More ways 
 > (GitHub/PyPI only) most design sites are blocked — run the harvester on a surface
 > with open egress (the laptop). The machinery is identical everywhere.
 
+### Intake — collecting URLs anywhere, including a box that can't fetch
+
+`intake.html` is the front of the same pipeline, built to be published with the
+Artifact tool so it works from a phone or a locked-down cloud session. Paste any
+text with links in it, every URL gets pulled out and becomes a record; name, note
+and genre tags are editable; the existing `library/candidates.json` is preloaded so
+the entries still missing a URL can be filled in. Download it back over
+`library/candidates.json`, then harvest as below.
+
+It **collects only** — a published page cannot reach other websites, so there are
+no screenshots or palettes at this stage and the page says so rather than showing
+an invented preview. Nothing is stored on a server: the download is the save.
+
 ### Taste Studio — the standalone web app (the Chase-AI way)
 
 `python3 tools/build_gallery.py` generates **Taste Studio** (`gallery.html`), a single

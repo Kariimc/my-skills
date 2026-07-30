@@ -1,0 +1,333 @@
+<title>Fusion — the duty board</title>
+<style>
+:root{
+  --ink:#10161c; --paper:#f3f5f4; --card:#ffffff; --line:#d3dad8;
+  --slate:#5c6b71; --slate-dim:#8b989d;
+  --duty:#0d6f6b; --duty-soft:#e2efee;
+  --cover:#a2650f; --cover-soft:#f6ecdb;
+  --out:#8f3630; --out-soft:#f6e5e3;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --step:clamp(.82rem,.78rem + .2vw,.9rem);
+}
+@media (prefers-color-scheme:dark){
+  :root{--ink:#e6ecea;--paper:#0d1214;--card:#141c1f;--line:#253136;
+        --slate:#94a4a8;--slate-dim:#6b7c81;
+        --duty:#4fd0c6;--duty-soft:#0f2b2a;
+        --cover:#e0a44b;--cover-soft:#2c2114;
+        --out:#e0736a;--out-soft:#2c1614;}
+}
+:root[data-theme="dark"]{--ink:#e6ecea;--paper:#0d1214;--card:#141c1f;--line:#253136;
+  --slate:#94a4a8;--slate-dim:#6b7c81;--duty:#4fd0c6;--duty-soft:#0f2b2a;
+  --cover:#e0a44b;--cover-soft:#2c2114;--out:#e0736a;--out-soft:#2c1614;}
+:root[data-theme="light"]{--ink:#10161c;--paper:#f3f5f4;--card:#ffffff;--line:#d3dad8;
+  --slate:#5c6b71;--slate-dim:#8b989d;--duty:#0d6f6b;--duty-soft:#e2efee;
+  --cover:#a2650f;--cover-soft:#f6ecdb;--out:#8f3630;--out-soft:#f6e5e3;}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+     font-size:var(--step);line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:60rem;margin:0 auto;padding:clamp(1.5rem,4vw,3.5rem) clamp(1rem,4vw,2rem) 5rem;
+      display:flex;flex-direction:column;gap:2.75rem}
+.lab{font-family:var(--mono);font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;
+     color:var(--slate-dim)}
+h1{font-family:var(--mono);font-weight:600;font-size:clamp(1.6rem,1.1rem + 2.4vw,2.6rem);
+   letter-spacing:-.02em;margin:.35rem 0 0;text-wrap:balance}
+h2{font-family:var(--mono);font-weight:600;font-size:1.02rem;letter-spacing:.01em;margin:0}
+p{margin:0;max-width:62ch;color:var(--slate)}
+p.lede{color:var(--ink);font-size:1.02rem;max-width:56ch}
+b{color:var(--ink);font-weight:600}
+code,.m{font-family:var(--mono);font-size:.86em;font-variant-numeric:tabular-nums}
+hr{border:0;border-top:1px solid var(--line);margin:0}
+section{display:flex;flex-direction:column;gap:1rem}
+
+/* key switches */
+.keys{display:flex;flex-wrap:wrap;gap:.5rem}
+.key{display:flex;align-items:center;gap:.55rem;background:var(--card);color:var(--ink);
+     border:1px solid var(--line);border-radius:2px;padding:.5rem .8rem;cursor:pointer;
+     font-family:var(--mono);font-size:.78rem;letter-spacing:.02em}
+.key:hover{border-color:var(--slate-dim)}
+.key:focus-visible{outline:2px solid var(--duty);outline-offset:2px}
+.led{width:.55rem;height:.55rem;border-radius:50%;background:var(--line);flex:none}
+.key[aria-pressed="true"]{border-color:var(--duty)}
+.key[aria-pressed="true"] .led{background:var(--duty)}
+.key[aria-pressed="true"] .co{color:var(--ink)}
+.co{color:var(--slate-dim)}
+
+/* the board */
+.board{border:1px solid var(--line);background:var(--card)}
+.hd,.slot{display:grid;grid-template-columns:11.5rem 1fr 9.5rem;gap:1rem;
+          padding:.7rem 1rem;align-items:baseline}
+.hd{border-bottom:1px solid var(--line)}
+.slot{border-bottom:1px solid var(--line);position:relative;
+      border-left:3px solid transparent;transition:border-color .25s,background .25s}
+.slot:last-child{border-bottom:0}
+.slot.is-cover{border-left-color:var(--cover);background:var(--cover-soft)}
+.slot.is-out{border-left-color:var(--out);background:var(--out-soft)}
+.job{font-family:var(--mono);font-size:.78rem;color:var(--ink)}
+.who{font-family:var(--mono);font-size:.95rem;color:var(--duty);letter-spacing:-.01em;
+     transition:color .25s}
+.slot.is-cover .who{color:var(--cover)}
+.firm{font-family:var(--mono);font-size:.72rem;color:var(--slate-dim);text-align:right}
+.note{grid-column:1/-1;font-size:.78rem;color:var(--cover);margin-top:.15rem}
+.slot.is-out .note{color:var(--out)}
+.empty{padding:1.5rem 1rem;color:var(--out);font-family:var(--mono);font-size:.85rem}
+
+/* knock-out row */
+.knock{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.kb{font-family:var(--mono);font-size:.72rem;background:transparent;color:var(--slate);
+    border:1px solid var(--line);border-radius:2px;padding:.35rem .6rem;cursor:pointer}
+.kb:hover{color:var(--ink);border-color:var(--slate-dim)}
+.kb:focus-visible{outline:2px solid var(--duty);outline-offset:2px}
+.kb[data-state="gone"]{color:var(--out);border-color:var(--out);text-decoration:line-through}
+.kb[data-state="busy"]{color:var(--cover);border-color:var(--cover)}
+
+/* log */
+.log{background:var(--card);border:1px solid var(--line);padding:.9rem 1rem;
+     font-family:var(--mono);font-size:.74rem;line-height:1.85;color:var(--slate);
+     max-height:11rem;overflow:auto}
+.log b{color:var(--cover);font-weight:400}
+.log i{color:var(--out);font-style:normal}
+.log .ok{color:var(--duty)}
+
+/* notebook */
+.nb{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--duty);
+    padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.55rem}
+.nb .row{font-family:var(--mono);font-size:.76rem;color:var(--slate);line-height:1.7}
+.nb .tag{color:var(--out)}
+.nb .tag.peer{color:var(--duty)}
+
+/* two-up */
+.duo{display:grid;grid-template-columns:1fr;gap:1rem}
+@media(min-width:44rem){.duo{grid-template-columns:1fr 1fr;gap:1.5rem}}
+.pane{display:flex;flex-direction:column;gap:.5rem}
+
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+.scroll{overflow-x:auto}
+th,td{text-align:left;padding:.45rem .8rem .45rem 0;border-bottom:1px solid var(--line);
+      vertical-align:top}
+th{font-family:var(--mono);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+   color:var(--slate-dim);font-weight:400}
+td:first-child{font-family:var(--mono);color:var(--ink);white-space:nowrap}
+td{color:var(--slate)}
+footer{color:var(--slate-dim);font-size:.75rem;display:flex;flex-direction:column;gap:.4rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="lab">skills / fusion · Kariimc/my-skills · master 61e6879</div>
+  <h1>The duty board</h1>
+  <p class="lede" style="margin-top:.9rem">One question, four jobs, four models — each on the work it
+  is best at. Flip the keys you actually hold and the board reassigns itself, exactly the way the
+  engine does.</p>
+</header>
+
+<section>
+  <div class="lab">1 · keys you hold</div>
+  <div class="keys" id="keys"></div>
+  <p>Every model that <b>cannot</b> be used is named on the board with the reason — never quietly
+  missing. One key works; it just isn't fusion, and it says so.</p>
+</section>
+
+<section>
+  <div class="lab">2 · who is on what</div>
+  <div class="board" id="board"></div>
+  <div class="knock" id="knock"><span class="lab" style="margin-right:.3rem">knock one out:</span></div>
+  <div class="log" id="log" aria-live="polite"></div>
+</section>
+
+<section>
+  <div class="lab">3 · the rules the board just followed</div>
+  <div class="duo">
+    <div class="pane">
+      <h2>Cover, never downgrade</h2>
+      <p>Each job holds a chain of models, smartest first. Everything below the owner is
+      <b>cover</b> — the next best model, never a cheaper one. There is no Haiku, no Luna, no mini
+      or nano anywhere in the file. Every model runs at <b>high</b> reasoning effort, and one that
+      refuses to says so rather than quietly answering at normal.</p>
+    </div>
+    <div class="pane">
+      <h2>Two failures, two moves</h2>
+      <p><b>Retired</b> — renamed, or not on your account: the job moves down the chain, because
+      asking the same model again could never work. <b>Rate-limited</b>: the same move, ending at
+      the best open model Hugging Face will actually serve right then. A wrong key is neither, and
+      stops the run with the real reason.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="lab">4 · the crew notebook</div>
+  <h2>They learn from each other, not just from Fable&nbsp;5</h2>
+  <p>After every run one file is written, and every model — Fable included — reads all of it before
+  writing a word next time. Rulings are binding. Crewmate notes are the crew's own track record.</p>
+  <div class="nb">
+    <div class="row"><span class="tag">RULING</span> · high · name what you did not check</div>
+    <div class="row"><span class="tag">RULING</span> · standard · a measured number, or say unverified</div>
+    <div class="row"><span class="tag peer">CREWMATE</span> · claude-opus-5 as The Skeptic, scored 9/10 —
+      strongest: named the failure nobody priced in · blind spot: no cost estimate</div>
+    <div class="row"><span class="tag peer">CREWMATE</span> · gpt-5.6-sol as The Engineer, scored 6/10 —
+      strongest: concrete mechanism · blind spot: ignored the rollout risk</div>
+  </div>
+  <p>Straight about what this is: it is memory, not training. The models themselves never change.
+  What changes is that mistakes already caught, and moves that already worked, arrive attached to
+  the next question. It lifts the floor of the work every run — not any one model's ceiling.</p>
+</section>
+
+<section>
+  <div class="lab">5 · running it</div>
+  <div class="scroll"><table>
+    <tr><th>to do this</th><th>run</th></tr>
+    <tr><td>see the board, free</td><td>council.py --brains</td></tr>
+    <tr><td>a full run</td><td>council.py "your question" --provider fusion --depth deep</td></tr>
+    <tr><td>a cheap run</td><td>… --depth quick &nbsp;— no debate, no verify</td></tr>
+    <tr><td>keys, once</td><td>~/.claude/fusion.env &nbsp;— outside every repo</td></tr>
+  </table></div>
+  <p>A deep run is roughly 12–16 calls on flagship models at high effort. That is the expensive
+  setting on purpose. Not for lookups.</p>
+</section>
+
+<footer>
+  <hr style="margin-bottom:.8rem">
+  <div>76 checks pass with no keys and no network. Bite-tested: taking Fable 5 off verification
+  turns 3 red, collapsing the two builders onto one model turns 4 red, cutting the notebook out of
+  the prompts turns 4 red.</div>
+  <div><b style="color:var(--out)">Not proven:</b> no live run has happened yet. Every model name
+  here comes from the vendors' documentation, not from an actual reply.</div>
+</footer>
+</div>
+
+<script>
+"use strict";
+// Mirrors skills/council-moa/scripts/council.py — BRAINS, CREW, job_for, crew_chain.
+const FIRMS = [
+  {id:"claude", key:"ANTHROPIC_API_KEY", label:"Anthropic", short:"Anthropic",
+   ladder:["claude-opus-5","claude-fable-5","claude-sonnet-5"]},
+  {id:"gpt", key:"OPENAI_API_KEY", label:"OpenAI", short:"OpenAI",
+   ladder:["gpt-5.6-sol","gpt-5.6-terra"]},
+  {id:"gemini", key:"GEMINI_API_KEY", label:"Google AI Studio", short:"Google",
+   ladder:["gemini-3.6-flash","gemini-3.5-flash"]},
+  {id:"hf", key:"HF_TOKEN", label:"Hugging Face", short:"Hugging Face",
+   ladder:["open model, picked live"]}
+];
+const FIRM = Object.fromEntries(FIRMS.map(f=>[f.id,f]));
+const OF = {}; FIRMS.forEach(f=>f.ladder.forEach(m=>OF[m]=f.id));
+
+const CREW = {
+  researcher:["claude-sonnet-5","claude-opus-5","gpt-5.6-sol","gemini-3.6-flash"],
+  builder:   ["claude-opus-5","gpt-5.6-sol","gemini-3.6-flash","claude-fable-5"],
+  partner:   ["gpt-5.6-sol","gemini-3.6-flash","claude-opus-5","claude-sonnet-5"],
+  verifier:  ["claude-fable-5","claude-opus-5","gpt-5.6-sol","gemini-3.6-flash"]
+};
+const JOBS = [
+  {job:"Research + plan", crew:"researcher", does:"digs in, writes the plan"},
+  {job:"Build",           crew:"builder",   does:"builds the answer"},
+  {job:"Build again",     crew:"partner",   does:"a second, independent build"},
+  {job:"Synthesize",      crew:"partner",   does:"merges every build into one"},
+  {job:"Verify",          crew:"verifier",  does:"attacks it, sets the bar"}
+];
+
+const held = new Set(["claude","gpt","gemini"]);
+const down = {};                     // model -> "gone" | "busy"
+const logEl = document.getElementById("log");
+let lines = [];
+
+function chainFor(crew){
+  const seen = new Set(), out = [];
+  for (const m of CREW[crew]) if (held.has(OF[m]) && !seen.has(m)) {seen.add(m); out.push(m);}
+  for (const f of FIRMS) if (held.has(f.id)) for (const m of f.ladder)
+    if (!seen.has(m)) {seen.add(m); out.push(m);}
+  return out;
+}
+function pick(crew){
+  const chain = chainFor(crew);
+  for (let i=0;i<chain.length;i++){
+    if (!down[chain[i]]) return {model:chain[i], covered:i>0, passed:chain.slice(0,i)};
+  }
+  return {model:null, covered:false, passed:chain};
+}
+
+function say(html){ lines.unshift(html); lines = lines.slice(0,40);
+  logEl.innerHTML = lines.join("<br>"); }
+
+function render(){
+  // keys
+  document.getElementById("keys").innerHTML = FIRMS.map(f=>
+    `<button class="key" aria-pressed="${held.has(f.id)}" data-firm="${f.id}">
+       <span class="led"></span><span class="co">${f.label}</span>
+     </button>`).join("");
+
+  // board
+  const board = document.getElementById("board");
+  if (!held.size){
+    board.innerHTML = `<div class="empty">No keys held — nothing can run.<br>
+      Put one in ~/.claude/fusion.env and the board fills itself in.</div>`;
+  } else {
+    let rows = `<div class="hd"><span class="lab">job</span>
+      <span class="lab">model on it</span><span class="lab" style="text-align:right">company</span></div>`;
+    for (const j of JOBS){
+      const r = pick(j.crew);
+      if (!r.model){
+        rows += `<div class="slot is-out"><span class="job">${j.job}</span>
+          <span class="who">nobody</span><span class="firm">—</span>
+          <span class="note">every model for this job is unavailable</span></div>`;
+        continue;
+      }
+      const why = r.covered
+        ? `covering — ${r.passed.map(m=>`${m} ${down[m]==="gone"?"is retired":"is rate-limited"}`).join(", ")}`
+        : "";
+      rows += `<div class="slot ${r.covered?"is-cover":""}">
+        <span class="job">${j.job}</span>
+        <span class="who">${r.model}</span>
+        <span class="firm">${FIRM[OF[r.model]].short}</span>
+        ${why?`<span class="note">${why}</span>`:""}</div>`;
+    }
+    board.innerHTML = rows;
+  }
+
+  // missing firms, named
+  const missing = FIRMS.filter(f=>!held.has(f.id));
+  if (missing.length){
+    document.getElementById("board").insertAdjacentHTML("beforeend",
+      missing.map(f=>`<div class="slot is-out"><span class="job">${f.short}</span>
+        <span class="who" style="color:var(--out)">NOT USED</span>
+        <span class="firm">—</span>
+        <span class="note">no key found — looked for ${f.key}</span></div>`).join(""));
+  }
+
+  // knock-out buttons
+  const kn = document.getElementById("knock");
+  kn.querySelectorAll(".kb").forEach(b=>b.remove());
+  FIRMS.filter(f=>held.has(f.id)).forEach(f=>f.ladder.forEach(m=>{
+    const b = document.createElement("button");
+    b.className = "kb"; b.dataset.model = m;
+    if (down[m]) b.dataset.state = down[m];
+    b.textContent = m + (down[m]==="gone" ? " · retired" : down[m]==="busy" ? " · busy" : "");
+    kn.appendChild(b);
+  }));
+}
+
+document.addEventListener("click", e=>{
+  const k = e.target.closest(".key");
+  if (k){
+    const id = k.dataset.firm;
+    if (held.has(id)){ held.delete(id); say(`<i>key removed</i> — ${FIRM[id].label}`); }
+    else { held.add(id); say(`<span class="ok">key added</span> — ${FIRM[id].label}`); }
+    render(); return;
+  }
+  const b = e.target.closest(".kb");
+  if (b){
+    const m = b.dataset.model;
+    // cycle: fine -> rate-limited -> retired -> fine
+    if (!down[m]){ down[m]="busy"; say(`<b>${m} is rate-limited</b> — its job moves to the next model in the chain`); }
+    else if (down[m]==="busy"){ down[m]="gone"; say(`<i>${m} is retired</i> — asking it again could never work, so the job moves down`); }
+    else { delete down[m]; say(`<span class="ok">${m} is back</span>`); }
+    render();
+  }
+});
+
+render();
+say(`<span class="ok">board ready</span> — three keys held, everything on duty`);
+</script>
