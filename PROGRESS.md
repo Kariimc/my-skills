@@ -2,52 +2,103 @@
 
 > Last updated: 2026-07-29.
 
-## Latest (2026-07-29, cloud) — fusion: a crew of the smartest models, each on its own job
+## Latest (2026-07-29, cloud) — fusion is MERGED and live in every session
 
-- **Answering Kariim's question directly: no, "codex fusion" had never been set up.**
-  Recon found no fusion skill, no multi-provider run path, and no keys on any box.
-  What existed was `council-moa`, a single-provider council. Library is **429 skills**
-  / 73 agents.
-- **`skills/fusion`** — one question, four jobs, four models, exactly as Kariim
-  assigned them: **Sonnet 5** researches and writes the plan, **Opus 5** builds, the
-  **partner** (GPT-5.6 Sol, else Gemini 3.6 Flash) builds a second answer and
-  synthesizes them all, **Fable 5** verifies. Every model at **high** reasoning
-  effort — extended thinking on Anthropic, `reasoning_effort` on OpenAI-compatible
-  endpoints, and a model that refuses high effort says so instead of quietly
-  answering at default.
-- **No budget tiers anywhere.** Each job carries a chain of models, smartest first;
-  the entries below the owner are cover for when a model is rate-limited or retired,
-  never a cheaper option. Haiku and Luna were removed outright.
-- **The crew notebook — learning in both directions.** After every run,
-  `~/.claude/fusion-lessons.md` gets (1) Fable 5's rulings, marked binding, and
-  (2) what each model actually brought, attributed BY MODEL with the Synthesist's
-  score and the blind spot it named. Every model — Fable included — reads the whole
-  notebook before it writes a word on the next run. Stated honestly in the skill and
-  the code: this is carried context, not training; it raises the floor of the work,
-  not the ceiling of any model.
-- **Two failures, two different moves, both printed:** a *retired* model passes its
-  job to the next model in the chain (retrying the same one can never help); a
-  *rate-limited* model does the same, ending at the smartest open model the Hugging
-  Face router will serve, looked up live from its catalogue. A bad key or malformed
-  request is neither and stops the run with its real message.
-- **Nothing degrades quietly** (Kariim's explicit ask, twice). Every model NOT taking
-  part is named with the reason and the exact key that was looked for; so are a job
-  handed to cover, no partner reachable, a keyfile entry the environment overrode, a
-  builder that never answered, a verification that did not run (answer labelled
-  UNVERIFIED), a refinement that failed, and a notebook that could not be written.
-- **Fixed en route:** `build-index.py` defaulted its output to the caller's cwd, so
-  running it from the repo root wrote a stray `index.json` there and left the real
-  index stale — new skills stayed invisible to `find-skills.py`. That is playbook
-  P-12's cause, now removed (FAILURES F-66).
-- **Proof:** `skills/council-moa/scripts/selftest_fusion.py`, **76/76 green**, no keys
-  and no network. Bite-tested three ways: taking Fable 5 off verification turns 3
-  checks red, collapsing the two builders onto one model turns 4 red, cutting the
-  notebook out of the prompts turns 4 red.
-- **NOT proven:** no live run has happened. This box holds no API key at all, so
-  every model id (`claude-opus-5` / `claude-fable-5` / `claude-sonnet-5`,
-  `gpt-5.6-sol`, `gemini-3.6-flash`) is verified from vendor documentation, not from
-  a response. First real run on the laptop is the remaining proof — queued to
-  code-local via the relay.
+Two PRs, both squashed to master on Kariim's explicit "merge it", all CI green before
+each merge: **#82 at `61e6879`** (the skill) and **#83 at `8f2eace`** (always-load +
+two clickable pages). Library is **429 skills** / 73 agents.
+
+### What fusion is
+
+Kariim asked whether "codex fusion" had ever been set up. It had not — recon found no
+fusion skill, no multi-provider run path, and no keys on any box. What existed was
+`council-moa`, which runs every seat on ONE provider, so the model writing the answer
+also checks it.
+
+`skills/fusion` is one question, four jobs, on the models Kariim named:
+
+| Job | Model |
+|---|---|
+| Research + write the plan | Sonnet 5 |
+| Build | Opus 5 |
+| Build again + synthesize | the partner — GPT-5.6 Sol, else Gemini 3.6 Flash |
+| Verify, and set the bar | Fable 5 |
+
+All at **high** reasoning effort — extended thinking on Anthropic, `reasoning_effort` on
+OpenAI-compatible endpoints — and a model that refuses high effort says so instead of
+quietly answering at default.
+
+**No budget tiers anywhere.** Each job carries a chain of models, smartest first; entries
+below the owner are cover for a model that is retired or rate-limited, never a cheaper
+option. Haiku and Luna were removed from the file outright.
+
+**Two failures, two different moves, both printed.** A *retired* model hands its job to
+the next model in the chain (retrying the same one can never help). A *rate-limited* one
+does the same, ending at the smartest open model the Hugging Face router will actually
+serve, looked up live from its catalogue. A bad key or malformed request is neither and
+stops the run with its real message.
+
+**The crew notebook** (`~/.claude/fusion-lessons.md`) is how they learn from each other
+and not only from the Verifier: it records Fable 5's rulings as binding AND what each
+model brought, attributed BY MODEL with its score and the blind spot named against it.
+The whole file is prepended to EVERY model's instructions next run — Fable and the
+researcher included. Stated plainly in code and docs: carried context, not training. It
+raises the floor of the work, not the ceiling of any model.
+
+**Nothing degrades quietly** (Kariim's explicit ask, twice). Every model NOT taking part
+is named with the reason and the exact key that was looked for. So are: a job handed to
+cover, a model that would not run at high effort, no partner reachable, a keyfile entry
+the environment overrode, a builder that never answered, a verification that did not run
+(the answer is then labelled UNVERIFIED), a refinement that failed, a notebook that could
+not be written.
+
+### Live everywhere, and clickable
+
+- **`always-load.txt` now carries `fusion`** — it loads in every session on every surface.
+  **`council-moa` went with it and that is a hard dependency, not a bonus:** the
+  session-start hook copies whole skill folders and the engine lives in
+  `council-moa/scripts/council.py`, so without it a session outside this repo would load
+  a skill pointing at a missing script. Verified live AFTER the merge: hook loaded 43
+  skills, both present in `~/.claude/skills`, `council.py --brains` prints the crew from
+  the global copy.
+- **`skills/fusion/board.html`** — the skill as a duty board. Flip the keys you hold and
+  the crew reassigns; knock a model out and you see who covers it and whether it was
+  retired or rate-limited. **Its routing mirrors `BRAINS` / `CREW` / `crew_chain`, so it
+  must be re-checked against `council.py` whenever those change** or it will show a crew
+  the engine would never pick.
+- **`skills/web-page-builder/intake.html`** — the taste library is finally fillable from
+  any surface. Paste text with links; every URL is extracted, deduplicated and turned
+  into a record with editable name, note and genre tags (from
+  `skills/taste/references/genre-taxonomy.md`). The 18 entries already in
+  `library/candidates.json` are preloaded — 16 had no URL, which is why the gallery was
+  empty. Export shape asserted against `harvest_site.py`'s own predicate (`status ==
+  "pending"` and a `url`), so it drops straight over `library/candidates.json`.
+  It **collects only** — a published page cannot reach other websites, so no screenshots
+  or palettes at that stage, and no server storage either (the download is the save).
+- **`skill-launcher` regenerated** — it was stale at 419 skills and did not contain
+  `fusion`. Now 429 skills / 73 agents / 502 entries.
+
+### Proof, and the one gap
+
+- `skills/council-moa/scripts/selftest_fusion.py` — **76/76 green**, no keys and no
+  network. Re-run against master after the merge: still ALL GREEN.
+- Bite-tested three ways: taking Fable 5 off verification turns 3 checks red, collapsing
+  the two builders onto one model turns 4 red, cutting the notebook out of the prompts
+  turns 4 red.
+- **NOT PROVEN — and it belongs to code-local:** no live fusion run has ever happened.
+  This box holds no API key at all, so every model id (`claude-opus-5` /
+  `claude-fable-5` / `claude-sonnet-5`, `gpt-5.6-sol`, `gemini-3.6-flash`) is verified
+  from vendor documentation, not from a response. **`claude-fable-5`'s availability on
+  the Messages API is the single unconfirmed fact.** First real run settles it.
+
+### Fixed en route
+
+`skills/finding-skills/tool/build-index.py` defaulted its output to the CALLER'S cwd, so
+rebuilding from the repo root wrote a stray `index.json` there and left the real index
+stale — new skills stayed invisible to `find-skills.py`. That is the mechanism behind
+playbook P-12; it now defaults beside the finder (FAILURES F-66). New playbook entries:
+P-28 cross-brand verification, P-29 pick a fallback model from the provider's live
+catalogue.
 
 ## Earlier (2026-07-29, cloud) — commands menu fix + cloud transcripts finally reach the brain
 

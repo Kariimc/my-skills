@@ -34,27 +34,53 @@ provable from the repo alone - fill them in, do not guess.
 
 ## Current state
 
-**2026-07-29 session (branch `claude/codex-fusion-setup-gc1j09`): fusion shipped.**
-Kariim asked whether "codex fusion" had ever been set up — it had not. Built it on top
-of `council-moa` rather than as a new engine: `skills/fusion/SKILL.md` is the front
-door, all code lives in `skills/council-moa/scripts/council.py`.
+**2026-07-29 session: FUSION IS MERGED AND LIVE.** Two PRs squashed to master on
+Kariim's explicit go — **#82 at `61e6879`** (the skill) and **#83 at `8f2eace`**
+(always-load + two clickable pages). All CI green before each merge.
 
-What it does: one question, every seat on a different company's model. Advisors dealt
-round-robin across Claude / GPT / Gemini, Arbiter on the strongest reachable brain,
-Adversary always on a **different** brand, Hugging Face open models as the rate-limit
-reserve (model chosen live from `router.huggingface.co/v1/models`, never hard-coded).
-Keys live in `~/.claude/fusion.env`, outside every repo.
+Kariim asked whether "codex fusion" had ever been set up. It had not. Built on top of
+`council-moa` rather than as a new engine: `skills/fusion/SKILL.md` is the front door,
+all code lives in `skills/council-moa/scripts/council.py`.
 
-Run it: `python3 skills/council-moa/scripts/council.py "Q" --provider fusion --depth deep`.
-See the roster free: `... --brains`.
+**The crew, exactly as he assigned it, all at HIGH reasoning effort:** Sonnet 5
+researches and writes the plan · Opus 5 builds · the partner (GPT-5.6 Sol, else Gemini
+3.6 Flash) builds a second answer and synthesizes · Fable 5 verifies. No budget tiers
+anywhere — each job's fallback chain is the next SMARTEST model, never a cheaper one.
 
-Proof: `skills/council-moa/scripts/selftest_fusion.py`, 42/42, no keys or network needed;
-bite-tested by forcing same-brand verification (3 checks go red).
-**Not proven:** no live multi-brain call has run — this box holds no OpenAI/Gemini/HF key.
-Model ids come from vendor docs, not from a response.
+**Run it:**
+
+    python3 skills/council-moa/scripts/council.py --brains            # the crew, free
+    python3 skills/council-moa/scripts/council.py "Q" --provider fusion --depth deep
+
+Keys go in `~/.claude/fusion.env` (plain `KEY=VALUE`), outside every repo. Anthropic
+alone gives three of four jobs and the run prints NO PARTNER MODEL REACHABLE rather than
+pretending.
+
+**Live in every session.** `always-load.txt` carries `fusion` AND `council-moa` — the
+second is a hard dependency, not a bonus: the session-start hook copies whole skill
+folders and the engine lives in `council-moa/scripts/`. Verified after the merge: 43
+skills loaded, both in `~/.claude/skills`, `--brains` runs from the global copy.
+
+**Two pages, both self-contained and Artifact-publishable:**
+- `skills/fusion/board.html` — flip your keys, watch the crew reassign; knock a model out
+  and see who covers it. **Mirrors `BRAINS` / `CREW` / `crew_chain` — re-check it against
+  `council.py` whenever those change, or it will show a crew the engine would never pick.**
+- `skills/web-page-builder/intake.html` — paste URLs anywhere, export the exact
+  `candidates.json` the harvester reads. Collects only; a published page cannot fetch.
+
+**The crew notebook** at `~/.claude/fusion-lessons.md` records Fable 5's rulings (binding)
+and what each model brought, attributed by model with its score and blind spot; every
+model reads it before answering next run. It is carried context, not training — say that
+plainly, it is written that way in the code and the skill.
+
+Proof: `selftest_fusion.py` **76/76**, no keys or network; bite-tested three ways (Fable
+off verification = 3 red, both builders collapsed = 4 red, notebook cut from prompts = 4
+red). **Not proven, and it is code-local's job:** no live run has happened — this box has
+no API key, so model ids come from vendor docs, and `claude-fable-5` on the Messages API
+is the single unconfirmed fact.
 
 Also fixed here: `skills/finding-skills/tool/build-index.py` wrote `index.json` into the
-caller's cwd by default, so rebuilding from the repo root left the real index stale and
+CALLER'S cwd by default, so rebuilding from the repo root left the real index stale and
 new skills invisible to `find-skills.py` (the cause behind playbook P-12). It now defaults
 beside the finder.
 
@@ -156,10 +182,13 @@ the source of truth is `rules/`, and that is where the contract now lives.
 
 ## Exact next steps
 
-- **Fusion needs its first live run.** Kariim adds whichever keys he holds to
-  `~/.claude/fusion.env` (Anthropic / OpenAI / Google AI Studio / HF), then
-  `council.py --brains` confirms the roster and one real `--provider fusion` run proves
-  the model ids. Until that happens the model ids are doc-verified only.
+- **Fusion needs its first live run — this is the only thing left on it.** Kariim adds
+  whichever keys he holds to `~/.claude/fusion.env` (Anthropic / OpenAI / Google AI
+  Studio / HF), then `council.py --brains` confirms the crew free of charge and one real
+  `--provider fusion --depth deep` run proves the model ids. Until then every id is
+  vendor-docs-verified only, and `claude-fable-5` on the Messages API is the single
+  unconfirmed fact. Queued to code-local via the relay; #82 and #83 are both merged, so
+  nothing else is pending on this.
 - **Awaiting Kariim's yes** to merge `claude/failure-ledger` → `master` and push, so the
   contract propagates to the other surfaces (cloud, cowork, steamdeck). Default branch is
   `master`; merge-to-master is the one git gate.
