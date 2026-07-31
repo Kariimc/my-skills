@@ -71,7 +71,7 @@ General:
 - `database-reviewer` — PostgreSQL schema, migration, performance
 - `harness-optimizer` — local agent harness configuration
 - `loop-operator` — long-running autonomous loops
-- `chief-of-staff` — multi-channel triage (rarely a fit for plan steps)
+- `comms-secretary` — multi-channel triage (rarely a fit for plan steps)
 
 Build error resolvers:
 - `build-error-resolver` (generic) / `cpp-build-resolver` / `go-build-resolver` / `java-build-resolver` / `kotlin-build-resolver` / `rust-build-resolver` / `pytorch-build-resolver`

@@ -10,12 +10,12 @@ Each file is standard Claude Code subagent frontmatter — `name`, `description`
 | `agent-evaluator` | Evaluates agent output against 5-axis quality rubric (accuracy, completeness, clarity, actionability, conciseness). Use after a… |
 | `architect` | Software architecture specialist for system design, scalability, and technical decision-making. Use PROACTIVELY when planning n… |
 | `build-error-resolver` | Build and TypeScript error resolution specialist. Use PROACTIVELY when build fails or type errors occur. Fixes build/type error… |
-| `chief-of-staff` | Personal communication chief of staff that triages email, Slack, LINE, and Messenger. Classifies messages into 4 tiers (skip/in… |
 | `code-architect` | Designs feature architectures by analyzing existing codebase patterns and conventions, then providing implementation blueprints… |
 | `code-explorer` | Deeply analyzes existing codebase features by tracing execution paths, mapping architecture layers, and documenting dependencie… |
 | `code-reviewer` | Expert code review specialist. Proactively reviews code for quality, security, and maintainability |
 | `code-simplifier` | Simplifies and refines code for clarity, consistency, and maintainability while preserving behavior. Focus on recently modified… |
 | `comment-analyzer` | Analyze code comments for accuracy, completeness, maintainability, and comment rot risk |
+| `comms-secretary` | Personal communications secretary that triages email, Slack, LINE, and Messenger. Classifies messages into 4 tiers (skip/in… |
 | `conversation-analyzer` |  |
 | `cpp-build-resolver` | C++ build, CMake, and compilation error resolution specialist. Fixes build errors, linker issues, and template errors with mini… |
 | `cpp-reviewer` | Expert C++ code reviewer specializing in memory safety, modern C++ idioms, concurrency, and performance. Use for all C++ code c… |

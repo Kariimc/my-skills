@@ -295,7 +295,7 @@ mere *mention* of a credential — or it would HARD-block every normal commit.
 | Path | Synced to | Holds |
 |---|---|---|
 | `skills/` | `~/.claude/skills/` | **419** skills, `skills/<name>/SKILL.md` each. Catalog in `skills/README.md`. |
-| `agents/` | `~/.claude/agents/` | **67** subagents (`*.md`): per-language `*-reviewer` + `*-build-resolver`, the `gan-{planner,generator,evaluator}` trio, `architect`, `code-explorer`, `chief-of-staff`, etc. |
+| `agents/` | `~/.claude/agents/` | **67** subagents (`*.md`): per-language `*-reviewer` + `*-build-resolver`, the `gan-{planner,generator,evaluator}` trio, `architect`, `code-explorer`, `comms-secretary`, etc. |
 | `rules/` | `~/.claude/CLAUDE.md` | 6 always-on rule files, concatenated filename-sorted: `00-core`, `02-harnesses`, `03-apex`, `04-response-mode`, `05-github-workflow`, `07-progress-file`. |
 | `commands/` | `~/.claude/commands/` | 4 slash commands: `/new-skill`, `/revise-claude-md`, `/skill-audit`, `/sync-skills`. |
 | `hooks/` | `~/.claude/hooks/` | The 2 global hooks + auto-registration into settings. |
