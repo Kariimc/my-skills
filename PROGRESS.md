@@ -1,8 +1,59 @@
 # PROGRESS — session handoff
 
-> Last updated: 2026-07-29.
+> Last updated: 2026-07-31.
 
-## Latest (2026-07-29, cloud) — fusion is MERGED and live in every session
+## Latest (2026-07-31, local) — CHIEF OF STAFF IS LIVE (shadow mode); comms agent renamed
+
+**DONE (verified):** the email/Slack/LINE/Messenger triage agent `chief-of-staff` is now
+`comms-secretary` — file renamed, frontmatter `name:` updated, and all 5 repo references
+fixed (agents/README.md table row moved to its alphabetical slot, ARCHITECTURE.md,
+skills/plan-orchestrate/SKILL.md, skills/skill-launcher/skills.json + skill-launcher.html).
+Commit `bbf5809` on master, all apex gates green locally, CI run green, pushed. Live
+`~/.claude/agents/` re-synced via the session-start sync script and verified: only
+`comms-secretary.md` present, old name gone. Agent count unchanged at 73. Stale references
+remain ONLY inside `.claude/worktrees/*` snapshots (old checkouts — not live, not shipped).
+
+**WHY:** Kariim is standing up a new "Chief of Staff" system — a global judge-and-orchestrator
+gate that reviews every agent's deliverable before it reaches him. The `chief-of-staff` agent
+name is now free for that role.
+
+**BUILT ON KARIIM'S EXPLICIT GO (same day):** the Chief of Staff is live in SHADOW MODE.
+What shipped (all in this commit):
+- `agents/chief-of-staff.md` — the CoS agent (model: fable; judge protocol, Intent Contracts at
+  `~/.claude/cos/contracts/`, AAA bar judged vs Kariim's standards + live-web best-in-class,
+  evidence-or-bounce, 3-round bounce loop, budget discipline ~10% of weekly allowance, staffing
+  ledger at `~/.claude/cos/performance-ledger.md`, system-auditor duty, loud
+  `=== CHIEF OF STAFF REPORT ===` banner protocol).
+- `rules/15-chief-of-staff.md` — global law: chain of command Kariim → CoS → all agents; every
+  non-trivial deliverable gets a CoS verdict before reaching Kariim; shadow until he flips.
+- `bin/agent-contract-sync.sh` — operating-rules block gained rule 8 (chain of command);
+  re-ran it: **updated 74 of 74 agents, --check passes**. No agent can claim ignorance.
+- Counts fixed: agents/README.md 73→74 (+ chief-of-staff row), ARCHITECTURE.md agents row
+  67 (stale)→74.
+- Shadow/enforce switch: `~/.claude/cos/ENFORCE` file = enforcement on; absent = shadow.
+  ONLY Kariim orders that flip. No enforcement hook exists yet — that ships at flip time.
+
+**Kariim's directives captured this session (2026-07-31, binding):** no agent may disobey the
+CoS (disobedience = demotion, rogue = roster removal); only AAA-ultra-premium reaches his desk,
+judged by his standards + community/live-web standards, NEVER by the producing agent; system
+fails closed and self-heals, he gets proof-backed reports, never broken work; CoS audits the
+whole system continuously and proposes level-ups (underused skills → exact max-level steps;
+missing capability → acquire WITH approval only); CoS reports announce themselves loudly
+(banner protocol); email-triage agent renamed comms-secretary to free the CoS title; the
+FLAGSHIP FREEZE was consciously overridden by his GO for this one system.
+
+**NEXT STEPS (exact):** 1) CoS runs in shadow on every surface from next session start
+(rule + agent sync automatically). 2) When Kariim orders enforcement: build the fail-closed
+verdict-gate hook + the spend meter (from session-log token counts), then create
+`~/.claude/cos/ENFORCE`. 3) CoS's own first audit digest should propose: meter script,
+certification quiz machinery, and per-agent lesson injection — each with cost/benefit for
+Kariim's yes.
+
+**OPEN DECISIONS:** (a) judge effort — Kariim said "Fable 5 low"; standing 2026-07-22 decree
+says final verification HIGH; shipped default = screening LOW / final gate HIGH unless he says
+"all low". (b) shadow-mode length and deputy criteria: CoS proposes later, Kariim decides.
+
+## Previous (2026-07-29, cloud) — fusion is MERGED and live in every session
 
 Two PRs, both squashed to master on Kariim's explicit "merge it", all CI green before
 each merge: **#82 at `61e6879`** (the skill) and **#83 at `8f2eace`** (always-load +

@@ -1,6 +1,6 @@
 # Agents
 
-73 specialist subagents, one `.md` file each. Synced to `~/.claude/agents/` by the SessionStart hook (see the repo-root `README.md`), so they are callable from every project via the `Agent` tool.
+74 specialist subagents, one `.md` file each. Synced to `~/.claude/agents/` by the SessionStart hook (see the repo-root `README.md`), so they are callable from every project via the `Agent` tool.
 
 Each file is standard Claude Code subagent frontmatter — `name`, `description`, `tools`, `model` — followed by the agent prompt. Imported from [affaan-m/ECC](https://github.com/affaan-m/ECC) (MIT); see [`../skills/ATTRIBUTION.md`](../skills/ATTRIBUTION.md).
 
@@ -10,6 +10,7 @@ Each file is standard Claude Code subagent frontmatter — `name`, `description`
 | `agent-evaluator` | Evaluates agent output against 5-axis quality rubric (accuracy, completeness, clarity, actionability, conciseness). Use after a… |
 | `architect` | Software architecture specialist for system design, scalability, and technical decision-making. Use PROACTIVELY when planning n… |
 | `build-error-resolver` | Build and TypeScript error resolution specialist. Use PROACTIVELY when build fails or type errors occur. Fixes build/type error… |
+| `chief-of-staff` | Kariim's Chief of Staff — the standing judge-and-orchestrator gate over every agent's work. Reviews every non-trivial deliverab… |
 | `code-architect` | Designs feature architectures by analyzing existing codebase patterns and conventions, then providing implementation blueprints… |
 | `code-explorer` | Deeply analyzes existing codebase features by tracing execution paths, mapping architecture layers, and documenting dependencie… |
 | `code-reviewer` | Expert code review specialist. Proactively reviews code for quality, security, and maintainability |

@@ -16,7 +16,7 @@ provable from the repo alone - fill them in, do not guess.
 | Visibility | public |
 | Language | Python |
 | Files | 1335 |
-| Last commit | 2026-07-15 - docs: rules README lists 01, 09, 10 - table had drifted from its own f |
+| Last commit | 2026-07-31 - cos: Chief of Staff live in shadow mode (agent + rule 15 + clause in all 74 agents; see PROGRESS.md Latest) |
 | Branches | 26 |
 | Open PRs | 3 |
 

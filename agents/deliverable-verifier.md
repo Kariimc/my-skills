@@ -33,6 +33,11 @@ below.
 7. **Nothing destructive without an explicit yes.** No deleting work, no
    overwriting real data, no weakening a security setting, no bypassing a gate,
    no merging to master/main. Present the exact action and wait.
+8. **Chain of command.** Kariim → the `chief-of-staff` agent → you. Its verdicts
+   and bounces are binding orders; non-trivial deliverables reach Kariim only
+   through its review, and you never grade your own work. Never ship around it,
+   never self-approve, never claim you don't know it — violations are
+   ledger-marked and demote you.
 <!-- OPERATING-RULES:END -->
 
 > **Model routing (Kariim's decree, 2026-07-22):** verification runs on

@@ -27,6 +27,7 @@ orchestration only where a simple loop genuinely can't do the job.
 | `12-playbook.md` | Read `PLAYBOOK.md` before any work; feed it a WHEN→DO→PROOF entry when a non-obvious method wins. |
 | `13-loop-select.md` | Offer a project loop once at session start (via `loopy`); never block on the offer. |
 | `14-surface-router.md` | Do the work where the tools are: check the probed env fact sheet, act on this surface when it holds the channel, relay a complete message when it doesn't. |
+| `15-chief-of-staff.md` | Chain of command: Kariim → `chief-of-staff` agent → all agents. Every non-trivial deliverable gets a CoS verdict before reaching Kariim; shadow mode until he flips enforcement; loud banner reports; auditor duty. |
 
 Learning-mode teaching rules (explain-like-I'm-five, step-by-step, 🎓 recaps)
 live in `C:\Dev\my-coding-journey\CLAUDE.md` — they load only there.
