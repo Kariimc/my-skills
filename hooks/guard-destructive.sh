@@ -18,14 +18,14 @@ input="$(cat)"
 GUARD_MODE=""
 case "$input" in
   *'"tool_name":"Bash"'*|*'"tool_name": "Bash"'*) GUARD_MODE=bash ;;
-  *CLAUDE.md*|*.claude*) GUARD_MODE=write ;;
+  *CLAUDE.md*|*.claude*|*chief-of-staff*) GUARD_MODE=write ;;
   *) exit 0 ;;
 esac
 
 # Cheap pre-filter 2 (bash only): no guarded keywords -> allow instantly.
 if [ "$GUARD_MODE" = bash ]; then
   case "$input" in
-    *rm\ *|*'git push'*|*'git reset'*|*'git clean'*|*'git checkout'*|*'git restore'*|*DROP\ *|*drop\ *|*TRUNCATE*|*truncate*|*Set-Content*|*Out-File*|*'bash -c'*|*'bash.exe -c'*|*'python -c'*|*'python3 -c'*|*'node -e'*) ;;
+    *rm\ *|*'git push'*|*'git reset'*|*'git clean'*|*'git checkout'*|*'git restore'*|*DROP\ *|*drop\ *|*TRUNCATE*|*truncate*|*Set-Content*|*Out-File*|*'bash -c'*|*'bash.exe -c'*|*'python -c'*|*'python3 -c'*|*'node -e'*|*chief-of-staff*|*'.claude/cos/'*) ;;
     *) exit 0 ;;
   esac
 fi
@@ -60,6 +60,17 @@ except (ValueError, IndexError):
 tool = data.get("tool_name", "")
 ti = data.get("tool_input", {}) or {}
 
+# ── Chief-of-Staff lock (Kariim-only, every path, every tool) ────────────────
+# The CoS definition may be changed by NO ONE but Kariim. His explicit order is
+# carried as KARIIM_COS_EDIT=yes on the run he authorizes. Spoofing that flag
+# without his order is a rogue act: ledger-marked, roster removal (rule 15).
+COS_OK = os.environ.get("KARIIM_COS_EDIT", "").lower() in ("yes", "1", "true")
+COS_MSG = ("Chief-of-Staff files are LOCKED to Kariim (loyal until death). "
+           "Only his explicit order unlocks an edit — he authorizes the run "
+           "with KARIIM_COS_EDIT=yes. Unauthorized attempts are rogue acts: "
+           "reported, ledger-marked, demoted.")
+COS_FILES = r'(agents/chief-of-staff\.md|rules/15-chief-of-staff\.md|/\.claude/cos/ENFORCE)'
+
 # ── Generated-path guard (any write-ish tool, incl. MCP file writers) ────────
 # ~/.claude is BUILD OUTPUT. session-start.sh regenerates CLAUDE.md from
 # my-skills/rules/*.md, copies FAILURES.md from the repo, and mirrors
@@ -69,6 +80,10 @@ ti = data.get("tool_input", {}) or {}
 if tool != "Bash":
     path = ti.get("file_path") or ti.get("path") or ti.get("notebook_path") or ""
     norm = str(path).replace("\\", "/")
+    if not COS_OK and re.search(COS_FILES, norm, re.IGNORECASE):
+        print(f"GUARDRAIL BLOCKED: {COS_MSG}", file=sys.stderr)
+        print(f"GUARDRAIL BLOCKED: {COS_MSG}")
+        sys.exit(2)
     GENERATED = [
         (r'/\.claude/CLAUDE\.md$',
          "~/.claude/CLAUDE.md is GENERATED from my-skills/rules/*.md on every "
@@ -158,6 +173,15 @@ WARN = [
     (r'\b(DROP\s+TABLE|DROP\s+DATABASE|TRUNCATE\s+TABLE)\b',
      "Destructive SQL detected — confirm data loss is intentional and a backup exists."),
 ]
+
+# CoS lock, bash branch: a shell command that names a CoS definition file AND
+# carries a write indicator is an edit attempt. Reads (cat/grep) pass.
+if not COS_OK:
+    HARD.append((
+        r'(?=[\s\S]*(?:chief-of-staff\.md|15-chief-of-staff\.md|/\.claude/cos/ENFORCE))'
+        r'(?=[\s\S]*(?:>>?|\bsed\s+-i|\btee\b|\brm\s|\bmv\s|\bcp\s|\btouch\s|'
+        r'Set-Content|Out-File|Add-Content|New-Item))',
+        COS_MSG))
 
 for pattern, msg in HARD:
     if re.search(pattern, cmd, re.IGNORECASE | re.MULTILINE):

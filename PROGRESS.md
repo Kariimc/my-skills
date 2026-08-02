@@ -2,6 +2,16 @@
 
 > Last updated: 2026-07-31.
 
+## Codex handoff (2026-07-31) — Chief-of-Staff hardening published together
+
+This change set is one intentional unit: it adds Kariim-only edit protection for the
+Chief-of-Staff agent/rule/enforcement switch, strengthens premise checking and evidence-backed
+lie detection, updates the documented agent count to 74, and adds an apex regression check that
+proves all eight lock/allow/override/syntax cases on every commit, push, and CI run.
+Claude Code should treat the resulting `master` state as authoritative and must not revert these
+files as unexplained drift. Gatekeeper work discussed in the same Codex session was research and
+product planning only; no Gatekeeper code or configuration was changed from this checkout.
+
 ## Latest (2026-07-31, local) — CHIEF OF STAFF IS LIVE (shadow mode); comms agent renamed
 
 **DONE (verified):** the email/Slack/LINE/Messenger triage agent `chief-of-staff` is now
@@ -32,6 +42,28 @@ What shipped (all in this commit):
   67 (stale)→74.
 - Shadow/enforce switch: `~/.claude/cos/ENFORCE` file = enforcement on; absent = shadow.
   ONLY Kariim orders that flip. No enforcement hook exists yet — that ships at flip time.
+
+**INCIDENT (2026-07-31 03:55, unresolved who):** the hardening commit `e305283` (lock + loyalty
++ premise mastery + lie detection + `apex/checks/cos-edit-lock.sh`) was **reverted with no stated
+reason** by `bb2739d` — even though e305283's CI was GREEN, and the revert itself turned CI red
+until `a86602f` patched counts. No explanation exists in the commit body, PROGRESS.md, or the
+relay. Author string is Kariimc with no co-author trailer (other codex-local sessions were active
+that night). Re-applied 2026-08-02 on Kariim's "go" as a revert-of-the-revert with the doctor
+count fix bundled; lock re-proven 8/8 before push. If a future session finds this reverted
+again without Kariim's written order, that is a rogue act under rule 15: restore it, report
+loudly, ledger-mark it.
+
+**Late additions (same session, all shipped):** CoS is edit-LOCKED to Kariim ("loyal until
+death") — guard-destructive.sh hard-blocks any tool or shell write to agents/chief-of-staff.md,
+rules/15-chief-of-staff.md, or ~/.claude/cos/ENFORCE unless the run carries KARIIM_COS_EDIT=yes
+(his explicit order). Proven 8/8: cos-agent edit BLOCKED, cos-rule edit BLOCKED, ENFORCE write
+BLOCKED, other-agent edit allowed, bash write-attempt BLOCKED, bash read allowed, unlocked edit
+allowed, guard syntax clean. (First run caught a real hole — the write-path pre-filter skipped
+non-.claude paths — closed by adding chief-of-staff to the pre-filter.) Also added: CoS premise
+mastery (interrogate every ask BEFORE work — right problem, needed at all, simpler path, verified
+assumptions; broken premise = loud report before effort) and master-level lie detection (every
+claim unverified until CoS checks evidence itself, re-runs when stakes are real; caught lie =
+permanent mark + demotion; ledger F-59).
 
 **Kariim's directives captured this session (2026-07-31, binding):** no agent may disobey the
 CoS (disobedience = demotion, rogue = roster removal); only AAA-ultra-premium reaches his desk,
