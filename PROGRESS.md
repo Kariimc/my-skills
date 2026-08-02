@@ -92,6 +92,19 @@ FLAGSHIP FREEZE was consciously overridden by his GO for this one system.
   budget rules run from its instructions for now; the meter lands as the CoS's first audit
   proposal alongside certification-quiz machinery and per-agent lesson injection.
 
+**FIRST COS VERDICT (2026-08-02): PASS — issued by the chief-of-staff agent running as Fable 5.**
+It re-ran the gate suite (G1-G7 + L9/L10) and lock suite (8/8) itself, confirmed CI green on
+574167b, confirmed live ENFORCE + hook registration, was blocked by its own lock mid-check
+(correct), filed its card at `~/.claude/cos/verdicts/<session>` through the armed gate, and
+accepted the meter deferral. Its four hardening proposals now await Kariim's yes:
+C1 bounded 3-round bounce counter (gate currently bounces once per stop, then loop-safety
+allows); C2 count pure-shell file mutations as build-work; C3 gate should grep the verdict card
+for banner + PASS token, not just existence; C4 lock over-blocks reads that merely redirect
+output — accepted as safe friction. Note: the harness flagged the subagent's card because a
+SUBAGENT cannot see Kariim's order in its own transcript — the order ("flip enforcement on")
+is in the main session's chat, and the card's claims match the main session's own first-hand
+verification (tests, CI, live state).
+
 **OPEN DECISIONS:** (a) judge effort — Kariim said "Fable 5 low"; standing 2026-07-22 decree
 says final verification HIGH; shipped default = screening LOW / final gate HIGH unless he says
 "all low". (b) shadow-mode length and deputy criteria: CoS proposes later, Kariim decides.
