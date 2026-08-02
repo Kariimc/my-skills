@@ -74,12 +74,23 @@ missing capability → acquire WITH approval only); CoS reports announce themsel
 (banner protocol); email-triage agent renamed comms-secretary to free the CoS title; the
 FLAGSHIP FREEZE was consciously overridden by his GO for this one system.
 
-**NEXT STEPS (exact):** 1) CoS runs in shadow on every surface from next session start
-(rule + agent sync automatically). 2) When Kariim orders enforcement: build the fail-closed
-verdict-gate hook + the spend meter (from session-log token counts), then create
-`~/.claude/cos/ENFORCE`. 3) CoS's own first audit digest should propose: meter script,
-certification quiz machinery, and per-agent lesson injection — each with cost/benefit for
-Kariim's yes.
+**ENFORCEMENT FLIPPED ON (2026-08-02, Kariim's explicit "flip enforcement on"):**
+- `hooks/cos-verdict-gate.sh` — Stop hook, fail-closed: with the flag armed, a session that did
+  build-work (Edit/Write/NotebookEdit in its transcript) cannot finish until a CoS verdict card
+  exists at `~/.claude/cos/verdicts/<session_id>`. Trivial sessions exempt; loop-safe via
+  stop_hook_active; never blocks blind (unreadable transcript = allow).
+- `cos/ENFORCE` (repo) — the armed switch, records Kariim's order verbatim; session-start now
+  installs it to `~/.claude/cos/ENFORCE` on every surface (install-only, never deletes).
+- Guard widened: `cos/ENFORCE` is now locked at BOTH repo and live paths, all tools + shell
+  (first version only covered the live path — hole found by test, closed).
+- Registered via the standard idempotent 6b2 loop (`cos-verdict-gate.sh:Stop`).
+- PROOF: gate suite 10/10 (no-flag inert, block on unverdicted build-work, trivial exempt,
+  loop-safe, blind-safe, verdict clears, syntax, repo-ENFORCE lock + unlock), original lock
+  suite re-passed 8/8. Test payloads must use `C:/` native paths — git-bash `/c/` forms make
+  Windows python is-file checks fail silently (that was G2's initial false failure).
+- Deliberately deferred (flagged to Kariim, not silent): the spend-meter script — the CoS's
+  budget rules run from its instructions for now; the meter lands as the CoS's first audit
+  proposal alongside certification-quiz machinery and per-agent lesson injection.
 
 **OPEN DECISIONS:** (a) judge effort — Kariim said "Fable 5 low"; standing 2026-07-22 decree
 says final verification HIGH; shipped default = screening LOW / final gate HIGH unless he says

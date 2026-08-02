@@ -1,0 +1,6 @@
+CoS ENFORCEMENT: ON
+Ordered by Kariim in chat — "flip enforcement on" — 2026-08-02.
+Presence of this file arms hooks/cos-verdict-gate.sh (fail-closed, rule 15):
+build-work sessions cannot finish without a recorded Chief of Staff verdict.
+Only Kariim may create, edit, or remove this file. The path is guard-locked;
+an unauthorized touch is a rogue act — reported, ledger-marked, demoted.

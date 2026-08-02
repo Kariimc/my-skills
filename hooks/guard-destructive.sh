@@ -18,14 +18,14 @@ input="$(cat)"
 GUARD_MODE=""
 case "$input" in
   *'"tool_name":"Bash"'*|*'"tool_name": "Bash"'*) GUARD_MODE=bash ;;
-  *CLAUDE.md*|*.claude*|*chief-of-staff*) GUARD_MODE=write ;;
+  *CLAUDE.md*|*.claude*|*chief-of-staff*|*cos/ENFORCE*) GUARD_MODE=write ;;
   *) exit 0 ;;
 esac
 
 # Cheap pre-filter 2 (bash only): no guarded keywords -> allow instantly.
 if [ "$GUARD_MODE" = bash ]; then
   case "$input" in
-    *rm\ *|*'git push'*|*'git reset'*|*'git clean'*|*'git checkout'*|*'git restore'*|*DROP\ *|*drop\ *|*TRUNCATE*|*truncate*|*Set-Content*|*Out-File*|*'bash -c'*|*'bash.exe -c'*|*'python -c'*|*'python3 -c'*|*'node -e'*|*chief-of-staff*|*'.claude/cos/'*) ;;
+    *rm\ *|*'git push'*|*'git reset'*|*'git clean'*|*'git checkout'*|*'git restore'*|*DROP\ *|*drop\ *|*TRUNCATE*|*truncate*|*Set-Content*|*Out-File*|*'bash -c'*|*'bash.exe -c'*|*'python -c'*|*'python3 -c'*|*'node -e'*|*chief-of-staff*|*'.claude/cos/'*|*cos/ENFORCE*) ;;
     *) exit 0 ;;
   esac
 fi
@@ -69,7 +69,7 @@ COS_MSG = ("Chief-of-Staff files are LOCKED to Kariim (loyal until death). "
            "Only his explicit order unlocks an edit — he authorizes the run "
            "with KARIIM_COS_EDIT=yes. Unauthorized attempts are rogue acts: "
            "reported, ledger-marked, demoted.")
-COS_FILES = r'(agents/chief-of-staff\.md|rules/15-chief-of-staff\.md|/\.claude/cos/ENFORCE)'
+COS_FILES = r'(agents/chief-of-staff\.md|rules/15-chief-of-staff\.md|cos/ENFORCE)'
 
 # ── Generated-path guard (any write-ish tool, incl. MCP file writers) ────────
 # ~/.claude is BUILD OUTPUT. session-start.sh regenerates CLAUDE.md from
@@ -178,7 +178,7 @@ WARN = [
 # carries a write indicator is an edit attempt. Reads (cat/grep) pass.
 if not COS_OK:
     HARD.append((
-        r'(?=[\s\S]*(?:chief-of-staff\.md|15-chief-of-staff\.md|/\.claude/cos/ENFORCE))'
+        r'(?=[\s\S]*(?:chief-of-staff\.md|15-chief-of-staff\.md|cos/ENFORCE))'
         r'(?=[\s\S]*(?:>>?|\bsed\s+-i|\btee\b|\brm\s|\bmv\s|\bcp\s|\btouch\s|'
         r'Set-Content|Out-File|Add-Content|New-Item))',
         COS_MSG))

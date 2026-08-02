@@ -310,12 +310,22 @@ if not already:
 PY
 fi
 
+# ── CoS enforcement flag: repo cos/ENFORCE installs to ~/.claude/cos/ ────────
+# Only Kariim commits that file (the path is guard-locked). Install-only: its
+# absence from the repo never deletes a live flag, so Kariim can also arm or
+# pause a single machine by hand.
+if [ -f "$PROJECT_DIR/cos/ENFORCE" ]; then
+  mkdir -p "$CLAUDE_DIR/cos"
+  cp "$PROJECT_DIR/cos/ENFORCE" "$CLAUDE_DIR/cos/ENFORCE" 2>/dev/null || true
+fi
+
 # ── 6b2. Register the newer global hooks (idempotent, same pattern as 6a/6b) ──
 # ledger-sentinel  → UserPromptSubmit (injects matching FAILURES/PLAYBOOK entries)
 # runcard-guard    → Stop            (3D sessions must ship a completed run-card)
 # env-scout        → SessionStart    (probed environment fact sheet into context)
 # archive-session  → Stop            (ephemeral-box transcript archive; inert on the laptop)
-for SPEC in "ledger-sentinel.sh:UserPromptSubmit" "runcard-guard.sh:Stop" "cant-guard.sh:Stop" "env-scout.sh:SessionStart" "archive-session.sh:Stop"; do
+# cos-verdict-gate → Stop            (fail-closed CoS enforcement; inert without ~/.claude/cos/ENFORCE)
+for SPEC in "ledger-sentinel.sh:UserPromptSubmit" "runcard-guard.sh:Stop" "cant-guard.sh:Stop" "env-scout.sh:SessionStart" "archive-session.sh:Stop" "cos-verdict-gate.sh:Stop"; do
   H_NAME="${SPEC%%:*}"; H_EVENT="${SPEC##*:}"
   H_PATH="$CLAUDE_DIR/hooks/$H_NAME"
   if command -v python3 >/dev/null 2>&1 && [ -f "$H_PATH" ]; then
