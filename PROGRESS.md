@@ -64,7 +64,13 @@ What shipped (all in this commit):
 - Shadow/enforce switch: `~/.claude/cos/ENFORCE` file = enforcement on; absent = shadow.
   ONLY Kariim orders that flip. No enforcement hook exists yet — that ships at flip time.
 
-**INCIDENT (2026-07-31 03:55, unresolved who):** the hardening commit `e305283` (lock + loyalty
+**INCIDENT — RESOLVED 2026-08-04:** the relay log (entry 2026-07-31 codex-local) explains it:
+a codex-local session reverted e305283 after Kariim clarified, at that moment, that the CoS
+changes belonged to Claude Code's in-progress system — a coordination call, NOT a rogue act.
+Kariim's later explicit orders ("go", "flip enforcement on", every CoS order since) authorize
+the re-application, which stands. No rogue actor existed; the record below is kept for history.
+
+**INCIDENT (2026-07-31 03:55, original note, now resolved above):** the hardening commit `e305283` (lock + loyalty
 + premise mastery + lie detection + `apex/checks/cos-edit-lock.sh`) was **reverted with no stated
 reason** by `bb2739d` — even though e305283's CI was GREEN, and the revert itself turned CI red
 until `a86602f` patched counts. No explanation exists in the commit body, PROGRESS.md, or the
