@@ -1,6 +1,6 @@
 # Agents
 
-74 specialist subagents, one `.md` file each. Synced to `~/.claude/agents/` by the SessionStart hook (see the repo-root `README.md`), so they are callable from every project via the `Agent` tool.
+75 specialist subagents, one `.md` file each. Synced to `~/.claude/agents/` by the SessionStart hook (see the repo-root `README.md`), so they are callable from every project via the `Agent` tool.
 
 Each file is standard Claude Code subagent frontmatter — `name`, `description`, `tools`, `model` — followed by the agent prompt. Imported from [affaan-m/ECC](https://github.com/affaan-m/ECC) (MIT); see [`../skills/ATTRIBUTION.md`](../skills/ATTRIBUTION.md).
 
@@ -78,4 +78,5 @@ Each file is standard Claude Code subagent frontmatter — `name`, `description`
 | `tdd-guide` | Test-Driven Development specialist enforcing write-tests-first methodology. Use PROACTIVELY when writing new features, fixing b… |
 | `type-design-analyzer` | Analyze type design for encapsulation, invariant expression, usefulness, and enforcement |
 | `typescript-reviewer` | Expert TypeScript/JavaScript code reviewer specializing in type safety, async correctness, Node/web security, and idiomatic pat… |
+| `video-producer` | Executive producer and editor for Kariim's YouTube channel @bringupdesk (Bring Up Desk). Creates and edits full episodes and "O… |
 | `vue-reviewer` | Expert Vue.js code reviewer specializing in Composition API correctness, reactivity pitfalls, component architecture, template… |
