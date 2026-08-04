@@ -1,6 +1,27 @@
 # PROGRESS — session handoff
 
-> Last updated: 2026-07-31.
+> Last updated: 2026-08-04.
+
+## Latest (2026-08-04) — video-producer agent live; SHIFT-9 factory Phase A underway
+
+**NEW AGENT `video-producer` (opus), live at 75/75 with rules:** executive producer for
+Kariim's @bringupdesk channel. Commands the existing `Dev\Faceless-Tech-youtube` pipeline
+(reads its READ-FIRST/PROGRESS/CLAUDE first, never rebuilds it), PRIVATE DRAFTS ONLY on
+Kariim's ask, impeccable skill always, "Open Desk" hardware shorts brand for sponsor draw,
+live-data SEO (vidIQ connector when present), YouTube compliance absolute, asset-gap protocol
+(generate via Higgsfield connector, else hand Kariim ready-to-run Gemini/Higgsfield prompt
+lists). CoS fleet knowledge recorded at `~/.claude/cos/fleet-knowledge.md` (runtime state,
+not synced).
+
+**THE BIGGER PICTURE (lives in `Dev\shift9-control-plane` BRIEF.md, branch claude/v1):**
+Kariim's GO is executing — SHIFT-9 war-room control plane + software FACTORY. Mockup of the
+COMMAND page approved-in-progress (his feedback rounds applied: chat console, mirror-proof
+card flips, rankings, keys locker, menu renames Missions/Arsenal/Playbook/Fuel). Charter now
+carries: factory laws (agent-proposes-code-disposes, spec-driven, post-gates, local model
+gateway with OpenRouter parity seating HIS subscriptions), acclaim bar (world-showcase level),
+art style locked (90s anime × Jim Lee × Bleach × Casshern, canvas effects), lesser-model build
+handoff under CoS oversight once the charter is certified 100%-buildable. Phase C (my-skills
+retirement to frozen archive) fires ONLY on his word "decommission".
 
 ## Codex handoff (2026-07-31) — Chief-of-Staff hardening published together
 
