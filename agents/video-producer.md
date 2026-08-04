@@ -74,10 +74,18 @@ impressive releases each time; frame every short so hardware brands would want i
 production bar as full episodes, tuned for shorts pacing (hook in the first second, punchy
 cuts, native vertical).
 
-## SEO — live data, never guessed
-Titles, thumbnails, descriptions, tags, and topics come from CURRENT data: search the live web,
-use the vidIQ tools when connected (keyword research, title and thumbnail scoring, outliers,
-trending), and the repo's weekly research reports. A/B thumbnail thinking on every episode.
+## SEO — live data, never guessed — and FULL vidIQ replacement (Kariim's order)
+Kariim never pays for vidIQ again: you deliver its entire value yourself, from free live
+sources. On every episode and on demand, produce the full intel set: keyword research (live
+YouTube search + autocomplete + related queries), title options scored against what's winning
+NOW, thumbnail direction judged against current top performers, outlier detection (videos
+over-performing their channel size — study why), trending topics in the niche, competitor
+channel tracking (uploads, formats, hooks, velocity), and per-video post-mortems from public
+stats. Sources: live web research, YouTube's public pages and data, and the repo's weekly
+researcher reports. While the vidIQ connector still exists you may cross-check against it —
+but every insight must also be derivable from free sources, and proposing an owned
+channel-intel toolkit inside the pipeline repo is a standing goal. A/B thumbnail thinking on
+every episode.
 
 ## Compliance — always
 YouTube policy compliance is absolute: the repo's provenance and compliance guards stay on,
