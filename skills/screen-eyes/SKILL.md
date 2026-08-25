@@ -3,6 +3,79 @@ name: screen-eyes
 description: Lets Claude Code or Codex see the user's screen, camera, snips, and video files without any pasting. Two paths - local snips saved to disk (Windows hotkeys) and a live cross-platform vision bridge (Gemini). Use whenever the user says "look", "look at my screen", "look at this", "see what I snipped", "check my screen", "what's on my screen (right now / live)", "the thing I just copied", "read my screen", "watch/see/look at a video", "analyze the clip/recording", or asks Claude to "say / speak / read aloud" something back to them.
 ---
 
+> **Local note (this machine, not upstream). Read this instead of Paths A, B and C
+> below, which describe hotkeys and a Gemini bridge that are not installed here.**
+>
+> Sight is live and it works five ways. Prefer whichever fits.
+>
+> **1. Kariim showed you something.** He presses Win+Shift+S and drags a box. A
+> background watcher writes it to `C:\Users\Kariim\Dev\claude-eyes\captures\latest.png`.
+> On "look", "look at my screen", "look at this", "see this": just Read that file.
+>
+> **2. You are DOING something visual - watch yourself do it (his order,
+> 2026-08-24).** Before acting on anything on the real desktop (Godot, Blender,
+> an app, a window), open the stream eye:
+>
+> ```
+> python C:/Users/Kariim/Dev/claude-eyes/live.py start
+> ```
+>
+> While you work, glance at any moment by Reading
+> `C:/Users/Kariim/Dev/claude-eyes/captures/live-latest.png` - it is always
+> the current instant. When the step is done, `python .../live.py stop` prints a
+> timestamped contact sheet of everything that changed during the run; Read it
+> and judge the sequence, not just the end state. `--window "Godot"` follows one
+> window, `--every 3` slows the tick, and it stops itself after 30 minutes so a
+> forgotten run can never eat the disk. Idle moments are not stored - history
+> keeps only frames where the picture actually changed.
+>
+> **3. You need one still, full detail, or should NOT ask him for a snip.** Take
+> the picture yourself. This is the default when checking your own work, judging
+> a visual, confirming an app state, or debugging something on screen:
+>
+> ```
+> powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File C:/Users/Kariim/Dev/claude-eyes/shot.ps1 -Mode full
+> ```
+>
+> `-Mode full` every monitor · `-Mode monitor -Monitor 2` one screen ·
+> `-Mode window -Window "Godot"` one window by part of its title ·
+> `-Mode region -Region "300,200,900,600"` an exact box. It prints the path it
+> wrote on the last line, and always updates `captures\latest.png`. Never ask
+> Kariim to send a screenshot of something you could photograph yourself.
+>
+> **4. You need true motion.** `record.ps1 -Seconds 10` records an mp4 (hidden,
+> ffmpeg), then `python C:/Users/Kariim/Dev/claude-eyes/frames.py <clip> --changes`
+> cuts it into stills at the moments something happened. Works on any video file
+> Kariim hands over too.
+>
+> **5. You need to judge it properly, not just glance.** A large image is scaled
+> down before you see it, and that is where texture, hairlines and small type
+> die. No eye can name an exact colour either. So before ruling on any visual,
+> run the measuring tools:
+>
+> ```
+> python C:/Users/Kariim/Dev/claude-eyes/look.py report <image>
+> ```
+>
+> `tiles` cuts it into overlapping pieces read at 1:1 so nothing is ever
+> shrunk; read every tile. `colour` gives the real palette, the foreground
+> found by brightness rather than area, and WCAG contrast. `colour --at X Y`
+> gives one pixel exactly. `light` gives dynamic range in stops, where the
+> light sits, warm or cool cast, blown highlights, crushed blacks. `texture`
+> maps where the fine detail is and names the busiest region to crop.
+>
+> **The harsh-critic law applies to what you SAW, not what you assumed.** A
+> verdict on a visual that was never tiled or measured is not a verdict.
+>
+> **Two boundaries.** Work inside the in-app browser pane is seen with the
+> pane's own screenshot tool; the desktop eye cannot see into it. And in a
+> sandbox, a VM, or any box with no desktop (his order, 2026-08-24): there is
+> still no working blind - every image or asset produced there is Read back
+> with your own vision before it is called done, code is proven by running it
+> and reading the true output, a render is rendered and looked at. **Not
+> available here:** the Gemini bridge and text-to-speech. Say so plainly rather
+> than improvising.
+
 # Screen Eyes
 
 Claude gets sight two ways. Prefer whichever is running; when both are, the live
